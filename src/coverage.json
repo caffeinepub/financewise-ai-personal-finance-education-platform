@@ -1,0 +1,136 @@
+{
+  "kind": "coverage_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-08T08:00:03.793Z",
+  "sources": {
+    "buildRequest": true,
+    "implementationPlan": true
+  },
+  "requirements": {
+    "total": 8,
+    "implemented": 8,
+    "items": [
+      {
+        "id": "REQ-1",
+        "summary": "Create a new authenticated (private) \"Budget Planner\" page that is only accessible when the user is logged in, matching the existing private-route pattern under AppLayout.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/BudgetPlanner.tsx",
+          "frontend/src/App.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/BudgetPlanner.tsx",
+          "frontend/src/App.tsx"
+        ]
+      },
+      {
+        "id": "REQ-2",
+        "summary": "Implement the Budget Planner input form with a clearly separated Required section and an expandable \"Advanced Details (Optional)\" section that can be skipped, using English labels and helper text that clearly marks optional fields.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/BudgetPlanner.tsx",
+          "frontend/src/types/budget-planner.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/BudgetPlanner.tsx",
+          "frontend/src/types/budget-planner.ts"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Add a progress indicator for the form completion (e.g., \"You're 60% done\") that updates based on completion of required fields and (optionally) advanced fields, and ensure the layout is mobile-first and easy to complete on small screens.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/BudgetPlanner.tsx",
+          "frontend/src/lib/budget-planner/progress.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/BudgetPlanner.tsx",
+          "frontend/src/lib/budget-planner/progress.ts"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Implement \"smart handling\" budgeting logic that can generate a basic plan from only the required inputs; when optional inputs are skipped, apply safe default averages and standard budgeting rules (50/30/20 or 60/30/10) and clearly label all assumptions used in the results.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/lib/budget-planner/budgetLogic.ts",
+          "frontend/src/pages/BudgetPlanner.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/lib/budget-planner/budgetLogic.ts",
+          "frontend/src/pages/BudgetPlanner.tsx"
+        ]
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Build the Budget Output section that includes: income summary, Needs/Wants/Savings allocation, suggested savings amount, visual insights (expense pie chart, savings progress bar, cash flow summary), smart recommendations, a 3-step action plan for the month, and a Finance Health Score out of 100 with a simple explanation.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/BudgetPlanner.tsx",
+          "frontend/src/lib/budget-planner/healthScore.ts",
+          "frontend/src/lib/budget-planner/recommendations.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/BudgetPlanner.tsx",
+          "frontend/src/lib/budget-planner/healthScore.ts",
+          "frontend/src/lib/budget-planner/recommendations.ts"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Add UX and privacy-first messaging on the Budget Planner page explaining that the tool is private and that users can generate a plan with minimal data; ensure the tone is friendly and non-judgmental throughout.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/BudgetPlanner.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/BudgetPlanner.tsx"
+        ]
+      },
+      {
+        "id": "REQ-7",
+        "summary": "Add an optional \"Reminder setup\" affordance in the Action Plan section that does not rely on push notifications, SMS, email, or external services (e.g., a simple local-only reminder UI or a downloadable calendar reminder file).",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/lib/budget-planner/reminderIcs.ts",
+          "frontend/src/pages/BudgetPlanner.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/lib/budget-planner/reminderIcs.ts",
+          "frontend/src/pages/BudgetPlanner.tsx"
+        ]
+      },
+      {
+        "id": "REQ-8",
+        "summary": "Update the authenticated app navigation to include a \"Budget Planner\" entry that routes to the new private Budget Planner page, consistent with the existing sidebar/mobile menu patterns.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/AppLayout.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/AppLayout.tsx"
+        ]
+      }
+    ]
+  },
+  "changedFiles": [
+    "build-request.json",
+    "feature_evidence.json",
+    "frontend-file-summaries.txt",
+    "frontend-implementation-plan.json",
+    "frontend/src/App.tsx",
+    "frontend/src/components/AppLayout.tsx",
+    "frontend/src/lib/budget-planner/budgetLogic.ts",
+    "frontend/src/lib/budget-planner/healthScore.ts",
+    "frontend/src/lib/budget-planner/progress.ts",
+    "frontend/src/lib/budget-planner/recommendations.ts",
+    "frontend/src/lib/budget-planner/reminderIcs.ts",
+    "frontend/src/pages/BudgetPlanner.tsx",
+    "frontend/src/types/budget-planner.ts",
+    "project_state.json",
+    "scratch/component-selection.json",
+    "spec.md",
+    "spec_vs_diff_report.json"
+  ]
+}

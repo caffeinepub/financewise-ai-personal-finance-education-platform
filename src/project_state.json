@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "Build a private Finance Budget Planner web page that collects essential inputs with optional advanced sections, applies smart default budgeting rules when data is missing, and outputs a personalized budget with visuals, recommendations, action plan, and a finance health score.",
+  "architectural_notes": [
+    "Planner form should support required minimal inputs plus optional expandable sections with a clear 'skip' path; when optional inputs are missing, use default averages and safe budgeting rules (e.g., 50/30/20 or 60/30/10) and clearly label assumptions in results."
+  ],
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [
+    {
+      "id": "feature-create-a-new-authenticated-private-budget-planner-page-that-is-only-accessible-when-the-user-is-logged-in-matching-the-existing-private-route-pattern-under-applayout",
+      "title": "Create a new authenticated (private) \"Budget Planner\" page that is only accessible when the user is logged in, matching the existing private-route pattern under AppLayout.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-the-budget-planner-input-form-with-a-clearly-separated-required-section-and-an-expandable-advanced-details-optional-section-that-can-be-skipped-using-english-labels-and-helper-text-that-clearly-marks-optional-fields",
+      "title": "Implement the Budget Planner input form with a clearly separated Required section and an expandable \"Advanced Details (Optional)\" section that can be skipped, using English labels and helper text that clearly marks optional fields.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-progress-indicator-for-the-form-completion-e-g-you-re-60-done-that-updates-based-on-completion-of-required-fields-and-optionally-advanced-fields-and-ensure-the-layout-is-mobile-first-and-easy-to-complete-on-small-screens",
+      "title": "Add a progress indicator for the form completion (e.g., \"You're 60% done\") that updates based on completion of required fields and (optionally) advanced fields, and ensure the layout is mobile-first and easy to complete on small screens.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-smart-handling-budgeting-logic-that-can-generate-a-basic-plan-from-only-the-required-inputs-when-optional-inputs-are-skipped-apply-safe-default-averages-and-standard-budgeting-rules-50-30-20-or-60-30-10-and-clearly-label-all-assumptions-used-in-the-results",
+      "title": "Implement \"smart handling\" budgeting logic that can generate a basic plan from only the required inputs; when optional inputs are skipped, apply safe default averages and standard budgeting rules (50/30/20 or 60/30/10) and clearly label all assumptions used in the results.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-build-the-budget-output-section-that-includes-income-summary-needs-wants-savings-allocation-suggested-savings-amount-visual-insights-expense-pie-chart-savings-progress-bar-cash-flow-summary-smart-recommendations-a-3-step-action-plan-for-the-month-and-a-finance-health-score-out-of-100-with-a-simple-explanation",
+      "title": "Build the Budget Output section that includes: income summary, Needs/Wants/Savings allocation, suggested savings amount, visual insights (expense pie chart, savings progress bar, cash flow summary), smart recommendations, a 3-step action plan for the month, and a Finance Health Score out of 100 with a simple explanation.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-ux-and-privacy-first-messaging-on-the-budget-planner-page-explaining-that-the-tool-is-private-and-that-users-can-generate-a-plan-with-minimal-data-ensure-the-tone-is-friendly-and-non-judgmental-throughout",
+      "title": "Add UX and privacy-first messaging on the Budget Planner page explaining that the tool is private and that users can generate a plan with minimal data; ensure the tone is friendly and non-judgmental throughout.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-optional-reminder-setup-affordance-in-the-action-plan-section-that-does-not-rely-on-push-notifications-sms-email-or-external-services-e-g-a-simple-local-only-reminder-ui-or-a-downloadable-calendar-reminder-file",
+      "title": "Add an optional \"Reminder setup\" affordance in the Action Plan section that does not rely on push notifications, SMS, email, or external services (e.g., a simple local-only reminder UI or a downloadable calendar reminder file).",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-authenticated-app-navigation-to-include-a-budget-planner-entry-that-routes-to-the-new-private-budget-planner-page-consistent-with-the-existing-sidebar-mobile-menu-patterns",
+      "title": "Update the authenticated app navigation to include a \"Budget Planner\" entry that routes to the new private Budget Planner page, consistent with the existing sidebar/mobile menu patterns.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Create a private Finance Budget Planner page with required inputs, expandable optional advanced details, smart default budgeting logic, and rich budget outputs (charts, recommendations, action plan, finance health score, privacy-first UX, progress indicator).",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "projectName": "Add private Finance Budget Planner page with optional advanced inputs and smart budget output",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

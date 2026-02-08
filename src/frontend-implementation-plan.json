@@ -1,0 +1,174 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Private Budget Planner page with optional advanced inputs and smart budget output",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Add a new authenticated private-route page for Budget Planner under AppLayout with no public access path.",
+      "acceptanceCriteria": [
+        "A new route exists under the authenticated AppLayout section (private routes) and renders the Budget Planner page.",
+        "If the user is not authenticated, existing AppLayout behavior redirects to /login (no public access path to the Budget Planner page)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/BudgetPlanner.tsx",
+          "operation": "create",
+          "description": "Create the new private Budget Planner page shell (authenticated-area page) and ensure it renders within the existing AppLayout private area. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Register the new /budget-planner route under the existing privateLayoutRoute (AppLayout) so it is protected by the existing authentication redirect behavior. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Build the Budget Planner form with a clearly separated Required section and a collapsed-by-default expandable Advanced Details (Optional) section with explicit Skip.",
+      "acceptanceCriteria": [
+        "Required section includes: Primary monthly income, currency, core expenses (Rent/Home EMI optional if not applicable, Food & groceries, Transport), and savings preference (desired savings as amount or % and goal type short-term/long-term).",
+        "Advanced section is collapsed by default, can be expanded, and includes the optional groups described (income details, fixed expenses, variable expenses, goals & savings, lifestyle & habits).",
+        "Advanced section has an explicit \"Skip\" action that collapses the section and proceeds without requiring any optional fields.",
+        "All user-facing text is in English and optional fields are visually labeled as optional."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/BudgetPlanner.tsx",
+          "operation": "modify",
+          "description": "Implement the full input UI: Required fields block and an expandable/collapsible \"Advanced Details (Optional)\" block with clear English helper text, optional labels, and an explicit Skip action that collapses and clears/ignores optional fields. Use existing shadcn/ui form primitives already present in the app (e.g., Input, Label, Select, Textarea, Card) by composing them (do not modify files under frontend/src/components/ui). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/types/budget-planner.ts",
+          "operation": "create",
+          "description": "Add local TypeScript types for Budget Planner required/advanced inputs and derived preferences (amount vs % savings target, goal horizon), to keep the page logic explicit and maintainable. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Add a mobile-first form completion progress indicator that updates as fields are completed without blocking generation when advanced fields are skipped.",
+      "acceptanceCriteria": [
+        "A visible progress indicator is present on the Budget Planner page.",
+        "The indicator increases as required fields are completed and does not block generation if advanced fields are skipped.",
+        "On mobile widths, the form fields stack vertically, remain readable, and primary actions remain accessible without horizontal scrolling."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/BudgetPlanner.tsx",
+          "operation": "modify",
+          "description": "Add a visible progress indicator (e.g., \"You're 60% done\") and compute progress from required fields (dominant weight) plus optional advanced fields (lighter weight). Ensure a mobile-first layout with stacked fields and sticky/always-visible primary action area on small screens using existing Tailwind patterns. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/lib/budget-planner/progress.ts",
+          "operation": "create",
+          "description": "Implement deterministic progress calculation helpers for required vs optional completion so UI updates consistently and can be tested easily. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Implement deterministic smart budgeting logic that works with required inputs only, applies safe defaults and standard rules when advanced is skipped, and labels assumptions; format currency using useCurrency.",
+      "acceptanceCriteria": [
+        "The user can generate a budget plan using only the required inputs (with Rent/Home EMI allowed to be blank/disabled when not applicable).",
+        "When optional inputs are empty, the output explicitly lists assumptions (e.g., which rule was applied, which categories used defaults) in a dedicated \"Assumptions\" area.",
+        "The calculations are deterministic and do not require any external API calls.",
+        "Currency formatting uses the app’s existing currency utilities (e.g., useCurrency) for consistent symbols and formatting."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/lib/budget-planner/budgetLogic.ts",
+          "operation": "create",
+          "description": "Add deterministic budgeting helpers to generate a basic plan from required inputs only, choose a standard rule (e.g., 50/30/20 or 60/30/10) based on savings preference, apply safe defaults for missing advanced categories, and return both computed allocations and a structured list of assumptions used. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/BudgetPlanner.tsx",
+          "operation": "modify",
+          "description": "Wire the Generate Budget Plan action to call the local deterministic budgeting helpers and use the existing useCurrency hook for consistent currency formatting in all displayed amounts. Ensure Rent/Home EMI can be marked \"Not applicable\" and excluded safely. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Render Budget Output on the same page with summaries, allocations, visual insights (pie chart, progress bar, cash flow), recommendations, 3-step action plan, and a Finance Health Score with plain-English explanation.",
+      "acceptanceCriteria": [
+        "After the user clicks a \"Generate Budget Plan\" action, a results section renders on the same page (no blank screen), containing all requested subsections.",
+        "Expense pie chart renders using existing charting patterns already used in the app (e.g., Recharts).",
+        "Savings progress bar displays progress toward the desired monthly savings amount (or derived savings target when % is selected).",
+        "Finance Health Score is shown as a number out of 100 and includes a short plain-English explanation of the main factors affecting the score.",
+        "Smart recommendations include at least one actionable suggestion derived from the user’s inputs (or from defaults when data is limited) and are written in a friendly, non-judgmental tone.",
+        "Action plan shows exactly 3 clear steps for the current month."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/BudgetPlanner.tsx",
+          "operation": "modify",
+          "description": "Implement the Budget Output section on the same page: income summary, Needs/Wants/Savings allocation, suggested savings amount, Recharts-based expense pie chart (following patterns from existing pages like Analytics), savings progress bar, cash flow summary, smart recommendations, exactly-3-step action plan, and Finance Health Score out of 100 with a simple explanation. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/lib/budget-planner/healthScore.ts",
+          "operation": "create",
+          "description": "Add deterministic Finance Health Score computation and explanation builder (plain English) derived from income, expenses, and savings target/plan; keep logic local and reproducible. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/lib/budget-planner/recommendations.ts",
+          "operation": "create",
+          "description": "Generate friendly, non-judgmental recommendations and a deterministic 3-step monthly action plan using available inputs (and defaults when limited), ensuring exactly three steps are returned. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Add privacy-first and minimal-data messaging plus friendly, non-judgmental microcopy across the Budget Planner page.",
+      "acceptanceCriteria": [
+        "A visible privacy note is present near the form (English), emphasizing privacy-first behavior and minimal required inputs.",
+        "Microcopy across inputs, validation, and recommendations avoids judgmental language.",
+        "No optional inputs are required to view results."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/BudgetPlanner.tsx",
+          "operation": "modify",
+          "description": "Add a prominent privacy-first note near the form (English) stating the tool is private and can be used with minimal data; review and adjust all labels, helper text, validation messages, and recommendations to keep a friendly, non-judgmental tone; ensure optional inputs never block results. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-7",
+      "summary": "Add an optional local-only Reminder setup affordance in the Action Plan section without external services.",
+      "acceptanceCriteria": [
+        "The Budget Planner results include a \"Reminder\" option that works without any third-party services and without push notifications.",
+        "Using the reminder option does not require additional backend changes or external integrations.",
+        "If the reminder feature is not used, the budget plan remains fully usable."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/lib/budget-planner/reminderIcs.ts",
+          "operation": "create",
+          "description": "Implement a local-only calendar reminder file generator (ICS) and a browser download helper for the Action Plan steps (no external services). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/BudgetPlanner.tsx",
+          "operation": "modify",
+          "description": "Add an optional Reminder UI in the Action Plan section (e.g., \"Download calendar reminder\" for one or more of the 3 steps) using the local ICS generator; ensure the feature is optional and does not affect plan usability. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-8",
+      "summary": "Add a Budget Planner entry to authenticated navigation (sidebar/mobile) and ensure it routes and highlights as active.",
+      "acceptanceCriteria": [
+        "AppLayout sidebar/mobile navigation includes a \"Budget Planner\" item.",
+        "Clicking the navigation item navigates to the Budget Planner route and highlights as active when on that route.",
+        "Navigation remains functional on both desktop and mobile menus."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/AppLayout.tsx",
+          "operation": "modify",
+          "description": "Add a new \"Budget Planner\" item to the existing authenticated navigation list with an icon, route it to /budget-planner, and ensure active highlighting works for desktop sidebar and mobile menu patterns. Verify the component's usage instructions before implementing."
+        }
+      ]
+    }
+  ]
+}
