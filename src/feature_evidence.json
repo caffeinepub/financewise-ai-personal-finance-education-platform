@@ -2,11 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-create-a-new-authenticated-private-budget-planner-page-that-is-only-accessible-when-the-user-is-logged-in-matching-the-existing-private-route-pattern-under-applayout",
-      "featureTitle": "Create a new authenticated (private) \"Budget Planner\" page that is only accessible when the user is logged in, matching the existing private-route pattern under AppLayout.",
+      "featureId": "feature-update-the-existing-blog-page-route-blog-to-display-15-finance-blog-entries-as-static-on-page-content-brief-problem-solution-format-without-fetching-from-the-backend-or-running-any-default-content-initialization",
+      "featureTitle": "Update the existing Blog page route (/blog) to display 15 finance blog entries as static on-page content (brief Problem → Solution format) without fetching from the backend or running any default-content initialization.",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/pages/BudgetPlanner.tsx"
+        "frontend/src/content/staticProblemSolutionBlogs.ts",
+        "frontend/src/pages/FinanceBlog.tsx"
       ],
       "components": [
         "authorization@3.0.0",
@@ -24,11 +24,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-the-budget-planner-input-form-with-a-clearly-separated-required-section-and-an-expandable-advanced-details-optional-section-that-can-be-skipped-using-english-labels-and-helper-text-that-clearly-marks-optional-fields",
-      "featureTitle": "Implement the Budget Planner input form with a clearly separated Required section and an expandable \"Advanced Details (Optional)\" section that can be skipped, using English labels and helper text that clearly marks optional fields.",
+      "featureId": "feature-add-the-provided-svg-favicon-to-the-frontend-public-assets-as-favicon-svg-and-wire-it-into-the-app-html-head-so-browsers-use-it-as-the-site-favicon",
+      "featureTitle": "Add the provided SVG favicon to the frontend public assets as /favicon.svg and wire it into the app HTML head so browsers use it as the site favicon.",
       "files": [
-        "frontend/src/pages/BudgetPlanner.tsx",
-        "frontend/src/types/budget-planner.ts"
+        "frontend/index.html",
+        "frontend/public/favicon.svg"
       ],
       "components": [
         "authorization@3.0.0",
@@ -42,137 +42,6 @@
       ],
       "testIds": [
         "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-a-progress-indicator-for-the-form-completion-e-g-you-re-60-done-that-updates-based-on-completion-of-required-fields-and-optionally-advanced-fields-and-ensure-the-layout-is-mobile-first-and-easy-to-complete-on-small-screens",
-      "featureTitle": "Add a progress indicator for the form completion (e.g., \"You're 60% done\") that updates based on completion of required fields and (optionally) advanced fields, and ensure the layout is mobile-first and easy to complete on small screens.",
-      "files": [
-        "frontend/src/lib/budget-planner/progress.ts",
-        "frontend/src/pages/BudgetPlanner.tsx"
-      ],
-      "components": [
-        "authorization@3.0.0",
-        "blob-storage@3.0.0",
-        "http-outcalls@3.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-implement-smart-handling-budgeting-logic-that-can-generate-a-basic-plan-from-only-the-required-inputs-when-optional-inputs-are-skipped-apply-safe-default-averages-and-standard-budgeting-rules-50-30-20-or-60-30-10-and-clearly-label-all-assumptions-used-in-the-results",
-      "featureTitle": "Implement \"smart handling\" budgeting logic that can generate a basic plan from only the required inputs; when optional inputs are skipped, apply safe default averages and standard budgeting rules (50/30/20 or 60/30/10) and clearly label all assumptions used in the results.",
-      "files": [
-        "frontend/src/lib/budget-planner/budgetLogic.ts",
-        "frontend/src/pages/BudgetPlanner.tsx"
-      ],
-      "components": [
-        "authorization@3.0.0",
-        "blob-storage@3.0.0",
-        "http-outcalls@3.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-build-the-budget-output-section-that-includes-income-summary-needs-wants-savings-allocation-suggested-savings-amount-visual-insights-expense-pie-chart-savings-progress-bar-cash-flow-summary-smart-recommendations-a-3-step-action-plan-for-the-month-and-a-finance-health-score-out-of-100-with-a-simple-explanation",
-      "featureTitle": "Build the Budget Output section that includes: income summary, Needs/Wants/Savings allocation, suggested savings amount, visual insights (expense pie chart, savings progress bar, cash flow summary), smart recommendations, a 3-step action plan for the month, and a Finance Health Score out of 100 with a simple explanation.",
-      "files": [
-        "frontend/src/lib/budget-planner/healthScore.ts",
-        "frontend/src/lib/budget-planner/recommendations.ts",
-        "frontend/src/pages/BudgetPlanner.tsx"
-      ],
-      "components": [
-        "authorization@3.0.0",
-        "blob-storage@3.0.0",
-        "http-outcalls@3.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-5"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-ux-and-privacy-first-messaging-on-the-budget-planner-page-explaining-that-the-tool-is-private-and-that-users-can-generate-a-plan-with-minimal-data-ensure-the-tone-is-friendly-and-non-judgmental-throughout",
-      "featureTitle": "Add UX and privacy-first messaging on the Budget Planner page explaining that the tool is private and that users can generate a plan with minimal data; ensure the tone is friendly and non-judgmental throughout.",
-      "files": [
-        "frontend/src/pages/BudgetPlanner.tsx"
-      ],
-      "components": [
-        "authorization@3.0.0",
-        "blob-storage@3.0.0",
-        "http-outcalls@3.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-6"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-an-optional-reminder-setup-affordance-in-the-action-plan-section-that-does-not-rely-on-push-notifications-sms-email-or-external-services-e-g-a-simple-local-only-reminder-ui-or-a-downloadable-calendar-reminder-file",
-      "featureTitle": "Add an optional \"Reminder setup\" affordance in the Action Plan section that does not rely on push notifications, SMS, email, or external services (e.g., a simple local-only reminder UI or a downloadable calendar reminder file).",
-      "files": [
-        "frontend/src/lib/budget-planner/reminderIcs.ts",
-        "frontend/src/pages/BudgetPlanner.tsx"
-      ],
-      "components": [
-        "authorization@3.0.0",
-        "blob-storage@3.0.0",
-        "http-outcalls@3.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-7"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-the-authenticated-app-navigation-to-include-a-budget-planner-entry-that-routes-to-the-new-private-budget-planner-page-consistent-with-the-existing-sidebar-mobile-menu-patterns",
-      "featureTitle": "Update the authenticated app navigation to include a \"Budget Planner\" entry that routes to the new private Budget Planner page, consistent with the existing sidebar/mobile menu patterns.",
-      "files": [
-        "frontend/src/components/AppLayout.tsx"
-      ],
-      "components": [
-        "authorization@3.0.0",
-        "blob-storage@3.0.0",
-        "http-outcalls@3.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-8"
       ],
       "confidence": "high"
     }

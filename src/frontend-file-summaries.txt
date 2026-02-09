@@ -6,7 +6,7 @@
   "frontend/src/pages/AIInsights.tsx": "Enhanced AI Financial Intelligence page displaying 3 focused ML models (Linear Regression, GRU, LSTM) with comprehensive financial insights, spending distribution charts, monthly trends, risk analysis, and currency-aware formatting using useCurrency hook with educational disclaimers.",
   "frontend/src/pages/Contact.tsx": "Public contact page with contact information cards and working contact form using local ContactSubmission type.",
   "frontend/src/hooks/useQueries.ts": "React Query hooks with mock localStorage implementations that properly handle bigint-to-number conversions for Transaction types, accept parameters for AI training/prediction mutations, and provide all required hooks for the application.",
-  "frontend/src/pages/FinanceBlog.tsx": "Public blog listing page displaying all blog posts with auto-generated 1200-word content, meaningful excerpts, and proper loading states.",
+  "frontend/src/pages/FinanceBlog.tsx": "Public blog page displaying exactly 15 static Problem→Solution finance entries in a card grid layout with clear problem/solution labels, icons, and educational disclaimer, without any backend queries or initialization logic.",
   "frontend/src/pages/Home.tsx": "Enhanced public homepage with hero section, 6 feature cards, statistics grid, how-it-works preview, trust indicators, and CTA section, all wrapped with Header and Footer components.",
   "frontend/src/pages/Settings.tsx": "Enhanced settings page with profile management, display preferences including currency selection, theme switching, security settings, and notification preferences using local backend types.",
   "frontend/src/App.tsx": "Main app component with routing for 18 public pages and 11 private pages (added Budget Planner route), wrapped with AppLayout for authentication protection, profile setup dialog, and authentication handling.",
@@ -25,7 +25,7 @@
   "frontend/src/components/PerformanceMonitor.tsx": "Development-only floating performance dashboard displaying real-time metrics, slowest operations, browser performance data, and export functionality with tabbed interface.",
   "frontend/src/hooks/useOptimizedQueries.ts": "Optimized React Query hooks with extended stale times (5 minutes), disabled automatic refetching for transactions, balance, category data, monthly comparison, and financial trends to improve performance and reduce unnecessary backend calls.",
   "PERFORMANCE_OPTIMIZATION_PLAN.md": "Comprehensive diagnostic and optimization plan documenting identified bottlenecks, profiling setup, prioritized fixes, regression tests, automated benchmarking, and expected 60-80% performance improvements across all metrics.",
-  "frontend/index.html": "HTML entry point with comprehensive SEO meta tags, Open Graph tags, Twitter cards, canonical URL, enhanced structured data markup (JSON-LD) for organization logo, and favicon link tags pointing to the generated 16x16 and 32x32 PNG favicon assets.",
+  "frontend/index.html": "HTML entry point with comprehensive SEO meta tags, Open Graph tags, Twitter cards, canonical URL, structured data markup, and favicon links including the new SVG favicon as primary icon.",
   "No files were modified as the frontend is already fully configured with the custom domain https": "//financewise-ai.info as the primary and only active domain.",
   "No files were modified as the frontend is already fully configured with https": "//financewise-ai.info as the primary and only active domain with complete English language support and no Caffeine subdomain references.",
   "No files were modified as the application is already fully configured for production mode with https": "//financewise-ai.info as the exclusive domain, AdSense verification, Google Tag Manager tracking, performance monitoring enabled, HTTPS enforcement, canonical URLs, Open Graph configurations, and English language content all properly implemented.",
@@ -111,5 +111,7 @@
   "frontend/src/lib/budget-planner/budgetLogic.ts": "Deterministic budget plan generator applying 50/30/20 or 60/30/10 rules based on savings preferences, calculating allocations, expense breakdowns, and listing assumptions for missing data.",
   "frontend/src/lib/budget-planner/healthScore.ts": "Finance health score calculator (0-100) evaluating savings rate, cash flow, emergency fund, debt management, and financial planning with plain-English explanations.",
   "frontend/src/lib/budget-planner/recommendations.ts": "Generates friendly, actionable recommendations and exactly 3 monthly action steps based on user inputs and budget plan.",
-  "frontend/src/lib/budget-planner/reminderIcs.ts": "ICS calendar file generator for downloading action step reminders without external services."
+  "frontend/src/lib/budget-planner/reminderIcs.ts": "ICS calendar file generator for downloading action step reminders without external services.",
+  "frontend/src/content/staticProblemSolutionBlogs.ts": "Static array of 15 Problem→Solution finance blog entries with titles, problems, and solutions for direct rendering on the blog page.",
+  "frontend/public/favicon.svg": "SVG favicon with dark blue circular background, green upward growth arrow, and gold leaves representing financial growth and wealth."
 }

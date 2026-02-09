@@ -1,197 +1,62 @@
 {
   "kind": "build_request",
-  "title": "Add private Finance Budget Planner page with optional advanced inputs and smart budget output",
+  "title": "Add 15 static Problem→Solution blogs to Blog page and integrate provided SVG favicon",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Create a new authenticated (private) \"Budget Planner\" page that is only accessible when the user is logged in, matching the existing private-route pattern under AppLayout.",
+      "text": "Update the existing Blog page route (/blog) to display 15 finance blog entries as static on-page content (brief Problem → Solution format) without fetching from the backend or running any default-content initialization.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-1",
+          "msg-2",
+          "msg-3"
         ],
         "quotes": [
-          "Create a page of budget planner in private"
+          "Write all 15 unique blogs in blogs page in briefly  problem with solution",
+          "2.added as static text",
+          "Start building"
         ]
       },
       "acceptanceCriteria": [
-        "A new route exists under the authenticated AppLayout section (private routes) and renders the Budget Planner page.",
-        "If the user is not authenticated, existing AppLayout behavior redirects to /login (no public access path to the Budget Planner page)."
+        "Visiting /blog renders a list/grid of exactly 15 entries.",
+        "Each entry includes a clearly labeled “Problem:” line and a clearly labeled “Solution:” line, matching the user-provided text.",
+        "The page does not call blog preview queries/mutations (no loading state for fetching, and no automatic initialization when empty).",
+        "The Blog page works for unauthenticated users (consistent with current public navigation)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Implement the Budget Planner input form with a clearly separated Required section and an expandable \"Advanced Details (Optional)\" section that can be skipped, using English labels and helper text that clearly marks optional fields.",
+      "text": "Add the provided SVG favicon to the frontend public assets as /favicon.svg and wire it into the app HTML head so browsers use it as the site favicon.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1"
+          "msg-2"
         ],
         "quotes": [
-          "Required Input Section (Minimum – Must Ask)",
-          "Optional Input Section (Expandable / Skip Option)",
-          "Show these as “Advanced Details (Optional)” with a skip button",
-          "Clearly mark Optional fields"
+          "3.yes"
         ]
       },
       "acceptanceCriteria": [
-        "Required section includes: Primary monthly income, currency, core expenses (Rent/Home EMI optional if not applicable, Food & groceries, Transport), and savings preference (desired savings as amount or % and goal type short-term/long-term).",
-        "Advanced section is collapsed by default, can be expanded, and includes the optional groups described (income details, fixed expenses, variable expenses, goals & savings, lifestyle & habits).",
-        "Advanced section has an explicit \"Skip\" action that collapses the section and proceeds without requiring any optional fields.",
-        "All user-facing text is in English and optional fields are visually labeled as optional."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Add a progress indicator for the form completion (e.g., \"You're 60% done\") that updates based on completion of required fields and (optionally) advanced fields, and ensure the layout is mobile-first and easy to complete on small screens.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Progress bar (You’re 60% done)",
-          "Mobile-first design"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A visible progress indicator is present on the Budget Planner page.",
-        "The indicator increases as required fields are completed and does not block generation if advanced fields are skipped.",
-        "On mobile widths, the form fields stack vertically, remain readable, and primary actions remain accessible without horizontal scrolling."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Implement \"smart handling\" budgeting logic that can generate a basic plan from only the required inputs; when optional inputs are skipped, apply safe default averages and standard budgeting rules (50/30/20 or 60/30/10) and clearly label all assumptions used in the results.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "If optional inputs are skipped:",
-          "Use default averages",
-          "Apply safe budgeting rules (50-30-20 or 60-30-10)",
-          "Clearly label assumptions used in the results"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The user can generate a budget plan using only the required inputs (with Rent/Home EMI allowed to be blank/disabled when not applicable).",
-        "When optional inputs are empty, the output explicitly lists assumptions (e.g., which rule was applied, which categories used defaults) in a dedicated \"Assumptions\" area.",
-        "The calculations are deterministic and do not require any external API calls.",
-        "Currency formatting uses the app’s existing currency utilities (e.g., useCurrency) for consistent symbols and formatting."
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Build the Budget Output section that includes: income summary, Needs/Wants/Savings allocation, suggested savings amount, visual insights (expense pie chart, savings progress bar, cash flow summary), smart recommendations, a 3-step action plan for the month, and a Finance Health Score out of 100 with a simple explanation.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Budget Output Section",
-          "✅ Personalized Budget",
-          "📊 Visual Insights",
-          "🧠 Smart Recommendations",
-          "🎯 Action Plan",
-          "🏆 Finance Health Score",
-          "Explanation in simple language"
-        ]
-      },
-      "acceptanceCriteria": [
-        "After the user clicks a \"Generate Budget Plan\" action, a results section renders on the same page (no blank screen), containing all requested subsections.",
-        "Expense pie chart renders using existing charting patterns already used in the app (e.g., Recharts).",
-        "Savings progress bar displays progress toward the desired monthly savings amount (or derived savings target when % is selected).",
-        "Finance Health Score is shown as a number out of 100 and includes a short plain-English explanation of the main factors affecting the score.",
-        "Smart recommendations include at least one actionable suggestion derived from the user’s inputs (or from defaults when data is limited) and are written in a friendly, non-judgmental tone.",
-        "Action plan shows exactly 3 clear steps for the current month."
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "text": "Add UX and privacy-first messaging on the Budget Planner page explaining that the tool is private and that users can generate a plan with minimal data; ensure the tone is friendly and non-judgmental throughout.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Privacy-first messaging",
-          "Friendly, non-judgmental tone",
-          "Make budgeting easy, flexible, and stress-free"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A visible privacy note is present near the form (English), emphasizing privacy-first behavior and minimal required inputs.",
-        "Microcopy across inputs, validation, and recommendations avoids judgmental language.",
-        "No optional inputs are required to view results."
-      ]
-    },
-    {
-      "id": "REQ-7",
-      "text": "Add an optional \"Reminder setup\" affordance in the Action Plan section that does not rely on push notifications, SMS, email, or external services (e.g., a simple local-only reminder UI or a downloadable calendar reminder file).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Optional reminder setup"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The Budget Planner results include a \"Reminder\" option that works without any third-party services and without push notifications.",
-        "Using the reminder option does not require additional backend changes or external integrations.",
-        "If the reminder feature is not used, the budget plan remains fully usable."
-      ]
-    },
-    {
-      "id": "REQ-8",
-      "text": "Update the authenticated app navigation to include a \"Budget Planner\" entry that routes to the new private Budget Planner page, consistent with the existing sidebar/mobile menu patterns.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Finance Budget Planner web page"
-        ]
-      },
-      "acceptanceCriteria": [
-        "AppLayout sidebar/mobile navigation includes a \"Budget Planner\" item.",
-        "Clicking the navigation item navigates to the Budget Planner route and highlights as active when on that route.",
-        "Navigation remains functional on both desktop and mobile menus."
+        "A new static file is present at frontend/public/favicon.svg containing the exact SVG content provided by the user.",
+        "frontend/index.html includes a <link rel=\"icon\" type=\"image/svg+xml\" href=\"/favicon.svg\"> entry.",
+        "After build, the site shows the new favicon in the browser tab (where supported)."
       ]
     }
   ],
   "constraints": [
-    "Use English for all user-facing text.",
-    "Do not modify any files under frontend/src/components/ui (compose them instead).",
-    "Do not edit immutable hook/bootstrap files: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useActor.ts, frontend/src/main.tsx.",
-    "Respect REQ-10: do not modify quiz functionality or quiz-related files except for critical bug fixes.",
-    "No external databases, third-party auth, webhooks, websockets, push notifications, SMS, or email integrations."
+    "Do not edit any files under frontend/src/components/ui (shadcn components are read-only).",
+    "Do not edit immutable hook/bootstrap files: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx.",
+    "Backend must remain single-actor (no new backend services)."
   ],
   "nonGoals": [
-    "Persisting budget plans to the backend or creating multi-user sharing/collaboration features.",
-    "Integrating real-time bank syncing, transaction import, or external finance APIs.",
-    "Adding gamification/streaks or a public no-login version (unless explicitly requested later).",
-    "Changing existing quiz questions, quiz flow, or adding new quiz content."
+    "Do not implement a dynamic blog/CMS system or store these 15 blogs in the backend.",
+    "Do not add new authentication requirements for viewing the Blog page.",
+    "Do not add social sharing, comments, or search for the static blog list."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

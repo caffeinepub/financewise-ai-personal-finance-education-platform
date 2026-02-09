@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="250" fill="#0b3a53"/>
+
+  <!-- Growth arrow -->
+  <path d="M150 300 C230 220, 290 260, 360 160"
+        fill="none"
+        stroke="#6bd66b"
+        stroke-width="28"
+        stroke-linecap="round"/>
+
+  <!-- Arrow head -->
+  <polygon points="360,160 390,155 375,185" fill="#6bd66b"/>
+
+  <!-- Leaves -->
+  <path d="M210 330 C180 290, 160 260, 190 240 C220 220, 260 260, 250 300 Z"
+        fill="#f0c36d"/>
+  <path d="M260 300 C260 250, 300 220, 330 240 C360 260, 330 300, 300 330 Z"
+        fill="#f0c36d"/>
+
+  <!-- Stem -->
+  <rect x="248" y="300" width="16" height="60" fill="#f0c36d"/>
+</svg>
