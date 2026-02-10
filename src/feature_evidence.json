@@ -2,11 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-update-the-existing-blog-page-route-blog-to-display-15-finance-blog-entries-as-static-on-page-content-brief-problem-solution-format-without-fetching-from-the-backend-or-running-any-default-content-initialization",
-      "featureTitle": "Update the existing Blog page route (/blog) to display 15 finance blog entries as static on-page content (brief Problem → Solution format) without fetching from the backend or running any default-content initialization.",
+      "featureId": "feature-expand-the-quiz-question-dataset-to-include-100-meaningful-finance-related-quiz-questions-mixed-finance-topics-so-the-quiz-page-can-run-through-questions-and-validate-answers-properly-not-just-2-questions",
+      "featureTitle": "Expand the quiz question dataset to include 100 meaningful, finance-related quiz questions (mixed finance topics) so the quiz page can run through questions and validate answers properly (not just 2 questions).",
       "files": [
-        "frontend/src/content/staticProblemSolutionBlogs.ts",
-        "frontend/src/pages/FinanceBlog.tsx"
+        "frontend/src/content/defaultQuizQuestions.ts"
       ],
       "components": [
         "authorization@3.0.0",
@@ -24,11 +23,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-the-provided-svg-favicon-to-the-frontend-public-assets-as-favicon-svg-and-wire-it-into-the-app-html-head-so-browsers-use-it-as-the-site-favicon",
-      "featureTitle": "Add the provided SVG favicon to the frontend public assets as /favicon.svg and wire it into the app HTML head so browsers use it as the site favicon.",
+      "featureId": "feature-update-the-authenticated-private-dashboard-layout-so-the-entire-sidebar-navigation-background-is-violet",
+      "featureTitle": "Update the authenticated/private dashboard layout so the entire sidebar navigation background is violet.",
       "files": [
-        "frontend/index.html",
-        "frontend/public/favicon.svg"
+        "frontend/src/components/AppLayout.tsx"
       ],
       "components": [
         "authorization@3.0.0",
@@ -42,6 +40,92 @@
       ],
       "testIds": [
         "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-a-cookie-consent-popup-on-public-non-authenticated-pages-that-includes-an-accept-button-and-can-be-dismissed-remembered-after-acceptance",
+      "featureTitle": "Implement a cookie-consent popup on public (non-authenticated) pages that includes an Accept button and can be dismissed/remembered after acceptance.",
+      "files": [
+        "frontend/src/components/CookieConsent.tsx",
+        "frontend/src/components/Header.tsx"
+      ],
+      "components": [
+        "authorization@3.0.0",
+        "blob-storage@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-displayed-contact-email-address-to-fwiseai-gmail-com-anywhere-it-appears-in-the-public-contact-support-ui",
+      "featureTitle": "Update the displayed contact email address to fwiseai@gmail.com anywhere it appears in the public contact/support UI.",
+      "files": [
+        "frontend/src/pages/Contact.tsx",
+        "frontend/src/pages/CustomerCare.tsx"
+      ],
+      "components": [
+        "authorization@3.0.0",
+        "blob-storage@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-the-compare-page-to-remove-the-no-ads-and-video-lessons-rows-from-the-comparison-table",
+      "featureTitle": "Update the Compare page to remove the “No Ads” and “Video Lessons” rows from the comparison table.",
+      "files": [
+        "frontend/src/pages/Compare.tsx"
+      ],
+      "components": [
+        "authorization@3.0.0",
+        "blob-storage@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-create-and-apply-a-finance-related-logo-like-favicon-for-the-site",
+      "featureTitle": "Create and apply a finance-related, logo-like favicon for the site.",
+      "files": [
+        "frontend/public/favicon.svg"
+      ],
+      "components": [
+        "authorization@3.0.0",
+        "blob-storage@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
       ],
       "confidence": "high"
     }

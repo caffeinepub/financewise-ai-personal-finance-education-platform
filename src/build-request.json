@@ -1,62 +1,142 @@
 {
   "kind": "build_request",
-  "title": "Add 15 static Problem→Solution blogs to Blog page and integrate provided SVG favicon",
+  "title": "Expand quiz content to 100 questions, add cookie consent, update dashboard sidebar styling, compare/contact updates, and finance favicon",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Update the existing Blog page route (/blog) to display 15 finance blog entries as static on-page content (brief Problem → Solution format) without fetching from the backend or running any default-content initialization.",
+      "text": "Expand the quiz question dataset to include 100 meaningful, finance-related quiz questions (mixed finance topics) so the quiz page can run through questions and validate answers properly (not just 2 questions).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-1",
-          "msg-2",
-          "msg-3"
+          "msg-3",
+          "msg-5"
         ],
         "quotes": [
-          "Write all 15 unique blogs in blogs page in briefly  problem with solution",
-          "2.added as static text",
-          "Start building"
+          "They are only 2 quiz but it should be 100 quiz so add 100 quiz in quiz page it should be run and answer properly",
+          "1.you generate quiz\n\n1.meaningfull quiz"
         ]
       },
       "acceptanceCriteria": [
-        "Visiting /blog renders a list/grid of exactly 15 entries.",
-        "Each entry includes a clearly labeled “Problem:” line and a clearly labeled “Solution:” line, matching the user-provided text.",
-        "The page does not call blog preview queries/mutations (no loading state for fetching, and no automatic initialization when empty).",
-        "The Blog page works for unauthenticated users (consistent with current public navigation)."
+        "`frontend/src/content/defaultQuizQuestions.ts` contains 100 unique questions with id/question/options/correctAnswer/explanation/realLifeTip/topic/difficulty populated.",
+        "Quiz flow in `frontend/src/pages/Quiz.tsx` can repeatedly fetch/display questions and submit answers without errors.",
+        "Quiz statistics show `totalQuestions` as 100 (once the app considers quiz content initialized/available) rather than 2."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Add the provided SVG favicon to the frontend public assets as /favicon.svg and wire it into the app HTML head so browsers use it as the site favicon.",
+      "text": "Update the authenticated/private dashboard layout so the entire sidebar navigation background is violet.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-2"
+          "msg-4"
         ],
         "quotes": [
-          "3.yes"
+          "entire sidebar violet background"
         ]
       },
       "acceptanceCriteria": [
-        "A new static file is present at frontend/public/favicon.svg containing the exact SVG content provided by the user.",
-        "frontend/index.html includes a <link rel=\"icon\" type=\"image/svg+xml\" href=\"/favicon.svg\"> entry.",
-        "After build, the site shows the new favicon in the browser tab (where supported)."
+        "When logged in, the left sidebar (desktop) and the navigation area used for the dashboard menu has a violet background across its full height.",
+        "Sidebar text/icons remain readable with sufficient contrast on the violet background."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Implement a cookie-consent popup on public (non-authenticated) pages that includes an Accept button and can be dismissed/remembered after acceptance.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-4"
+        ],
+        "quotes": [
+          "add cookies in public pages it need to show cookies\n2.entire sidebar violet background \n3.accept button"
+        ]
+      },
+      "acceptanceCriteria": [
+        "A cookie consent UI is shown on public pages until the user clicks Accept.",
+        "Clicking Accept hides the popup and persists acceptance (e.g., via localStorage/cookie) so it does not reappear on subsequent visits.",
+        "The cookie popup does not appear inside authenticated app pages (e.g., pages rendered inside the private app layout)."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Update the displayed contact email address to fwiseai@gmail.com anywhere it appears in the public contact/support UI.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-3",
+          "msg-5"
+        ],
+        "quotes": [
+          "change the contact email to fwiseai@gmail.com"
+        ]
+      },
+      "acceptanceCriteria": [
+        "`frontend/src/pages/Contact.tsx` displays `fwiseai@gmail.com` instead of the previous support email.",
+        "No remaining UI text on public contact/support pages shows the old contact email address."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Update the Compare page to remove the “No Ads” and “Video Lessons” rows from the comparison table.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-3",
+          "msg-5"
+        ],
+        "quotes": [
+          "remove \"No ads\" and \"Video lessons\" in the compare page"
+        ]
+      },
+      "acceptanceCriteria": [
+        "`frontend/src/pages/Compare.tsx` no longer renders rows labeled “No Ads” and “Video Lessons”.",
+        "The compare table layout remains aligned and visually consistent after removing the rows."
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "text": "Create and apply a finance-related, logo-like favicon for the site.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-5"
+        ],
+        "quotes": [
+          "Plus create and add own favicon\n2.finance related favicon logo\n2.logo like"
+        ]
+      },
+      "acceptanceCriteria": [
+        "The favicon used by the site reflects the new finance-themed, logo-like design.",
+        "The favicon is referenced correctly so it appears in the browser tab when running the frontend."
       ]
     }
   ],
   "constraints": [
-    "Do not edit any files under frontend/src/components/ui (shadcn components are read-only).",
-    "Do not edit immutable hook/bootstrap files: frontend/src/hooks/useInternetIdentity.ts, frontend/src/hooks/useInternetIdentity.tsx, frontend/src/hooks/useActor.ts, frontend/src/main.tsx.",
-    "Backend must remain single-actor (no new backend services)."
+    "Do not edit files under `frontend/src/components/ui` (read-only UI component sources).",
+    "Do not modify `frontend/src/hooks/useInternetIdentity.ts(x)`, `frontend/src/hooks/useActor.ts`, or `frontend/src/main.tsx` (immutable paths).",
+    "Keep quiz behavior/logic unchanged except for adding the required quiz content (do not rewrite the quiz system flow).",
+    "Use English for any user-facing text."
   ],
   "nonGoals": [
-    "Do not implement a dynamic blog/CMS system or store these 15 blogs in the backend.",
-    "Do not add new authentication requirements for viewing the Blog page.",
-    "Do not add social sharing, comments, or search for the static blog list."
+    "Adding backend persistence for quizzes or cookie consent (implement within the existing frontend patterns unless already supported).",
+    "Introducing third-party cookie-consent services or external scripts.",
+    "Adding new unrelated pages or features beyond the listed changes."
   ],
   "imageRequirements": {
     "required": [],
-    "edits": []
+    "edits": [
+      "Redesign into a finance-related, logo-like mark (favicon.svg > favicon.svg)"
+    ]
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

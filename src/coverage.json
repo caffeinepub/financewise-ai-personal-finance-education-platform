@@ -1,52 +1,103 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-09T08:32:36.227Z",
+  "generatedAt": "2026-02-10T09:23:03.980Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 2,
-    "implemented": 2,
+    "total": 6,
+    "implemented": 6,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Update the existing Blog page route (/blog) to display 15 finance blog entries as static on-page content (brief Problem → Solution format) without fetching from the backend or running any default-content initialization.",
+        "summary": "Expand the quiz question dataset to include 100 meaningful, finance-related quiz questions (mixed finance topics) so the quiz page can run through questions and validate answers properly (not just 2 questions).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/content/staticProblemSolutionBlogs.ts",
-          "frontend/src/pages/FinanceBlog.tsx"
+          "frontend/src/content/defaultQuizQuestions.ts"
         ],
         "matchedFiles": [
-          "frontend/src/content/staticProblemSolutionBlogs.ts",
-          "frontend/src/pages/FinanceBlog.tsx"
+          "frontend/src/content/defaultQuizQuestions.ts"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Add the provided SVG favicon to the frontend public assets as /favicon.svg and wire it into the app HTML head so browsers use it as the site favicon.",
+        "summary": "Update the authenticated/private dashboard layout so the entire sidebar navigation background is violet.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/AppLayout.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/AppLayout.tsx"
+        ]
+      },
+      {
+        "id": "REQ-3",
+        "summary": "Implement a cookie-consent popup on public (non-authenticated) pages that includes an Accept button and can be dismissed/remembered after acceptance.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/CookieConsent.tsx",
+          "frontend/src/components/Header.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/CookieConsent.tsx",
+          "frontend/src/components/Header.tsx"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Update the displayed contact email address to fwiseai@gmail.com anywhere it appears in the public contact/support UI.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/Contact.tsx",
+          "frontend/src/pages/CustomerCare.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/Contact.tsx",
+          "frontend/src/pages/CustomerCare.tsx"
+        ]
+      },
+      {
+        "id": "REQ-5",
+        "summary": "Update the Compare page to remove the “No Ads” and “Video Lessons” rows from the comparison table.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/pages/Compare.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/Compare.tsx"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Create and apply a finance-related, logo-like favicon for the site.",
         "status": "implemented",
         "plannedFiles": [
           "frontend/public/favicon.svg",
           "frontend/index.html"
         ],
         "matchedFiles": [
-          "frontend/public/favicon.svg",
-          "frontend/index.html"
+          "frontend/public/favicon.svg"
         ]
       }
     ]
   },
   "changedFiles": [
     "build-request.json",
+    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/index.html",
+    "frontend/public/assets/generated/favicon.png",
     "frontend/public/favicon.svg",
-    "frontend/src/content/staticProblemSolutionBlogs.ts",
-    "frontend/src/pages/FinanceBlog.tsx",
+    "frontend/src/components/AppLayout.tsx",
+    "frontend/src/components/CookieConsent.tsx",
+    "frontend/src/components/Header.tsx",
+    "frontend/src/content/defaultQuizQuestions.ts",
+    "frontend/src/pages/Compare.tsx",
+    "frontend/src/pages/Contact.tsx",
+    "frontend/src/pages/CustomerCare.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

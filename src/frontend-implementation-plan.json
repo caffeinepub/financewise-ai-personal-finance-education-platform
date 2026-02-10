@@ -1,48 +1,112 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Static 15-entry Problem→Solution Blog page + SVG favicon integration",
+  "title": "Expand quiz content, add public cookie consent, update dashboard sidebar styling, adjust compare/contact UI, and refresh finance favicon",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Replace /blog dynamic previews + auto-initialization with exactly 15 static Problem→Solution finance entries rendered on-page for public users.",
+      "summary": "Expand the default quiz dataset to 100 meaningful finance questions without changing quiz flow logic.",
       "acceptanceCriteria": [
-        "Visiting /blog renders a list/grid of exactly 15 entries.",
-        "Each entry includes a clearly labeled “Problem:” line and a clearly labeled “Solution:” line, matching the user-provided text.",
-        "The page does not call blog preview queries/mutations (no loading state for fetching, and no automatic initialization when empty).",
-        "The Blog page works for unauthenticated users (consistent with current public navigation)."
+        "`frontend/src/content/defaultQuizQuestions.ts` contains 100 unique questions with id/question/options/correctAnswer/explanation/realLifeTip/topic/difficulty populated.",
+        "Quiz flow in `frontend/src/pages/Quiz.tsx` can repeatedly fetch/display questions and submit answers without errors.",
+        "Quiz statistics show `totalQuestions` as 100 (once the app considers quiz content initialized/available) rather than 2."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/content/staticProblemSolutionBlogs.ts",
-          "operation": "create",
-          "description": "Add a static exported array of exactly 15 finance blog entries (each with a title plus clearly labeled Problem and Solution strings) using the exact user-provided text; no backend IDs/slugs required."
-        },
-        {
-          "path": "frontend/src/pages/FinanceBlog.tsx",
+          "path": "frontend/src/content/defaultQuizQuestions.ts",
           "operation": "modify",
-          "description": "Update the existing /blog page implementation to render the 15 static Problem→Solution entries from frontend/src/content/staticProblemSolutionBlogs.ts; remove all usage of blog preview fetching hooks and default-content initialization (including useGetAllBlogPreviews, useInitializeDefaultContent, loading/initialization states, and related effects) so the page is fully static and publicly accessible."
+          "description": "Replace the current 2-item `defaultQuizQuestions` array with 100 unique, finance-related questions spanning mixed topics and difficulties, ensuring every item has id/question/options/correctAnswer/explanation/realLifeTip/topic/difficulty populated (keep quiz behavior/logic unchanged)."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Add the provided SVG as /favicon.svg and wire it in index.html so browsers use it as the site favicon.",
+      "summary": "Make the authenticated dashboard sidebar navigation area fully violet with readable, high-contrast text and icons.",
       "acceptanceCriteria": [
-        "A new static file is present at frontend/public/favicon.svg containing the exact SVG content provided by the user.",
-        "frontend/index.html includes a <link rel=\"icon\" type=\"image/svg+xml\" href=\"/favicon.svg\"> entry.",
-        "After build, the site shows the new favicon in the browser tab (where supported)."
+        "When logged in, the left sidebar (desktop) and the navigation area used for the dashboard menu has a violet background across its full height.",
+        "Sidebar text/icons remain readable with sufficient contrast on the violet background."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/AppLayout.tsx",
+          "operation": "modify",
+          "description": "Update the authenticated desktop sidebar container styling so the sidebar background is violet across the full height, and adjust nav/user-area text/icon styles as needed to preserve contrast and readability."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Add a cookie-consent popup for public pages with an Accept button and persisted acceptance; do not show it inside authenticated pages.",
+      "acceptanceCriteria": [
+        "A cookie consent UI is shown on public pages until the user clicks Accept.",
+        "Clicking Accept hides the popup and persists acceptance (e.g., via localStorage/cookie) so it does not reappear on subsequent visits.",
+        "The cookie popup does not appear inside authenticated app pages (e.g., pages rendered inside the private app layout)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/CookieConsent.tsx",
+          "operation": "modify",
+          "description": "Implement the CookieConsent UI/behavior: show a dismissible banner/modal on public browsing until accepted; persist acceptance in browser storage; and ensure it returns null when the user is authenticated. Use shadcn-ui Button/Card (or similar) to match existing UI patterns. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/Header.tsx",
+          "operation": "modify",
+          "description": "Wire CookieConsent into the public-page UI by rendering it from the public Header so it appears across public pages that use Header, while remaining absent from the authenticated/private AppLayout. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Update the public contact/support UI to display the email address fwiseai@gmail.com wherever shown.",
+      "acceptanceCriteria": [
+        "`frontend/src/pages/Contact.tsx` displays `fwiseai@gmail.com` instead of the previous support email.",
+        "No remaining UI text on public contact/support pages shows the old contact email address."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/Contact.tsx",
+          "operation": "modify",
+          "description": "Replace the displayed support email text with `fwiseai@gmail.com` in the Contact page UI."
+        },
+        {
+          "path": "frontend/src/pages/CustomerCare.tsx",
+          "operation": "modify",
+          "description": "Replace the displayed support email text with `fwiseai@gmail.com` in the Customer Care (support) page UI to ensure no public support UI shows the old address."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Remove the “No Ads” and “Video Lessons” rows from the Compare page table while keeping the layout aligned.",
+      "acceptanceCriteria": [
+        "`frontend/src/pages/Compare.tsx` no longer renders rows labeled “No Ads” and “Video Lessons”.",
+        "The compare table layout remains aligned and visually consistent after removing the rows."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/Compare.tsx",
+          "operation": "modify",
+          "description": "Update the `features` list to remove entries named “No Ads” and “Video Lessons”, keeping the comparison grid rendering unchanged otherwise."
+        }
+      ]
+    },
+    {
+      "id": "REQ-6",
+      "summary": "Redesign and apply a finance-themed, logo-like favicon so it appears in browser tabs.",
+      "acceptanceCriteria": [
+        "The favicon used by the site reflects the new finance-themed, logo-like design.",
+        "The favicon is referenced correctly so it appears in the browser tab when running the frontend."
       ],
       "file_operations": [
         {
           "path": "frontend/public/favicon.svg",
-          "operation": "create",
-          "description": "Create the favicon asset at this exact path and paste in the exact SVG content provided by the user (unchanged)."
+          "operation": "modify",
+          "description": "Redesign the existing SVG into a more finance-related, logo-like favicon mark (per request: favicon.svg > favicon.svg) while keeping it suitable for small sizes."
         },
         {
           "path": "frontend/index.html",
           "operation": "modify",
-          "description": "Add a head link tag referencing the new SVG favicon: <link rel=\"icon\" type=\"image/svg+xml\" href=\"/favicon.svg\"> (keep existing PNG favicon links as fallback unless they conflict)."
+          "description": "Verify favicon references remain correct (including the primary `/favicon.svg` link) so the redesigned favicon appears in the browser tab when running the frontend."
         }
       ]
     }

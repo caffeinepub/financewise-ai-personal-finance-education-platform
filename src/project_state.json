@@ -1,27 +1,59 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Project includes a finance-focused app/site with a Blogs page containing 15 static Problem→Solution posts and a custom SVG favicon integrated into the HTML head.",
-  "architectural_notes": [
-    "Blogs content will be implemented as static text on the Blogs page (no backend/dynamic blog system).",
-    "Favicon will be integrated using an SVG favicon file referenced in the HTML head."
+  "summary": "Quiz app updates: expand quiz page to 100 meaningful finance quizzes, update private dashboard styling, add public cookie consent, update compare page content, change contact email, and add a finance-themed favicon.",
+  "architectural_notes": [],
+  "known_issues": [
+    "Quiz page currently shows only 2 quizzes; expected 100."
   ],
-  "known_issues": [],
-  "isFixRequest": false,
+  "isFixRequest": true,
+  "imageRequirements": "## Edit Images\n- Redesign into a finance-related, logo-like mark (favicon.svg > favicon.svg)",
   "existing_features": [
     {
-      "id": "feature-update-the-existing-blog-page-route-blog-to-display-15-finance-blog-entries-as-static-on-page-content-brief-problem-solution-format-without-fetching-from-the-backend-or-running-any-default-content-initialization",
-      "title": "Update the existing Blog page route (/blog) to display 15 finance blog entries as static on-page content (brief Problem → Solution format) without fetching from the backend or running any default-content initialization.",
+      "id": "feature-expand-the-quiz-question-dataset-to-include-100-meaningful-finance-related-quiz-questions-mixed-finance-topics-so-the-quiz-page-can-run-through-questions-and-validate-answers-properly-not-just-2-questions",
+      "title": "Expand the quiz question dataset to include 100 meaningful, finance-related quiz questions (mixed finance topics) so the quiz page can run through questions and validate answers properly (not just 2 questions).",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-the-provided-svg-favicon-to-the-frontend-public-assets-as-favicon-svg-and-wire-it-into-the-app-html-head-so-browsers-use-it-as-the-site-favicon",
-      "title": "Add the provided SVG favicon to the frontend public assets as /favicon.svg and wire it into the app HTML head so browsers use it as the site favicon.",
+      "id": "feature-update-the-authenticated-private-dashboard-layout-so-the-entire-sidebar-navigation-background-is-violet",
+      "title": "Update the authenticated/private dashboard layout so the entire sidebar navigation background is violet.",
       "reqIds": [
         "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-cookie-consent-popup-on-public-non-authenticated-pages-that-includes-an-accept-button-and-can-be-dismissed-remembered-after-acceptance",
+      "title": "Implement a cookie-consent popup on public (non-authenticated) pages that includes an Accept button and can be dismissed/remembered after acceptance.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-displayed-contact-email-address-to-fwiseai-gmail-com-anywhere-it-appears-in-the-public-contact-support-ui",
+      "title": "Update the displayed contact email address to fwiseai@gmail.com anywhere it appears in the public contact/support UI.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-the-compare-page-to-remove-the-no-ads-and-video-lessons-rows-from-the-comparison-table",
+      "title": "Update the Compare page to remove the “No Ads” and “Video Lessons” rows from the comparison table.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-create-and-apply-a-finance-related-logo-like-favicon-for-the-site",
+      "title": "Create and apply a finance-related, logo-like favicon for the site.",
+      "reqIds": [
+        "REQ-6"
       ],
       "version": 1
     }
@@ -29,18 +61,42 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Add 15 finance blogs as static text content on the Blogs page (Problem → Solution format, brief)",
+      "summary": "Generate and add 100 meaningful finance-related quizzes on the quiz page, with proper question/answer functionality (currently only 2).",
       "reqIds": [],
-      "status": "in_progress"
+      "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Add and wire up provided SVG favicon (favicon.svg) in the site/app HTML head",
+      "summary": "Change private dashboard sidebar to have a violet background (entire sidebar).",
       "reqIds": [],
-      "status": "in_progress"
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Add cookie consent popup on public pages with an Accept button.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Create and apply a finance-themed logo-like favicon.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Update contact email to fwiseai@gmail.com.",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Remove \"No ads\" and \"Video lessons\" from the compare page.",
+      "reqIds": [],
+      "status": "pending"
     }
   ],
-  "projectName": "Add 15 static Problem→Solution blogs to Blog page and integrate provided SVG favicon",
+  "projectName": "Expand quiz content to 100 questions, add cookie consent, update dashboard sidebar styling, compare/contact updates, and finance favicon",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }
