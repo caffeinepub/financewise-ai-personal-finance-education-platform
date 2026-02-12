@@ -1,133 +1,138 @@
 {
   "kind": "build_request",
-  "title": "Expand quiz content to 100 questions, add cookie consent, update dashboard sidebar styling, compare/contact updates, and finance favicon",
+  "title": "Advance Budget Planner, expand quizzes to 100, replace blog library with 15+ SEO long-form posts, and refresh theme + sidebar styling",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Expand the quiz question dataset to include 100 meaningful, finance-related quiz questions (mixed finance topics) so the quiz page can run through questions and validate answers properly (not just 2 questions).",
+      "text": "Enhance the Budget Planner experience to be more advanced and realistic by adding additional financial insights and visualizations: include at least one line chart (e.g., cashflow/savings projection over time) and ensure a clear pie chart breakdown is presented; add explicit guidance sections that answer how to improve personal finances with actionable suggestions on saving, investing, and next steps based on the user inputs.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-3",
-          "msg-5"
+          "msg-1"
         ],
         "quotes": [
-          "They are only 2 quiz but it should be 100 quiz so add 100 quiz in quiz page it should be run and answer properly",
-          "1.you generate quiz\n\n1.meaningfull quiz"
+          "Make buget planner more advance add more features and realistic showing line chart poe chart etc it need to answer about saving invest and how to improve you finance"
         ]
       },
       "acceptanceCriteria": [
-        "`frontend/src/content/defaultQuizQuestions.ts` contains 100 unique questions with id/question/options/correctAnswer/explanation/realLifeTip/topic/difficulty populated.",
-        "Quiz flow in `frontend/src/pages/Quiz.tsx` can repeatedly fetch/display questions and submit answers without errors.",
-        "Quiz statistics show `totalQuestions` as 100 (once the app considers quiz content initialized/available) rather than 2."
+        "Budget Planner results include a line chart visualization derived from the user’s entered inputs and computed plan data.",
+        "Budget Planner results include a pie chart breakdown of expenses/allocations (existing pie chart is acceptable if retained and clearly shown in results).",
+        "Budget Planner results include a dedicated guidance area that provides actionable suggestions related to saving, investing, and improving finances, and the content changes in response to different inputs (e.g., risk tolerance, goal type, savings rate).",
+        "All user-facing text added/updated is in English."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Update the authenticated/private dashboard layout so the entire sidebar navigation background is violet.",
-      "target": "frontend",
+      "text": "Increase the quiz question library to at least 100 unique finance quiz questions and ensure the app actually uses them (i.e., the quiz initialization and quiz flow should reflect 100+ total questions rather than only a small set). Questions must cover a broad set of personal finance topics, including saving strategies, budgeting methods, investing for beginners, stock market basics, mutual funds, SIP investing, and emergency funds.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-1"
         ],
         "quotes": [
-          "entire sidebar violet background"
+          "It still showing only 2 quiz make 100 unique quiz"
         ]
       },
       "acceptanceCriteria": [
-        "When logged in, the left sidebar (desktop) and the navigation area used for the dashboard menu has a violet background across its full height.",
-        "Sidebar text/icons remain readable with sufficient contrast on the violet background."
+        "Quiz question source data contains 100+ unique questions with unique IDs and non-duplicated prompts.",
+        "The authenticated quiz UI shows totalQuestions >= 100 in the quiz statistics/progress display once initialized.",
+        "Questions span the requested topics (saving, budgeting, investing, stock market basics, mutual funds, SIP, emergency funds).",
+        "Initialization prompt and any helper text remains accurate (no mention of only 2 questions).",
+        "All user-facing text added/updated is in English."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Implement a cookie-consent popup on public (non-authenticated) pages that includes an Accept button and can be dismissed/remembered after acceptance.",
+      "text": "Remove/replace all existing content shown on the Blogs page and publish a new library of at least 15 SEO-focused long-form blog posts (minimum 800+ words each) about personal finance, written to address real-world problems with practical solutions. The set must include posts that cover: Personal finance, Saving strategies, Budgeting methods, Investing for beginners, Stock market basics, Mutual funds, SIP investment, and Emergency funds.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "msg-1"
         ],
         "quotes": [
-          "add cookies in public pages it need to show cookies\n2.entire sidebar violet background \n3.accept button"
+          "Remove all blogs which in blogs page and add new seo written content 10 blogs with real world problems solving 800 words plus",
+          "Blogs should be 15 plus"
         ]
       },
       "acceptanceCriteria": [
-        "A cookie consent UI is shown on public pages until the user clicks Accept.",
-        "Clicking Accept hides the popup and persists acceptance (e.g., via localStorage/cookie) so it does not reappear on subsequent visits.",
-        "The cookie popup does not appear inside authenticated app pages (e.g., pages rendered inside the private app layout)."
+        "The Blogs page no longer displays the previous short problem/solution entries and instead lists 15+ new posts.",
+        "Each blog post is long-form content with 800+ words (measured by rendered text word count, excluding nav/footer).",
+        "The 15+ posts collectively cover all listed topics; each post has a clear real-world problem framing and solution-oriented structure.",
+        "All user-facing text is in English.",
+        "No remnants of the previous blog titles/problems/solutions remain on the Blogs page."
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Update the displayed contact email address to fwiseai@gmail.com anywhere it appears in the public contact/support UI.",
+      "text": "Update the app’s overall background styling to remove the current purple/violet/blue-heavy background look and replace it with a more creative, advanced theme applied consistently across both public pages (unauthenticated) and private/authenticated pages.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-3",
-          "msg-5"
+          "msg-1"
         ],
         "quotes": [
-          "change the contact email to fwiseai@gmail.com"
+          "Change background colour of purple violet blue background like creative and advanced for both private and public pages"
         ]
       },
       "acceptanceCriteria": [
-        "`frontend/src/pages/Contact.tsx` displays `fwiseai@gmail.com` instead of the previous support email.",
-        "No remaining UI text on public contact/support pages shows the old contact email address."
+        "Public pages and authenticated pages use the updated background theme consistently (no remaining dominant purple/violet/blue gradient backgrounds on main page containers).",
+        "The new theme still preserves readability and contrast for cards, text, and charts.",
+        "All user-facing text remains in English."
       ]
     },
     {
       "id": "REQ-5",
-      "text": "Update the Compare page to remove the “No Ads” and “Video Lessons” rows from the comparison table.",
+      "text": "Restyle the authenticated app sidebar to be dark and use green hover effects for navigation items, while preserving current navigation structure and active-state clarity.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-3",
-          "msg-5"
+          "msg-1"
         ],
         "quotes": [
-          "remove \"No ads\" and \"Video lessons\" in the compare page"
+          "Sidebar should be dark with green hover effects,"
         ]
       },
       "acceptanceCriteria": [
-        "`frontend/src/pages/Compare.tsx` no longer renders rows labeled “No Ads” and “Video Lessons”.",
-        "The compare table layout remains aligned and visually consistent after removing the rows."
+        "Desktop sidebar background is dark (not a violet gradient).",
+        "Navigation items show green hover effects (text/background/border or accent), distinct from the active state.",
+        "Active item remains clearly distinguishable from hover state.",
+        "No changes break mobile navigation behavior."
       ]
     },
     {
       "id": "REQ-6",
-      "text": "Create and apply a finance-related, logo-like favicon for the site.",
+      "text": "Resolve the internal contradiction between the current repository requirement that forbids quiz changes and the new request to add 100+ questions by updating the internal requirement documentation so it no longer instructs developers to avoid quiz question additions for this build.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-5"
+          "msg-1"
         ],
         "quotes": [
-          "Plus create and add own favicon\n2.finance related favicon logo\n2.logo like"
+          "It still showing only 2 quiz make 100 unique quiz"
         ]
       },
       "acceptanceCriteria": [
-        "The favicon used by the site reflects the new finance-themed, logo-like design.",
-        "The favicon is referenced correctly so it appears in the browser tab when running the frontend."
+        "The internal requirement document `frontend/src/requirements/REQ-10-quiz-no-changes.md` is updated to reflect that quiz content expansion is now required (i.e., it no longer states that no new quiz questions should be introduced).",
+        "The updated documentation does not prohibit modifications needed to implement 100+ quiz questions."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under `frontend/src/components/ui` (read-only UI component sources).",
-    "Do not modify `frontend/src/hooks/useInternetIdentity.ts(x)`, `frontend/src/hooks/useActor.ts`, or `frontend/src/main.tsx` (immutable paths).",
-    "Keep quiz behavior/logic unchanged except for adding the required quiz content (do not rewrite the quiz system flow).",
-    "Use English for any user-facing text."
+    "Backend must remain a single Motoko actor (all logic in `backend/main.mo`); add `backend/migration.mo` only if existing stable state requires migration.",
+    "Do not edit files under `frontend/src/components/ui` (compose using existing components).",
+    "Do not edit immutable hook/bootstrap paths listed in SYSTEM_CONTEXT (e.g., `frontend/src/hooks/useInternetIdentity.ts(x)`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`).",
+    "Use English for all user-facing text."
   ],
   "nonGoals": [
-    "Adding backend persistence for quizzes or cookie consent (implement within the existing frontend patterns unless already supported).",
-    "Introducing third-party cookie-consent services or external scripts.",
-    "Adding new unrelated pages or features beyond the listed changes."
+    "Do not add third-party authentication providers (only Internet Identity).",
+    "Do not add external databases or off-chain storage systems.",
+    "Do not add real-time WebSocket/chat features beyond what already exists.",
+    "Do not generate or embed financial advice that claims personalization by a licensed advisor; keep educational framing consistent with existing disclaimers."
   ],
   "imageRequirements": {
     "required": [],
-    "edits": [
-      "Redesign into a finance-related, logo-like mark (favicon.svg > favicon.svg)"
-    ]
+    "edits": []
   },
   "userProfileUpdate": {
     "goalsToAdd": [],

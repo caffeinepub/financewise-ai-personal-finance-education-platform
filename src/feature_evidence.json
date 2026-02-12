@@ -2,10 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-expand-the-quiz-question-dataset-to-include-100-meaningful-finance-related-quiz-questions-mixed-finance-topics-so-the-quiz-page-can-run-through-questions-and-validate-answers-properly-not-just-2-questions",
-      "featureTitle": "Expand the quiz question dataset to include 100 meaningful, finance-related quiz questions (mixed finance topics) so the quiz page can run through questions and validate answers properly (not just 2 questions).",
+      "featureId": "feature-enhance-the-budget-planner-experience-to-be-more-advanced-and-realistic-by-adding-additional-financial-insights-and-visualizations-include-at-least-one-line-chart-e-g-cashflow-savings-projection-over-time-and-ensure-a-clear-pie-chart-breakdown-is-presented-add-explicit-guidance-sections-that-answer-how-to-improve-personal-finances-with-actionable-suggestions-on-saving-investing-and-next-steps-based-on-the-user-inputs",
+      "featureTitle": "Enhance the Budget Planner experience to be more advanced and realistic by adding additional financial insights and visualizations: include at least one line chart (e.g., cashflow/savings projection over time) and ensure a clear pie chart breakdown is presented; add explicit guidance sections that answer how to improve personal finances with actionable suggestions on saving, investing, and next steps based on the user inputs.",
       "files": [
-        "frontend/src/content/defaultQuizQuestions.ts"
+        "frontend/src/lib/budget-planner/projections.ts",
+        "frontend/src/lib/budget-planner/recommendations.ts",
+        "frontend/src/pages/BudgetPlanner.tsx"
       ],
       "components": [
         "authorization@3.0.0",
@@ -23,10 +25,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-update-the-authenticated-private-dashboard-layout-so-the-entire-sidebar-navigation-background-is-violet",
-      "featureTitle": "Update the authenticated/private dashboard layout so the entire sidebar navigation background is violet.",
+      "featureId": "feature-increase-the-quiz-question-library-to-at-least-100-unique-finance-quiz-questions-and-ensure-the-app-actually-uses-them-i-e-the-quiz-initialization-and-quiz-flow-should-reflect-100-total-questions-rather-than-only-a-small-set-questions-must-cover-a-broad-set-of-personal-finance-topics-including-saving-strategies-budgeting-methods-investing-for-beginners-stock-market-basics-mutual-funds-sip-investing-and-emergency-funds",
+      "featureTitle": "Increase the quiz question library to at least 100 unique finance quiz questions and ensure the app actually uses them (i.e., the quiz initialization and quiz flow should reflect 100+ total questions rather than only a small set). Questions must cover a broad set of personal finance topics, including saving strategies, budgeting methods, investing for beginners, stock market basics, mutual funds, SIP investing, and emergency funds.",
       "files": [
-        "frontend/src/components/AppLayout.tsx"
+        "frontend/src/content/defaultQuizQuestions.ts"
       ],
       "components": [
         "authorization@3.0.0",
@@ -40,92 +42,6 @@
       ],
       "testIds": [
         "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-implement-a-cookie-consent-popup-on-public-non-authenticated-pages-that-includes-an-accept-button-and-can-be-dismissed-remembered-after-acceptance",
-      "featureTitle": "Implement a cookie-consent popup on public (non-authenticated) pages that includes an Accept button and can be dismissed/remembered after acceptance.",
-      "files": [
-        "frontend/src/components/CookieConsent.tsx",
-        "frontend/src/components/Header.tsx"
-      ],
-      "components": [
-        "authorization@3.0.0",
-        "blob-storage@3.0.0",
-        "http-outcalls@3.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-the-displayed-contact-email-address-to-fwiseai-gmail-com-anywhere-it-appears-in-the-public-contact-support-ui",
-      "featureTitle": "Update the displayed contact email address to fwiseai@gmail.com anywhere it appears in the public contact/support UI.",
-      "files": [
-        "frontend/src/pages/Contact.tsx",
-        "frontend/src/pages/CustomerCare.tsx"
-      ],
-      "components": [
-        "authorization@3.0.0",
-        "blob-storage@3.0.0",
-        "http-outcalls@3.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-4"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-update-the-compare-page-to-remove-the-no-ads-and-video-lessons-rows-from-the-comparison-table",
-      "featureTitle": "Update the Compare page to remove the “No Ads” and “Video Lessons” rows from the comparison table.",
-      "files": [
-        "frontend/src/pages/Compare.tsx"
-      ],
-      "components": [
-        "authorization@3.0.0",
-        "blob-storage@3.0.0",
-        "http-outcalls@3.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-5"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-create-and-apply-a-finance-related-logo-like-favicon-for-the-site",
-      "featureTitle": "Create and apply a finance-related, logo-like favicon for the site.",
-      "files": [
-        "frontend/public/favicon.svg"
-      ],
-      "components": [
-        "authorization@3.0.0",
-        "blob-storage@3.0.0",
-        "http-outcalls@3.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-6"
       ],
       "confidence": "high"
     }

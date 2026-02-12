@@ -110,8 +110,9 @@
   "frontend/src/lib/budget-planner/progress.ts": "Progress calculation helper that weights required fields at 70% and optional fields at 30% for completion tracking.",
   "frontend/src/lib/budget-planner/budgetLogic.ts": "Deterministic budget plan generator applying 50/30/20 or 60/30/10 rules based on savings preferences, calculating allocations, expense breakdowns, and listing assumptions for missing data.",
   "frontend/src/lib/budget-planner/healthScore.ts": "Finance health score calculator (0-100) evaluating savings rate, cash flow, emergency fund, debt management, and financial planning with plain-English explanations.",
-  "frontend/src/lib/budget-planner/recommendations.ts": "Generates friendly, actionable recommendations and exactly 3 monthly action steps based on user inputs and budget plan.",
+  "frontend/src/lib/budget-planner/recommendations.ts": "Generates personalized financial recommendations and 3-step action plans based on user inputs and budget plan, covering savings, investing, debt management, and financial education with educational disclaimers.",
   "frontend/src/lib/budget-planner/reminderIcs.ts": "ICS calendar file generator for downloading action step reminders without external services.",
   "frontend/src/content/staticProblemSolutionBlogs.ts": "Static array of 15 Problem→Solution finance blog entries with titles, problems, and solutions for direct rendering on the blog page.",
-  "frontend/public/favicon.svg": "Finance-themed SVG favicon featuring a blue circular background with a stylized dollar/rupee symbol in gold, overlaid with a green growth arrow and accent dots for a modern logo-like appearance."
+  "frontend/public/favicon.svg": "Finance-themed SVG favicon featuring a blue circular background with a stylized dollar/rupee symbol in gold, overlaid with a green growth arrow and accent dots for a modern logo-like appearance.",
+  "frontend/src/lib/budget-planner/projections.ts": "Helper module that generates 12-month savings projection data with monthly and cumulative values based on budget plan inputs, used for line chart visualization in the Budget Planner."
 }

@@ -12,20 +12,34 @@ import {
   ChevronUp, 
   Shield, 
   TrendingUp, 
-  PieChart, 
+  PieChart as PieChartIcon, 
   Target,
   Download,
   AlertCircle,
   CheckCircle2,
-  Info
+  Info,
+  LineChart as LineChartIcon
 } from 'lucide-react';
 import { useCurrency } from '../hooks/useCurrency';
-import { PieChart as RechartsPie, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { 
+  PieChart as RechartsPie, 
+  Pie, 
+  Cell, 
+  ResponsiveContainer, 
+  Legend, 
+  Tooltip,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid
+} from 'recharts';
 import { calculateProgress } from '../lib/budget-planner/progress';
 import { generateBudgetPlan, type BudgetInputs } from '../lib/budget-planner/budgetLogic';
 import { calculateHealthScore } from '../lib/budget-planner/healthScore';
 import { generateRecommendations, generateActionPlan } from '../lib/budget-planner/recommendations';
 import { generateICSFile } from '../lib/budget-planner/reminderIcs';
+import { generateProjection } from '../lib/budget-planner/projections';
 
 const EXPENSE_COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
@@ -164,12 +178,14 @@ export default function BudgetPlanner() {
     const healthScore = calculateHealthScore(inputs, plan);
     const recommendations = generateRecommendations(inputs, plan);
     const actionPlan = generateActionPlan(inputs, plan);
+    const projection = generateProjection(inputs, plan);
     
     setBudgetPlan({
       ...plan,
       healthScore,
       recommendations,
       actionPlan,
+      projection,
     });
     
     // Scroll to results
@@ -198,10 +214,10 @@ export default function BudgetPlanner() {
       {/* Header */}
       <div className="space-y-2">
         <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-chart-1 bg-clip-text text-transparent">
-          Budget Planner
+          Advanced Budget Planner
         </h1>
         <p className="text-muted-foreground text-lg">
-          Create a personalized budget plan based on your financial situation
+          Create a personalized budget plan with insights on saving, investing, and improving your finances
         </p>
       </div>
       
@@ -471,7 +487,7 @@ export default function BudgetPlanner() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="insurance">Insurance</Label>
+                  <Label htmlFor="insurance">Insurance Premiums</Label>
                   <Input
                     id="insurance"
                     type="number"
@@ -513,7 +529,7 @@ export default function BudgetPlanner() {
               <h3 className="font-semibold">Variable Expenses</h3>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="shopping">Shopping</Label>
+                  <Label htmlFor="shopping">Shopping & Personal Care</Label>
                   <Input
                     id="shopping"
                     type="number"
@@ -524,7 +540,7 @@ export default function BudgetPlanner() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="entertainment">Entertainment & Subscriptions</Label>
+                  <Label htmlFor="entertainment">Entertainment & Dining</Label>
                   <Input
                     id="entertainment"
                     type="number"
@@ -535,7 +551,7 @@ export default function BudgetPlanner() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="travel">Travel</Label>
+                  <Label htmlFor="travel">Travel & Vacation</Label>
                   <Input
                     id="travel"
                     type="number"
@@ -546,7 +562,7 @@ export default function BudgetPlanner() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="medical">Medical Expenses</Label>
+                  <Label htmlFor="medical">Medical & Healthcare</Label>
                   <Input
                     id="medical"
                     type="number"
@@ -561,38 +577,38 @@ export default function BudgetPlanner() {
             
             <Separator />
             
-            {/* Goals & Savings */}
+            {/* Financial Goals */}
             <div className="space-y-4">
-              <h3 className="font-semibold">Goals & Savings</h3>
+              <h3 className="font-semibold">Financial Goals & Planning</h3>
               <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
-                  <Label htmlFor="emergencyFund">Emergency Fund Status</Label>
+                  <Label htmlFor="emergencyFund">Current Emergency Fund</Label>
                   <Input
                     id="emergencyFund"
                     type="number"
-                    placeholder="Current amount"
+                    placeholder="Optional"
                     value={emergencyFund}
                     onChange={(e) => setEmergencyFund(e.target.value)}
                     min="0"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="retirementPlanning">Retirement Planning</Label>
+                  <Label htmlFor="retirementPlanning">Retirement Contributions</Label>
                   <Input
                     id="retirementPlanning"
                     type="number"
-                    placeholder="Monthly contribution"
+                    placeholder="Optional"
                     value={retirementPlanning}
                     onChange={(e) => setRetirementPlanning(e.target.value)}
                     min="0"
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="targetAmount">Target Amount</Label>
+                  <Label htmlFor="targetAmount">Target Savings Goal</Label>
                   <Input
                     id="targetAmount"
                     type="number"
-                    placeholder="Goal amount"
+                    placeholder="Optional"
                     value={targetAmount}
                     onChange={(e) => setTargetAmount(e.target.value)}
                     min="0"
@@ -603,12 +619,21 @@ export default function BudgetPlanner() {
                   <Input
                     id="timeline"
                     type="number"
-                    placeholder="Months to achieve goal"
+                    placeholder="Optional"
                     value={timeline}
                     onChange={(e) => setTimeline(e.target.value)}
                     min="0"
                   />
                 </div>
+              </div>
+            </div>
+            
+            <Separator />
+            
+            {/* Preferences */}
+            <div className="space-y-4">
+              <h3 className="font-semibold">Financial Preferences</h3>
+              <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="riskTolerance">Risk Tolerance</Label>
                   <Select value={riskTolerance} onValueChange={(v: any) => setRiskTolerance(v)}>
@@ -616,21 +641,12 @@ export default function BudgetPlanner() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="low">Low</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="low">Low (Conservative)</SelectItem>
+                      <SelectItem value="medium">Medium (Balanced)</SelectItem>
+                      <SelectItem value="high">High (Aggressive)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-            </div>
-            
-            <Separator />
-            
-            {/* Lifestyle & Habits */}
-            <div className="space-y-4">
-              <h3 className="font-semibold">Lifestyle & Habits</h3>
-              <div className="grid gap-4 md:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="spendingBehavior">Spending Behavior</Label>
                   <Select value={spendingBehavior} onValueChange={(v: any) => setSpendingBehavior(v)}>
@@ -656,7 +672,7 @@ export default function BudgetPlanner() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="financialKnowledge">Financial Knowledge Level</Label>
+                  <Label htmlFor="financialKnowledge">Financial Knowledge</Label>
                   <Select value={financialKnowledge} onValueChange={(v: any) => setFinancialKnowledge(v)}>
                     <SelectTrigger id="financialKnowledge">
                       <SelectValue />
@@ -680,10 +696,10 @@ export default function BudgetPlanner() {
           size="lg"
           onClick={handleGeneratePlan}
           disabled={!canGenerate}
-          className="w-full md:w-auto min-w-64 bg-gradient-to-r from-primary to-chart-1 hover:from-primary/90 hover:to-chart-1/90"
+          className="px-8"
         >
           <TrendingUp className="w-5 h-5 mr-2" />
-          Generate Budget Plan
+          Generate My Budget Plan
         </Button>
       </div>
       
@@ -697,114 +713,118 @@ export default function BudgetPlanner() {
               Your Personalized Budget Plan
             </h2>
             <p className="text-muted-foreground">
-              Based on your inputs, here's your customized financial roadmap
+              Based on your inputs, here's your comprehensive financial roadmap
             </p>
           </div>
           
-          {/* Finance Health Score */}
-          <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-chart-1/5">
+          {/* Health Score */}
+          <Card className="border-2 border-primary/30">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Target className="w-5 h-5" />
-                Finance Health Score
+                <CheckCircle2 className="w-6 h-6 text-primary" />
+                Financial Health Score
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-4">
-                <div className="text-5xl font-bold bg-gradient-to-r from-primary to-chart-1 bg-clip-text text-transparent">
+                <div className="text-5xl font-bold text-primary">
                   {budgetPlan.healthScore.score}
                 </div>
-                <div className="text-2xl text-muted-foreground">/ 100</div>
+                <div className="flex-1">
+                  <Progress value={budgetPlan.healthScore.score} className="h-3" />
+                  <p className="text-sm text-muted-foreground mt-2">
+                    {budgetPlan.healthScore.explanation}
+                  </p>
+                </div>
               </div>
-              <Progress value={budgetPlan.healthScore.score} className="h-3" />
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {budgetPlan.healthScore.explanation}
-              </p>
             </CardContent>
           </Card>
           
-          {/* Budget Summary */}
-          <div className="grid gap-6 md:grid-cols-3">
+          {/* Summary Cards */}
+          <div className="grid gap-4 md:grid-cols-3">
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Total Income</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Income</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold text-primary">
-                  {format(budgetPlan.summary.totalIncome)}
-                </p>
+                <div className="text-2xl font-bold text-primary">{format(budgetPlan.summary.totalIncome)}</div>
               </CardContent>
             </Card>
-            
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Total Expenses</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Total Expenses</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold text-destructive">
-                  {format(budgetPlan.summary.totalExpenses)}
-                </p>
+                <div className="text-2xl font-bold text-destructive">{format(budgetPlan.summary.totalExpenses)}</div>
               </CardContent>
             </Card>
-            
             <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Suggested Savings</CardTitle>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Monthly Savings</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-3xl font-bold text-chart-1">
-                  {format(budgetPlan.summary.suggestedSavings)}
-                </p>
+                <div className="text-2xl font-bold text-chart-1">{format(budgetPlan.summary.totalSavings)}</div>
               </CardContent>
             </Card>
           </div>
           
-          {/* Allocation */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Budget Allocation</CardTitle>
-              <CardDescription>
-                {budgetPlan.allocation.rule} rule applied
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Needs ({budgetPlan.allocation.needs.percentage}%)</span>
-                    <span className="text-sm font-semibold">{format(budgetPlan.allocation.needs.amount)}</span>
-                  </div>
-                  <Progress value={budgetPlan.allocation.needs.percentage} className="h-2" />
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Wants ({budgetPlan.allocation.wants.percentage}%)</span>
-                    <span className="text-sm font-semibold">{format(budgetPlan.allocation.wants.amount)}</span>
-                  </div>
-                  <Progress value={budgetPlan.allocation.wants.percentage} className="h-2" />
-                </div>
-                
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">Savings ({budgetPlan.allocation.savings.percentage}%)</span>
-                    <span className="text-sm font-semibold">{format(budgetPlan.allocation.savings.amount)}</span>
-                  </div>
-                  <Progress value={budgetPlan.allocation.savings.percentage} className="h-2" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Visual Insights */}
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* Expense Pie Chart */}
+          {/* Charts Section */}
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* Line Chart - Savings Projection */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <PieChart className="w-5 h-5" />
+                  <LineChartIcon className="w-5 h-5 text-primary" />
+                  12-Month Savings Projection
+                </CardTitle>
+                <CardDescription>
+                  Your projected savings growth over the next year
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={budgetPlan.projection.monthlyData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis 
+                      dataKey="month" 
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                    />
+                    <YAxis 
+                      stroke="hsl(var(--muted-foreground))"
+                      fontSize={12}
+                      tickFormatter={(value) => format(value)}
+                    />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--card))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                      }}
+                      formatter={(value: any) => [format(value), 'Cumulative Savings']}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="cumulativeSavings" 
+                      stroke="hsl(var(--primary))" 
+                      strokeWidth={3}
+                      dot={{ fill: 'hsl(var(--primary))', r: 4 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+            
+            {/* Pie Chart - Expense Breakdown */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <PieChartIcon className="w-5 h-5 text-primary" />
                   Expense Breakdown
                 </CardTitle>
+                <CardDescription>
+                  How your money is allocated across categories
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={300}>
@@ -814,142 +834,218 @@ export default function BudgetPlanner() {
                       cx="50%"
                       cy="50%"
                       labelLine={false}
-                      label={(entry) => `${entry.name}: ${entry.percentage}%`}
-                      outerRadius={80}
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={100}
                       fill="#8884d8"
-                      dataKey="amount"
+                      dataKey="value"
                     >
                       {budgetPlan.expenseBreakdown.map((entry: any, index: number) => (
                         <Cell key={`cell-${index}`} fill={EXPENSE_COLORS[index % EXPENSE_COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value: any) => format(value)} />
-                    <Legend />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: 'hsl(var(--card))',
+                        border: '1px solid hsl(var(--border))',
+                        borderRadius: '8px',
+                      }}
+                      formatter={(value: any) => format(value)}
+                    />
                   </RechartsPie>
                 </ResponsiveContainer>
               </CardContent>
             </Card>
-            
-            {/* Savings Progress */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Savings Progress</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Current Savings</span>
-                    <span className="text-sm font-semibold">{format(budgetPlan.savingsProgress.current)}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm">Target Savings</span>
-                    <span className="text-sm font-semibold">{format(budgetPlan.savingsProgress.target)}</span>
-                  </div>
-                  <Progress value={budgetPlan.savingsProgress.percentage} className="h-3" />
-                  <p className="text-xs text-muted-foreground text-center">
-                    {budgetPlan.savingsProgress.percentage.toFixed(1)}% of target achieved
-                  </p>
-                </div>
-                
-                <Separator />
-                
-                <div className="space-y-2">
-                  <h4 className="font-semibold text-sm">Cash Flow Summary</h4>
-                  <div className="space-y-1 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Monthly Surplus:</span>
-                      <span className={budgetPlan.cashFlow.surplus >= 0 ? 'text-chart-1 font-semibold' : 'text-destructive font-semibold'}>
-                        {format(budgetPlan.cashFlow.surplus)}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Savings Rate:</span>
-                      <span className="font-semibold">{budgetPlan.cashFlow.savingsRate.toFixed(1)}%</span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
           </div>
           
+          {/* Allocations */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Budget Allocations</CardTitle>
+              <CardDescription>Recommended spending limits by category</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {Object.entries(budgetPlan.allocations).map(([key, value]: [string, any]) => (
+                <div key={key} className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                    <span className="text-sm text-muted-foreground">{format(value)}</span>
+                  </div>
+                  <Progress 
+                    value={(value / budgetPlan.summary.totalIncome) * 100} 
+                    className="h-2"
+                  />
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+          
+          {/* Guidance Section */}
+          <Card className="border-2 border-chart-1/30 bg-gradient-to-br from-chart-1/5 to-chart-2/5">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Target className="w-6 h-6 text-chart-1" />
+                Financial Guidance & Next Steps
+              </CardTitle>
+              <CardDescription>
+                Personalized advice to improve your finances
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Recommendations */}
+              <div className="space-y-3">
+                <h3 className="font-semibold text-lg">Key Recommendations</h3>
+                <ul className="space-y-2">
+                  {budgetPlan.recommendations.map((rec: string, index: number) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <CheckCircle2 className="w-5 h-5 text-chart-1 shrink-0 mt-0.5" />
+                      <span className="text-sm">{rec}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <Separator />
+              
+              {/* Saving Advice */}
+              <div className="space-y-3">
+                <h3 className="font-semibold text-lg">Saving Strategy</h3>
+                <div className="bg-card/50 p-4 rounded-lg space-y-2">
+                  <p className="text-sm">
+                    <strong>Current Savings Rate:</strong> {budgetPlan.cashFlow.savingsRate.toFixed(1)}% of income
+                  </p>
+                  <p className="text-sm">
+                    {budgetPlan.cashFlow.savingsRate < 10 
+                      ? "Aim to increase your savings rate to at least 10-15% by reducing discretionary spending. Start small and gradually increase."
+                      : budgetPlan.cashFlow.savingsRate < 20
+                      ? "Good progress! Try to reach 20% savings rate for optimal financial health. Consider automating your savings."
+                      : "Excellent savings rate! Maintain this discipline and explore investment opportunities to grow your wealth faster."}
+                  </p>
+                </div>
+              </div>
+              
+              <Separator />
+              
+              {/* Investing Advice */}
+              <div className="space-y-3">
+                <h3 className="font-semibold text-lg">Investing for Beginners</h3>
+                <div className="bg-card/50 p-4 rounded-lg space-y-2">
+                  <p className="text-sm">
+                    <strong>Based on your risk tolerance ({riskTolerance}):</strong>
+                  </p>
+                  <ul className="text-sm space-y-1 ml-4 list-disc">
+                    {riskTolerance === 'low' && (
+                      <>
+                        <li>Consider fixed deposits, bonds, and debt mutual funds</li>
+                        <li>Allocate 70-80% to debt instruments, 20-30% to equity</li>
+                        <li>Focus on capital preservation with modest growth</li>
+                      </>
+                    )}
+                    {riskTolerance === 'medium' && (
+                      <>
+                        <li>Balance between equity and debt (50-50 or 60-40)</li>
+                        <li>Start SIPs in diversified equity mutual funds</li>
+                        <li>Consider index funds for low-cost diversification</li>
+                      </>
+                    )}
+                    {riskTolerance === 'high' && (
+                      <>
+                        <li>Allocate 70-80% to equity mutual funds or stocks</li>
+                        <li>Explore growth-oriented sectors and mid-cap funds</li>
+                        <li>Maintain 20-30% in debt for stability</li>
+                      </>
+                    )}
+                  </ul>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    <em>Educational guidance only. Consult a certified financial advisor before investing.</em>
+                  </p>
+                </div>
+              </div>
+              
+              <Separator />
+              
+              {/* Improvement Tips */}
+              <div className="space-y-3">
+                <h3 className="font-semibold text-lg">How to Improve Your Finances</h3>
+                <div className="grid gap-3 md:grid-cols-2">
+                  <div className="bg-card/50 p-3 rounded-lg">
+                    <h4 className="font-medium text-sm mb-1">Build Emergency Fund</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Aim for 3-6 months of expenses in a liquid account before aggressive investing
+                    </p>
+                  </div>
+                  <div className="bg-card/50 p-3 rounded-lg">
+                    <h4 className="font-medium text-sm mb-1">Reduce High-Interest Debt</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Pay off credit cards and personal loans first—they cost more than investments earn
+                    </p>
+                  </div>
+                  <div className="bg-card/50 p-3 rounded-lg">
+                    <h4 className="font-medium text-sm mb-1">Automate Savings</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Set up automatic transfers on payday to save before you spend
+                    </p>
+                  </div>
+                  <div className="bg-card/50 p-3 rounded-lg">
+                    <h4 className="font-medium text-sm mb-1">Track & Review Monthly</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Review your budget monthly and adjust based on actual spending patterns
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Action Plan */}
+          <Card>
+            <CardHeader>
+              <CardTitle>3-Step Action Plan</CardTitle>
+              <CardDescription>Your monthly financial to-do list</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {budgetPlan.actionPlan.map((step: string, index: number) => (
+                <div key={index} className="flex items-start gap-3 p-4 bg-muted/50 rounded-lg">
+                  <Badge className="shrink-0">Step {index + 1}</Badge>
+                  <div className="flex-1">
+                    <p className="text-sm">{step}</p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => downloadReminder(step, index)}
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Reminder
+                  </Button>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+          
           {/* Assumptions */}
-          {budgetPlan.assumptions.length > 0 && (
-            <Card className="border-amber-500/20 bg-amber-500/5">
+          {budgetPlan.assumptions && budgetPlan.assumptions.length > 0 && (
+            <Card className="border-dashed">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
-                  <AlertCircle className="w-5 h-5" />
-                  Assumptions Used
-                </CardTitle>
-                <CardDescription>
-                  These defaults were applied where data was not provided
-                </CardDescription>
+                <CardTitle className="text-sm">Assumptions Made</CardTitle>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2">
+                <ul className="text-sm text-muted-foreground space-y-1">
                   {budgetPlan.assumptions.map((assumption: string, index: number) => (
-                    <li key={index} className="flex items-start gap-2 text-sm">
-                      <span className="text-amber-600 dark:text-amber-400 mt-0.5">•</span>
-                      <span>{assumption}</span>
-                    </li>
+                    <li key={index}>• {assumption}</li>
                   ))}
                 </ul>
               </CardContent>
             </Card>
           )}
           
-          {/* Recommendations */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CheckCircle2 className="w-5 h-5 text-chart-1" />
-                Smart Recommendations
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-3">
-                {budgetPlan.recommendations.map((rec: string, index: number) => (
-                  <li key={index} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                    <CheckCircle2 className="w-5 h-5 text-chart-1 shrink-0 mt-0.5" />
-                    <span className="text-sm leading-relaxed">{rec}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-          
-          {/* Action Plan */}
-          <Card className="border-primary/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="w-5 h-5 text-primary" />
-                Your 3-Step Action Plan
-              </CardTitle>
-              <CardDescription>
-                Clear steps to implement this month
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {budgetPlan.actionPlan.map((step: string, index: number) => (
-                  <div key={index} className="flex items-start gap-4 p-4 rounded-lg bg-gradient-to-br from-primary/5 to-chart-1/5 border border-primary/10">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground font-bold shrink-0">
-                      {index + 1}
-                    </div>
-                    <div className="flex-1 space-y-2">
-                      <p className="text-sm leading-relaxed">{step}</p>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => downloadReminder(step, index)}
-                        className="mt-2"
-                      >
-                        <Download className="w-4 h-4 mr-2" />
-                        Download Reminder
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+          {/* Disclaimer */}
+          <Card className="border-2 border-yellow-500/20 bg-yellow-500/5">
+            <CardContent className="pt-6">
+              <p className="text-sm text-muted-foreground">
+                <strong>Educational Disclaimer:</strong> This budget plan is for educational purposes only and does not constitute financial advice. 
+                Results are based on the information you provided and general financial principles. Always consult with a qualified financial advisor 
+                before making significant financial decisions.
+              </p>
             </CardContent>
           </Card>
         </div>

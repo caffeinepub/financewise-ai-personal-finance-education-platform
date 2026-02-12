@@ -1,59 +1,24 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Quiz app updates: expand quiz page to 100 meaningful finance quizzes, update private dashboard styling, add public cookie consent, update compare page content, change contact email, and add a finance-themed favicon.",
+  "summary": "Personal finance web app featuring an advanced budget planner (with charts and actionable finance guidance), expanded quiz content, SEO-focused blog library, and updated UI theming (background + sidebar styling).",
   "architectural_notes": [],
-  "known_issues": [
-    "Quiz page currently shows only 2 quizzes; expected 100."
-  ],
-  "isFixRequest": true,
-  "imageRequirements": "## Edit Images\n- Redesign into a finance-related, logo-like mark (favicon.svg > favicon.svg)",
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-expand-the-quiz-question-dataset-to-include-100-meaningful-finance-related-quiz-questions-mixed-finance-topics-so-the-quiz-page-can-run-through-questions-and-validate-answers-properly-not-just-2-questions",
-      "title": "Expand the quiz question dataset to include 100 meaningful, finance-related quiz questions (mixed finance topics) so the quiz page can run through questions and validate answers properly (not just 2 questions).",
+      "id": "feature-enhance-the-budget-planner-experience-to-be-more-advanced-and-realistic-by-adding-additional-financial-insights-and-visualizations-include-at-least-one-line-chart-e-g-cashflow-savings-projection-over-time-and-ensure-a-clear-pie-chart-breakdown-is-presented-add-explicit-guidance-sections-that-answer-how-to-improve-personal-finances-with-actionable-suggestions-on-saving-investing-and-next-steps-based-on-the-user-inputs",
+      "title": "Enhance the Budget Planner experience to be more advanced and realistic by adding additional financial insights and visualizations: include at least one line chart (e.g., cashflow/savings projection over time) and ensure a clear pie chart breakdown is presented; add explicit guidance sections that answer how to improve personal finances with actionable suggestions on saving, investing, and next steps based on the user inputs.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-update-the-authenticated-private-dashboard-layout-so-the-entire-sidebar-navigation-background-is-violet",
-      "title": "Update the authenticated/private dashboard layout so the entire sidebar navigation background is violet.",
+      "id": "feature-increase-the-quiz-question-library-to-at-least-100-unique-finance-quiz-questions-and-ensure-the-app-actually-uses-them-i-e-the-quiz-initialization-and-quiz-flow-should-reflect-100-total-questions-rather-than-only-a-small-set-questions-must-cover-a-broad-set-of-personal-finance-topics-including-saving-strategies-budgeting-methods-investing-for-beginners-stock-market-basics-mutual-funds-sip-investing-and-emergency-funds",
+      "title": "Increase the quiz question library to at least 100 unique finance quiz questions and ensure the app actually uses them (i.e., the quiz initialization and quiz flow should reflect 100+ total questions rather than only a small set). Questions must cover a broad set of personal finance topics, including saving strategies, budgeting methods, investing for beginners, stock market basics, mutual funds, SIP investing, and emergency funds.",
       "reqIds": [
         "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-implement-a-cookie-consent-popup-on-public-non-authenticated-pages-that-includes-an-accept-button-and-can-be-dismissed-remembered-after-acceptance",
-      "title": "Implement a cookie-consent popup on public (non-authenticated) pages that includes an Accept button and can be dismissed/remembered after acceptance.",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-the-displayed-contact-email-address-to-fwiseai-gmail-com-anywhere-it-appears-in-the-public-contact-support-ui",
-      "title": "Update the displayed contact email address to fwiseai@gmail.com anywhere it appears in the public contact/support UI.",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-update-the-compare-page-to-remove-the-no-ads-and-video-lessons-rows-from-the-comparison-table",
-      "title": "Update the Compare page to remove the “No Ads” and “Video Lessons” rows from the comparison table.",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-create-and-apply-a-finance-related-logo-like-favicon-for-the-site",
-      "title": "Create and apply a finance-related, logo-like favicon for the site.",
-      "reqIds": [
-        "REQ-6"
       ],
       "version": 1
     }
@@ -61,42 +26,68 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Generate and add 100 meaningful finance-related quizzes on the quiz page, with proper question/answer functionality (currently only 2).",
+      "summary": "Enhance budget planner with more advanced/realistic features, including line & pie charts and guidance on saving, investing, and improving personal finances",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Change private dashboard sidebar to have a violet background (entire sidebar).",
+      "summary": "Increase quiz content from 2 to 100 unique quizzes",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-3",
-      "summary": "Add cookie consent popup on public pages with an Accept button.",
+      "summary": "Replace all existing blog page content and add 15+ SEO-written personal finance blogs (800+ words each) covering specified real-world problem-solving topics",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-4",
-      "summary": "Create and apply a finance-themed logo-like favicon.",
+      "summary": "Update background color theme (purple/violet/blue) to a more creative/advanced look for both private and public pages",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-5",
-      "summary": "Update contact email to fwiseai@gmail.com.",
+      "summary": "Style sidebar as dark with green hover effects",
       "reqIds": [],
       "status": "pending"
     },
     {
-      "id": "AR-6",
-      "summary": "Remove \"No ads\" and \"Video lessons\" from the compare page.",
-      "reqIds": [],
+      "id": "AR-8",
+      "summary": "Remove/replace all existing content shown on the Blogs page and publish a new library of at least 15 SEO-focused long-form blog posts (minimum 800+ words each) about personal finance, written to address real-world problems with practical solutions. The set must include posts that cover: Personal finance, Saving strategies, Budgeting methods, Investing for beginners, Stock market basics, Mutual funds, SIP investment, and Emergency funds.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-9",
+      "summary": "Update the app’s overall background styling to remove the current purple/violet/blue-heavy background look and replace it with a more creative, advanced theme applied consistently across both public pages (unauthenticated) and private/authenticated pages.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-10",
+      "summary": "Restyle the authenticated app sidebar to be dark and use green hover effects for navigation items, while preserving current navigation structure and active-state clarity.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Resolve the internal contradiction between the current repository requirement that forbids quiz changes and the new request to add 100+ questions by updating the internal requirement documentation so it no longer instructs developers to avoid quiz question additions for this build.",
+      "reqIds": [
+        "REQ-6"
+      ],
       "status": "pending"
     }
   ],
-  "projectName": "Expand quiz content to 100 questions, add cookie consent, update dashboard sidebar styling, compare/contact updates, and finance favicon",
+  "projectName": "Advance Budget Planner, expand quizzes to 100, replace blog library with 15+ SEO long-form posts, and refresh theme + sidebar styling",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

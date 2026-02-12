@@ -1,103 +1,100 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-10T09:23:03.980Z",
+  "generatedAt": "2026-02-12T11:35:40.384Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 6,
-    "implemented": 6,
+    "implemented": 2,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Expand the quiz question dataset to include 100 meaningful, finance-related quiz questions (mixed finance topics) so the quiz page can run through questions and validate answers properly (not just 2 questions).",
+        "summary": "Enhance the Budget Planner experience to be more advanced and realistic by adding additional financial insights and visualizations: include at least one line chart (e.g., cashflow/savings projection over time) and ensure a clear pie chart breakdown is presented; add explicit guidance sections that answer how to improve personal finances with actionable suggestions on saving, investing, and next steps based on the user inputs.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/content/defaultQuizQuestions.ts"
+          "frontend/src/pages/BudgetPlanner.tsx",
+          "frontend/src/lib/budget-planner/budgetLogic.ts",
+          "frontend/src/lib/budget-planner/recommendations.ts",
+          "frontend/src/lib/budget-planner/projections.ts"
         ],
         "matchedFiles": [
-          "frontend/src/content/defaultQuizQuestions.ts"
+          "frontend/src/pages/BudgetPlanner.tsx",
+          "frontend/src/lib/budget-planner/recommendations.ts",
+          "frontend/src/lib/budget-planner/projections.ts"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Update the authenticated/private dashboard layout so the entire sidebar navigation background is violet.",
+        "summary": "Increase the quiz question library to at least 100 unique finance quiz questions and ensure the app actually uses them (i.e., the quiz initialization and quiz flow should reflect 100+ total questions rather than only a small set). Questions must cover a broad set of personal finance topics, including saving strategies, budgeting methods, investing for beginners, stock market basics, mutual funds, SIP investing, and emergency funds.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/AppLayout.tsx"
+          "frontend/src/content/defaultQuizQuestions.ts",
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/lib/quizProgressStorage.ts",
+          "frontend/src/pages/Quiz.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/components/AppLayout.tsx"
+          "frontend/src/content/defaultQuizQuestions.ts"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Implement a cookie-consent popup on public (non-authenticated) pages that includes an Accept button and can be dismissed/remembered after acceptance.",
-        "status": "implemented",
+        "summary": "Remove/replace all existing content shown on the Blogs page and publish a new library of at least 15 SEO-focused long-form blog posts (minimum 800+ words each) about personal finance, written to address real-world problems with practical solutions. The set must include posts that cover: Personal finance, Saving strategies, Budgeting methods, Investing for beginners, Stock market basics, Mutual funds, SIP investment, and Emergency funds.",
+        "status": "missing",
         "plannedFiles": [
-          "frontend/src/components/CookieConsent.tsx",
-          "frontend/src/components/Header.tsx"
+          "frontend/src/pages/FinanceBlog.tsx",
+          "frontend/src/content/defaultBlogPosts.ts",
+          "frontend/src/pages/BlogPost.tsx",
+          "frontend/src/content/staticProblemSolutionBlogs.ts"
         ],
-        "matchedFiles": [
-          "frontend/src/components/CookieConsent.tsx",
-          "frontend/src/components/Header.tsx"
-        ]
+        "matchedFiles": []
       },
       {
         "id": "REQ-4",
-        "summary": "Update the displayed contact email address to fwiseai@gmail.com anywhere it appears in the public contact/support UI.",
-        "status": "implemented",
+        "summary": "Update the app’s overall background styling to remove the current purple/violet/blue-heavy background look and replace it with a more creative, advanced theme applied consistently across both public pages (unauthenticated) and private/authenticated pages.",
+        "status": "missing",
         "plannedFiles": [
-          "frontend/src/pages/Contact.tsx",
-          "frontend/src/pages/CustomerCare.tsx"
+          "frontend/src/index.css",
+          "frontend/src/components/AppLayout.tsx",
+          "frontend/src/pages/FinanceBlog.tsx",
+          "frontend/src/pages/BlogPost.tsx",
+          "frontend/src/pages/Quiz.tsx"
         ],
-        "matchedFiles": [
-          "frontend/src/pages/Contact.tsx",
-          "frontend/src/pages/CustomerCare.tsx"
-        ]
+        "matchedFiles": []
       },
       {
         "id": "REQ-5",
-        "summary": "Update the Compare page to remove the “No Ads” and “Video Lessons” rows from the comparison table.",
-        "status": "implemented",
+        "summary": "Restyle the authenticated app sidebar to be dark and use green hover effects for navigation items, while preserving current navigation structure and active-state clarity.",
+        "status": "missing",
         "plannedFiles": [
-          "frontend/src/pages/Compare.tsx"
+          "frontend/src/components/AppLayout.tsx",
+          "frontend/src/index.css"
         ],
-        "matchedFiles": [
-          "frontend/src/pages/Compare.tsx"
-        ]
+        "matchedFiles": []
       },
       {
         "id": "REQ-6",
-        "summary": "Create and apply a finance-related, logo-like favicon for the site.",
-        "status": "implemented",
+        "summary": "Resolve the internal contradiction between the current repository requirement that forbids quiz changes and the new request to add 100+ questions by updating the internal requirement documentation so it no longer instructs developers to avoid quiz question additions for this build.",
+        "status": "missing",
         "plannedFiles": [
-          "frontend/public/favicon.svg",
-          "frontend/index.html"
+          "frontend/src/requirements/REQ-10-quiz-no-changes.md"
         ],
-        "matchedFiles": [
-          "frontend/public/favicon.svg"
-        ]
+        "matchedFiles": []
       }
     ]
   },
   "changedFiles": [
     "build-request.json",
-    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/public/assets/generated/favicon.png",
-    "frontend/public/favicon.svg",
-    "frontend/src/components/AppLayout.tsx",
-    "frontend/src/components/CookieConsent.tsx",
-    "frontend/src/components/Header.tsx",
     "frontend/src/content/defaultQuizQuestions.ts",
-    "frontend/src/pages/Compare.tsx",
-    "frontend/src/pages/Contact.tsx",
-    "frontend/src/pages/CustomerCare.tsx",
+    "frontend/src/lib/budget-planner/projections.ts",
+    "frontend/src/lib/budget-planner/recommendations.ts",
+    "frontend/src/pages/BudgetPlanner.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",
