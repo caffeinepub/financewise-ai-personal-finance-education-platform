@@ -2,12 +2,15 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-enhance-the-budget-planner-experience-to-be-more-advanced-and-realistic-by-adding-additional-financial-insights-and-visualizations-include-at-least-one-line-chart-e-g-cashflow-savings-projection-over-time-and-ensure-a-clear-pie-chart-breakdown-is-presented-add-explicit-guidance-sections-that-answer-how-to-improve-personal-finances-with-actionable-suggestions-on-saving-investing-and-next-steps-based-on-the-user-inputs",
-      "featureTitle": "Enhance the Budget Planner experience to be more advanced and realistic by adding additional financial insights and visualizations: include at least one line chart (e.g., cashflow/savings projection over time) and ensure a clear pie chart breakdown is presented; add explicit guidance sections that answer how to improve personal finances with actionable suggestions on saving, investing, and next steps based on the user inputs.",
+      "featureId": "feature-add-a-single-explicit-application-version-identifier-that-can-be-set-at-build-time-and-surfaced-in-the-ui-so-operators-can-verify-that-the-deployed-build-is-version-242-and-not-244",
+      "featureTitle": "Add a single, explicit application version identifier that can be set at build time and surfaced in the UI so operators can verify that the deployed build is version 242 (and not 244).",
       "files": [
-        "frontend/src/lib/budget-planner/projections.ts",
-        "frontend/src/lib/budget-planner/recommendations.ts",
-        "frontend/src/pages/BudgetPlanner.tsx"
+        "frontend/.env.example",
+        "frontend/src/components/AppLayout.tsx",
+        "frontend/src/components/BuildVersionBadge.tsx",
+        "frontend/src/components/Footer.tsx",
+        "frontend/src/lib/buildInfo.ts",
+        "frontend/vercel.json"
       ],
       "components": [
         "authorization@3.0.0",
@@ -25,10 +28,13 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-increase-the-quiz-question-library-to-at-least-100-unique-finance-quiz-questions-and-ensure-the-app-actually-uses-them-i-e-the-quiz-initialization-and-quiz-flow-should-reflect-100-total-questions-rather-than-only-a-small-set-questions-must-cover-a-broad-set-of-personal-finance-topics-including-saving-strategies-budgeting-methods-investing-for-beginners-stock-market-basics-mutual-funds-sip-investing-and-emergency-funds",
-      "featureTitle": "Increase the quiz question library to at least 100 unique finance quiz questions and ensure the app actually uses them (i.e., the quiz initialization and quiz flow should reflect 100+ total questions rather than only a small set). Questions must cover a broad set of personal finance topics, including saving strategies, budgeting methods, investing for beginners, stock market basics, mutual funds, SIP investing, and emergency funds.",
+      "featureId": "feature-implement-the-currently-empty-deployment-info-page-to-show-build-version-information-and-any-other-locally-available-build-metadata-so-reviewers-can-confirm-the-running-version-in-draft-and-production",
+      "featureTitle": "Implement the currently-empty Deployment Info page to show build/version information (and any other locally-available build metadata) so reviewers can confirm the running version in draft and production.",
       "files": [
-        "frontend/src/content/defaultQuizQuestions.ts"
+        "frontend/src/App.tsx",
+        "frontend/src/components/Footer.tsx",
+        "frontend/src/hooks/useBackendVersion.ts",
+        "frontend/src/pages/DeploymentInfo.tsx"
       ],
       "components": [
         "authorization@3.0.0",
@@ -42,6 +48,28 @@
       ],
       "testIds": [
         "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-lightweight-deployment-safety-check-in-the-frontend-that-warns-the-user-when-the-displayed-build-version-is-not-the-requested-target-version-242-to-reduce-the-risk-of-mistakenly-reviewing-publishing-244-again",
+      "featureTitle": "Add a lightweight deployment safety check in the frontend that warns the user when the displayed build version is not the requested target version \"242\" (to reduce the risk of mistakenly reviewing/publishing 244 again).",
+      "files": [
+        "frontend/src/lib/buildInfo.ts",
+        "frontend/src/pages/DeploymentInfo.tsx"
+      ],
+      "components": [
+        "authorization@3.0.0",
+        "blob-storage@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
       ],
       "confidence": "high"
     }

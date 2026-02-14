@@ -1,24 +1,34 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Personal finance web app featuring an advanced budget planner (with charts and actionable finance guidance), expanded quiz content, SEO-focused blog library, and updated UI theming (background + sidebar styling).",
+  "summary": "Project involves managing deployments/rollbacks: revert and fully rebuild version 242 (draft and production).",
   "architectural_notes": [],
-  "known_issues": [],
-  "isFixRequest": false,
+  "known_issues": [
+    "Confusion/incorrect execution risk: revert/rebuild request for version 242 repeatedly results in deploying version 244; deployment workflow needs clearer confirmation and correct target version handling."
+  ],
+  "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-enhance-the-budget-planner-experience-to-be-more-advanced-and-realistic-by-adding-additional-financial-insights-and-visualizations-include-at-least-one-line-chart-e-g-cashflow-savings-projection-over-time-and-ensure-a-clear-pie-chart-breakdown-is-presented-add-explicit-guidance-sections-that-answer-how-to-improve-personal-finances-with-actionable-suggestions-on-saving-investing-and-next-steps-based-on-the-user-inputs",
-      "title": "Enhance the Budget Planner experience to be more advanced and realistic by adding additional financial insights and visualizations: include at least one line chart (e.g., cashflow/savings projection over time) and ensure a clear pie chart breakdown is presented; add explicit guidance sections that answer how to improve personal finances with actionable suggestions on saving, investing, and next steps based on the user inputs.",
+      "id": "feature-add-a-single-explicit-application-version-identifier-that-can-be-set-at-build-time-and-surfaced-in-the-ui-so-operators-can-verify-that-the-deployed-build-is-version-242-and-not-244",
+      "title": "Add a single, explicit application version identifier that can be set at build time and surfaced in the UI so operators can verify that the deployed build is version 242 (and not 244).",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-increase-the-quiz-question-library-to-at-least-100-unique-finance-quiz-questions-and-ensure-the-app-actually-uses-them-i-e-the-quiz-initialization-and-quiz-flow-should-reflect-100-total-questions-rather-than-only-a-small-set-questions-must-cover-a-broad-set-of-personal-finance-topics-including-saving-strategies-budgeting-methods-investing-for-beginners-stock-market-basics-mutual-funds-sip-investing-and-emergency-funds",
-      "title": "Increase the quiz question library to at least 100 unique finance quiz questions and ensure the app actually uses them (i.e., the quiz initialization and quiz flow should reflect 100+ total questions rather than only a small set). Questions must cover a broad set of personal finance topics, including saving strategies, budgeting methods, investing for beginners, stock market basics, mutual funds, SIP investing, and emergency funds.",
+      "id": "feature-implement-the-currently-empty-deployment-info-page-to-show-build-version-information-and-any-other-locally-available-build-metadata-so-reviewers-can-confirm-the-running-version-in-draft-and-production",
+      "title": "Implement the currently-empty Deployment Info page to show build/version information (and any other locally-available build metadata) so reviewers can confirm the running version in draft and production.",
       "reqIds": [
         "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-lightweight-deployment-safety-check-in-the-frontend-that-warns-the-user-when-the-displayed-build-version-is-not-the-requested-target-version-242-to-reduce-the-risk-of-mistakenly-reviewing-publishing-244-again",
+      "title": "Add a lightweight deployment safety check in the frontend that warns the user when the displayed build version is not the requested target version \"242\" (to reduce the risk of mistakenly reviewing/publishing 244 again).",
+      "reqIds": [
+        "REQ-4"
       ],
       "version": 1
     }
@@ -26,68 +36,20 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Enhance budget planner with more advanced/realistic features, including line & pie charts and guidance on saving, investing, and improving personal finances",
+      "summary": "Revert/rollback to version 242 and perform a full rebuild deployment (draft environment and production)",
       "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-2",
-      "summary": "Increase quiz content from 2 to 100 unique quizzes",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Replace all existing blog page content and add 15+ SEO-written personal finance blogs (800+ words each) covering specified real-world problem-solving topics",
-      "reqIds": [],
-      "status": "pending"
+      "status": "in_progress"
     },
     {
       "id": "AR-4",
-      "summary": "Update background color theme (purple/violet/blue) to a more creative/advanced look for both private and public pages",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-5",
-      "summary": "Style sidebar as dark with green hover effects",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
-      "id": "AR-8",
-      "summary": "Remove/replace all existing content shown on the Blogs page and publish a new library of at least 15 SEO-focused long-form blog posts (minimum 800+ words each) about personal finance, written to address real-world problems with practical solutions. The set must include posts that cover: Personal finance, Saving strategies, Budgeting methods, Investing for beginners, Stock market basics, Mutual funds, SIP investment, and Emergency funds.",
+      "summary": "Expose a backend query method that returns a backend build/version identifier so the frontend can display both frontend and backend versions for deployment verification when rebuilding version 242.",
       "reqIds": [
         "REQ-3"
       ],
       "status": "pending"
-    },
-    {
-      "id": "AR-9",
-      "summary": "Update the app’s overall background styling to remove the current purple/violet/blue-heavy background look and replace it with a more creative, advanced theme applied consistently across both public pages (unauthenticated) and private/authenticated pages.",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-10",
-      "summary": "Restyle the authenticated app sidebar to be dark and use green hover effects for navigation items, while preserving current navigation structure and active-state clarity.",
-      "reqIds": [
-        "REQ-5"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-11",
-      "summary": "Resolve the internal contradiction between the current repository requirement that forbids quiz changes and the new request to add 100+ questions by updating the internal requirement documentation so it no longer instructs developers to avoid quiz question additions for this build.",
-      "reqIds": [
-        "REQ-6"
-      ],
-      "status": "pending"
     }
   ],
-  "projectName": "Advance Budget Planner, expand quizzes to 100, replace blog library with 15+ SEO long-form posts, and refresh theme + sidebar styling",
+  "projectName": "Prevent wrong-version deployments and support verified rebuild of version 242",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

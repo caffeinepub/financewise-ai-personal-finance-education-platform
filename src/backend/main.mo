@@ -34,6 +34,7 @@ actor {
   var blogPosts = Map.empty<Text, BlogPost>();
   var blogPostContents = Map.empty<Text, FinanceBlogContent>();
   var systemInitialized : Bool = false;
+  let backendVersion = "2.4.2";
 
   // TYPES
 
@@ -429,6 +430,10 @@ actor {
       Runtime.trap("Unauthorized: Can only view your own profile");
     };
     userProfiles.get(user);
+  };
+
+  public query ({ caller }) func getBackendVersion() : async Text {
+    backendVersion;
   };
 
   public shared ({ caller }) func saveCallerUserProfile(profile : UserProfile) : async () {

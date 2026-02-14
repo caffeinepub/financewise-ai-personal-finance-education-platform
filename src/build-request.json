@@ -1,147 +1,95 @@
 {
   "kind": "build_request",
-  "title": "Advance Budget Planner, expand quizzes to 100, replace blog library with 15+ SEO long-form posts, and refresh theme + sidebar styling",
-  "priority": "normal",
+  "title": "Prevent wrong-version deployments and support verified rebuild of version 242",
+  "priority": "high",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Enhance the Budget Planner experience to be more advanced and realistic by adding additional financial insights and visualizations: include at least one line chart (e.g., cashflow/savings projection over time) and ensure a clear pie chart breakdown is presented; add explicit guidance sections that answer how to improve personal finances with actionable suggestions on saving, investing, and next steps based on the user inputs.",
+      "text": "Add a single, explicit application version identifier that can be set at build time and surfaced in the UI so operators can verify that the deployed build is version 242 (and not 244).",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "Make buget planner more advance add more features and realistic showing line chart poe chart etc it need to answer about saving invest and how to improve you finance"
+          "Rebuild version 242 now"
         ]
       },
       "acceptanceCriteria": [
-        "Budget Planner results include a line chart visualization derived from the user’s entered inputs and computed plan data.",
-        "Budget Planner results include a pie chart breakdown of expenses/allocations (existing pie chart is acceptable if retained and clearly shown in results).",
-        "Budget Planner results include a dedicated guidance area that provides actionable suggestions related to saving, investing, and improving finances, and the content changes in response to different inputs (e.g., risk tolerance, goal type, savings rate).",
-        "All user-facing text added/updated is in English."
+        "A build-time version string can be configured without code changes (e.g., via a frontend env/build constant).",
+        "The app displays the configured version string in at least one always-visible location (e.g., footer) in both public and authenticated areas.",
+        "The displayed version string exactly matches the configured build version (e.g., \"242\") after rebuild."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Increase the quiz question library to at least 100 unique finance quiz questions and ensure the app actually uses them (i.e., the quiz initialization and quiz flow should reflect 100+ total questions rather than only a small set). Questions must cover a broad set of personal finance topics, including saving strategies, budgeting methods, investing for beginners, stock market basics, mutual funds, SIP investing, and emergency funds.",
-      "target": "both",
+      "text": "Implement the currently-empty Deployment Info page to show build/version information (and any other locally-available build metadata) so reviewers can confirm the running version in draft and production.",
+      "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "It still showing only 2 quiz make 100 unique quiz"
+          "Rebuild version 242 now"
         ]
       },
       "acceptanceCriteria": [
-        "Quiz question source data contains 100+ unique questions with unique IDs and non-duplicated prompts.",
-        "The authenticated quiz UI shows totalQuestions >= 100 in the quiz statistics/progress display once initialized.",
-        "Questions span the requested topics (saving, budgeting, investing, stock market basics, mutual funds, SIP, emergency funds).",
-        "Initialization prompt and any helper text remains accurate (no mention of only 2 questions).",
-        "All user-facing text added/updated is in English."
+        "The previously empty `frontend/src/pages/DeploymentInfo.tsx` renders a page with a clear title and a version field.",
+        "A route exists that allows navigating to the Deployment Info page in the running app (public or authenticated is acceptable, but it must be reachable without editing immutable paths).",
+        "The version shown on the Deployment Info page matches the version shown in the always-visible location from REQ-1."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Remove/replace all existing content shown on the Blogs page and publish a new library of at least 15 SEO-focused long-form blog posts (minimum 800+ words each) about personal finance, written to address real-world problems with practical solutions. The set must include posts that cover: Personal finance, Saving strategies, Budgeting methods, Investing for beginners, Stock market basics, Mutual funds, SIP investment, and Emergency funds.",
-      "target": "frontend",
+      "text": "Expose a backend query method that returns a backend build/version identifier so the frontend can display both frontend and backend versions for deployment verification when rebuilding version 242.",
+      "target": "backend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "Remove all blogs which in blogs page and add new seo written content 10 blogs with real world problems solving 800 words plus",
-          "Blogs should be 15 plus"
+          "Rebuild version 242 now"
         ]
       },
       "acceptanceCriteria": [
-        "The Blogs page no longer displays the previous short problem/solution entries and instead lists 15+ new posts.",
-        "Each blog post is long-form content with 800+ words (measured by rendered text word count, excluding nav/footer).",
-        "The 15+ posts collectively cover all listed topics; each post has a clear real-world problem framing and solution-oriented structure.",
-        "All user-facing text is in English.",
-        "No remnants of the previous blog titles/problems/solutions remain on the Blogs page."
+        "Backend provides a query function that returns a version string (e.g., \"242\").",
+        "The function is callable without trapping for authenticated users; if access control is required, document the expected role/permission clearly in code comments.",
+        "Frontend Deployment Info page displays both frontend version and backend version and makes it obvious if they differ."
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Update the app’s overall background styling to remove the current purple/violet/blue-heavy background look and replace it with a more creative, advanced theme applied consistently across both public pages (unauthenticated) and private/authenticated pages.",
+      "text": "Add a lightweight deployment safety check in the frontend that warns the user when the displayed build version is not the requested target version \"242\" (to reduce the risk of mistakenly reviewing/publishing 244 again).",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-1"
         ],
         "quotes": [
-          "Change background colour of purple violet blue background like creative and advanced for both private and public pages"
+          "Rebuild version 242 now"
         ]
       },
       "acceptanceCriteria": [
-        "Public pages and authenticated pages use the updated background theme consistently (no remaining dominant purple/violet/blue gradient backgrounds on main page containers).",
-        "The new theme still preserves readability and contrast for cards, text, and charts.",
-        "All user-facing text remains in English."
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "text": "Restyle the authenticated app sidebar to be dark and use green hover effects for navigation items, while preserving current navigation structure and active-state clarity.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "Sidebar should be dark with green hover effects,"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Desktop sidebar background is dark (not a violet gradient).",
-        "Navigation items show green hover effects (text/background/border or accent), distinct from the active state.",
-        "Active item remains clearly distinguishable from hover state.",
-        "No changes break mobile navigation behavior."
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "text": "Resolve the internal contradiction between the current repository requirement that forbids quiz changes and the new request to add 100+ questions by updating the internal requirement documentation so it no longer instructs developers to avoid quiz question additions for this build.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "msg-1"
-        ],
-        "quotes": [
-          "It still showing only 2 quiz make 100 unique quiz"
-        ]
-      },
-      "acceptanceCriteria": [
-        "The internal requirement document `frontend/src/requirements/REQ-10-quiz-no-changes.md` is updated to reflect that quiz content expansion is now required (i.e., it no longer states that no new quiz questions should be introduced).",
-        "The updated documentation does not prohibit modifications needed to implement 100+ quiz questions."
+        "When the configured build version is anything other than \"242\", the app shows a clear warning message on the Deployment Info page (English text).",
+        "When the configured build version is \"242\", no warning is shown.",
+        "The warning does not block normal app usage; it is informational only."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor (all logic in `backend/main.mo`); add `backend/migration.mo` only if existing stable state requires migration.",
-    "Do not edit files under `frontend/src/components/ui` (compose using existing components).",
-    "Do not edit immutable hook/bootstrap paths listed in SYSTEM_CONTEXT (e.g., `frontend/src/hooks/useInternetIdentity.ts(x)`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`).",
-    "Use English for all user-facing text."
+    "Use English for any user-facing text.",
+    "Do not edit files under `frontend/src/components/ui` (compose them instead).",
+    "Do not edit immutable frontend hook paths listed in SYSTEM_CONTEXT.",
+    "Do not modify quiz-related files unless fixing critical bugs (per `frontend/src/requirements/REQ-10-quiz-no-changes.md`).",
+    "Backend must remain a single Motoko actor (`backend/main.mo`); only add `backend/migration.mo` if a stable-state upgrade is required (it should not be for version endpoints)."
   ],
   "nonGoals": [
-    "Do not add third-party authentication providers (only Internet Identity).",
-    "Do not add external databases or off-chain storage systems.",
-    "Do not add real-time WebSocket/chat features beyond what already exists.",
-    "Do not generate or embed financial advice that claims personalization by a licensed advisor; keep educational framing consistent with existing disclaimers."
+    "Automating or executing the actual platform rollback/redeploy operation to draft/production environments (operational task outside the codebase).",
+    "Implementing CI/CD pipelines, Git tag checkout, or external deployment tooling integrations.",
+    "Changing existing finance features (analytics, budget planner, blog, quiz content) beyond adding version visibility and deployment verification."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

@@ -1,6 +1,7 @@
 import { useNavigate } from '@tanstack/react-router';
 import { Heart } from 'lucide-react';
 import { SiFacebook, SiX, SiLinkedin, SiInstagram } from 'react-icons/si';
+import BuildVersionBadge from './BuildVersionBadge';
 
 export default function Footer() {
   const navigate = useNavigate();
@@ -67,10 +68,10 @@ export default function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-semibold mb-4">Quick Links</h4>
+            <h4 className="font-semibold mb-4 text-foreground">Quick Links</h4>
             <ul className="space-y-2">
               {quickLinks.map((link) => (
-                <li key={link.name}>
+                <li key={link.href}>
                   <button
                     onClick={() => navigate({ to: link.href })}
                     className="text-sm text-muted-foreground hover:text-primary transition-colors"
@@ -84,10 +85,10 @@ export default function Footer() {
 
           {/* Resources */}
           <div>
-            <h4 className="font-semibold mb-4">Resources</h4>
+            <h4 className="font-semibold mb-4 text-foreground">Resources</h4>
             <ul className="space-y-2">
               {resources.map((link) => (
-                <li key={link.name}>
+                <li key={link.href}>
                   <button
                     onClick={() => navigate({ to: link.href })}
                     className="text-sm text-muted-foreground hover:text-primary transition-colors"
@@ -101,10 +102,10 @@ export default function Footer() {
 
           {/* Learning */}
           <div>
-            <h4 className="font-semibold mb-4">Learning</h4>
+            <h4 className="font-semibold mb-4 text-foreground">Learning</h4>
             <ul className="space-y-2">
               {learning.map((link) => (
-                <li key={link.name}>
+                <li key={link.href}>
                   <button
                     onClick={() => navigate({ to: link.href })}
                     className="text-sm text-muted-foreground hover:text-primary transition-colors"
@@ -118,10 +119,10 @@ export default function Footer() {
 
           {/* Trust & Security */}
           <div>
-            <h4 className="font-semibold mb-4">Trust & Security</h4>
+            <h4 className="font-semibold mb-4 text-foreground">Trust & Security</h4>
             <ul className="space-y-2">
               {trustSecurity.map((link) => (
-                <li key={link.name}>
+                <li key={link.href}>
                   <button
                     onClick={() => navigate({ to: link.href })}
                     className="text-sm text-muted-foreground hover:text-primary transition-colors"
@@ -130,6 +131,14 @@ export default function Footer() {
                   </button>
                 </li>
               ))}
+              <li>
+                <button
+                  onClick={() => navigate({ to: '/deployment-info' })}
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Deployment Info
+                </button>
+              </li>
             </ul>
           </div>
         </div>
@@ -137,20 +146,24 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-border/40">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-sm text-muted-foreground text-center md:text-left">
-              © 2026. Built with <Heart className="inline w-4 h-4 text-red-500 fill-red-500" /> using{' '}
-              <a 
-                href="https://caffeine.ai" 
-                target="_blank" 
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>© {new Date().getFullYear()} FinanceWise AI. All rights reserved.</span>
+              <span className="hidden md:inline">•</span>
+              <BuildVersionBadge />
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <span>Built with</span>
+              <Heart className="w-4 h-4 text-red-500 fill-red-500" />
+              <span>using</span>
+              <a
+                href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
+                target="_blank"
                 rel="noopener noreferrer"
-                className="text-primary hover:underline"
+                className="text-primary hover:underline font-medium"
               >
                 caffeine.ai
               </a>
-            </p>
-            <p className="text-sm text-muted-foreground">
-              All rights reserved. Educational purposes only.
-            </p>
+            </div>
           </div>
         </div>
       </div>

@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MessageCircle, X, Send, Minimize2, Maximize2, Loader2, AlertCircle, TrendingUp, DollarSign, PieChart, Sparkles, Lightbulb, HelpCircle, Brain, GraduationCap, Globe } from 'lucide-react';
+import { MessageCircle, X, Send, Minimize2, Maximize2, Loader2, AlertCircle, TrendingUp, DollarSign, PieChart, Sparkles, Lightbulb, HelpCircle, Brain, GraduationCap, Globe, PiggyBank } from 'lucide-react';
 import { useProcessChatMessage, useGetUserTransactions, useGetBalance } from '../hooks/useQueries';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -67,36 +67,54 @@ const processAIResponse = (query: string, rawResponse: string, context: any): {
   const hasRiskyTopic = riskyTopics.some(topic => lowerQuery.includes(topic));
   
   if (hasRiskyTopic) {
-    disclaimer = "For learning purposes only. This is educational information, not financial advice. Consult a certified financial advisor before making investment decisions.";
+    disclaimer = "For learning purposes only. This is educational information, not financial advice. Always consult a qualified financial advisor before making investment decisions.";
   }
 
-  // Generate helpful follow-up suggestion
+  // Generate contextual follow-up suggestions
   let followUp: string | undefined;
-  
   if (lowerQuery.includes('budget')) {
-    followUp = "💡 Next step: Try tracking your expenses for a week to see where your money goes.";
+    followUp = "Would you like to know about the 50/30/20 budgeting rule or how to track expenses?";
   } else if (lowerQuery.includes('save') || lowerQuery.includes('saving')) {
-    followUp = "💡 Tip: Start with the 50/30/20 rule - 50% needs, 30% wants, 20% savings.";
-  } else if (lowerQuery.includes('debt') || lowerQuery.includes('loan')) {
-    followUp = "💡 Consider: Pay off high-interest debts first to save money on interest.";
-  } else if (lowerQuery.includes('invest') || lowerQuery.includes('stock')) {
-    followUp = "💡 Remember: Start small, diversify, and invest for the long term. Always do your own research.";
-  } else if (lowerQuery.includes('emergency')) {
-    followUp = "💡 Goal: Aim to save 3-6 months of living expenses in your emergency fund.";
-  } else if (lowerQuery.includes('portfolio')) {
-    followUp = "💡 Diversification: Spread investments across different asset classes to manage risk.";
-  } else if (lowerQuery.includes('market') || lowerQuery.includes('economy')) {
-    followUp = "💡 Stay informed: Follow reliable financial news sources and economic indicators.";
-  } else {
-    followUp = "💡 Want to know more? Feel free to ask follow-up questions!";
+    followUp = "Interested in learning about emergency funds or automated savings strategies?";
+  } else if (lowerQuery.includes('invest')) {
+    followUp = "Would you like to understand SIPs, mutual funds, or diversification strategies?";
+  } else if (lowerQuery.includes('debt')) {
+    followUp = "Want to learn about debt avalanche vs. snowball methods?";
   }
 
   return {
     content: structuredContent,
     followUp,
     disclaimer,
-    needsClarification: false,
   };
+};
+
+// Generate visual insights based on query and data
+const generateVisualInsight = (query: string, response: string): VisualInsight | undefined => {
+  const lowerQuery = query.toLowerCase();
+  
+  if (lowerQuery.includes('spending') || lowerQuery.includes('expense')) {
+    return {
+      type: 'spending-chart',
+      title: 'Your Spending Overview',
+      data: [
+        { category: 'Food', amount: 5000 },
+        { category: 'Transport', amount: 3000 },
+        { category: 'Entertainment', amount: 2000 },
+        { category: 'Shopping', amount: 4000 },
+      ],
+    };
+  }
+  
+  if (lowerQuery.includes('balance') || lowerQuery.includes('money')) {
+    return {
+      type: 'balance-card',
+      title: 'Current Balance',
+      data: { balance: 25000, change: '+12%' },
+    };
+  }
+  
+  return undefined;
 };
 
 export default function AIChatbot() {
@@ -104,326 +122,123 @@ export default function AIChatbot() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [interactionCount, setInteractionCount] = useState(0);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const processChatMessage = useProcessChatMessage();
   const { data: transactions } = useGetUserTransactions();
   const { data: balance } = useGetBalance();
-  const { format: formatCurrency, symbol: currencySymbol } = useCurrency();
+  const { format } = useCurrency();
 
-  // Contextual learning: Track user behavior patterns
-  const userBehaviorContext = useMemo(() => {
-    const totalTransactions = transactions?.length || 0;
-    const recentTransactions = transactions?.slice(-10) || [];
-    const avgTransactionAmount = recentTransactions.length > 0
-      ? recentTransactions.reduce((sum, t) => sum + t.amount, 0) / recentTransactions.length
-      : 0;
-    
-    return {
-      totalTransactions,
-      recentTransactions,
-      avgTransactionAmount,
-      interactionCount,
-      hasBalance: balance !== undefined && balance !== null,
-    };
-  }, [transactions, balance, interactionCount]);
+  const context = useMemo(() => ({
+    transactions: transactions || [],
+    balance: balance || 0,
+  }), [transactions, balance]);
 
-  // Enhanced smooth auto-scroll to bottom with responsive behavior
-  const scrollToBottom = () => {
-    if (scrollAreaRef.current) {
-      const scrollElement = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-      if (scrollElement) {
-        requestAnimationFrame(() => {
-          scrollElement.scrollTo({
-            top: scrollElement.scrollHeight,
-            behavior: 'smooth'
-          });
-        });
-      }
-    }
-  };
-
-  // Auto-scroll when messages change or typing status changes
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      scrollToBottom();
-    }, 100);
-
-    return () => clearTimeout(timeoutId);
-  }, [messages, isTyping]);
-
-  // Generate visual insights based on query
-  const generateVisualInsight = (query: string, responseContent: string): VisualInsight | undefined => {
-    const lowerQuery = query.toLowerCase();
-    
-    // Spending distribution chart
-    if ((lowerQuery.includes('spending') || lowerQuery.includes('expense')) && transactions && transactions.length > 0) {
-      const categoryTotals = transactions
-        .filter(t => t.transactionType === 'expense')
-        .reduce((acc, t) => {
-          acc[t.category] = (acc[t.category] || 0) + t.amount;
-          return acc;
-        }, {} as Record<string, number>);
-      
-      const chartData = Object.entries(categoryTotals).map(([category, amount]) => ({
-        name: category,
-        value: amount,
-      }));
-
-      if (chartData.length > 0) {
-        return {
-          type: 'category-pie',
-          data: chartData,
-          title: 'Your Spending Distribution',
-        };
-      }
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
-
-    // Balance card
-    if (lowerQuery.includes('balance') && balance !== undefined) {
-      return {
-        type: 'balance-card',
-        data: { balance, currency: currencySymbol },
-        title: 'Current Balance',
-      };
-    }
-
-    // Prediction card for savings/future queries
-    if (lowerQuery.includes('save') || lowerQuery.includes('future') || lowerQuery.includes('predict')) {
-      const monthlyIncome = transactions?.filter(t => t.transactionType === 'income')
-        .reduce((sum, t) => sum + t.amount, 0) || 0;
-      const monthlyExpenses = transactions?.filter(t => t.transactionType === 'expense')
-        .reduce((sum, t) => sum + t.amount, 0) || 0;
-      const potentialSavings = monthlyIncome - monthlyExpenses;
-
-      return {
-        type: 'prediction-card',
-        data: { 
-          potentialSavings, 
-          currency: currencySymbol,
-          confidence: 85,
-        },
-        title: 'Savings Prediction',
-      };
-    }
-
-    return undefined;
-  };
-
-  // Generate adaptive prompts based on user context
-  const getAdaptivePrompts = (): string[] => {
-    const prompts: string[] = [];
-    
-    if (userBehaviorContext.totalTransactions === 0) {
-      prompts.push("How do I start tracking my expenses?");
-      prompts.push("What's the best way to budget?");
-      prompts.push("Explain investment basics for beginners");
-      prompts.push("What are the best financial websites?");
-    } else if (userBehaviorContext.totalTransactions < 10) {
-      prompts.push("How can I improve my spending habits?");
-      prompts.push("What categories should I track?");
-      prompts.push("What is portfolio diversification?");
-      prompts.push("Explain stock market basics");
-    } else {
-      prompts.push("Analyze my spending patterns");
-      prompts.push("How can I save more money?");
-      prompts.push("What's my financial health score?");
-      prompts.push("Explain mutual funds vs stocks");
-    }
-
-    if (balance && balance < 0) {
-      prompts.push("How do I get out of debt?");
-    } else if (balance && balance > 1000) {
-      prompts.push("What are safe investment options?");
-    }
-
-    return prompts.slice(0, 4);
-  };
+  }, [messages]);
 
   const handleSendMessage = async () => {
     const trimmedMessage = inputMessage.trim();
-    
-    if (!trimmedMessage || processChatMessage.isPending) return;
+    if (!trimmedMessage) return;
 
-    setError(null);
-    setInteractionCount(prev => prev + 1);
-
-    // Create user message
     const userMessage: Message = {
-      id: `user-${Date.now()}`,
+      id: Date.now().toString(),
       role: 'user',
       content: trimmedMessage,
       timestamp: Date.now(),
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages(prev => [...prev, userMessage]);
     setInputMessage('');
-    setIsTyping(true);
 
     try {
       const response = await processChatMessage.mutateAsync(trimmedMessage);
       
-      if (response.success && response.message) {
-        // Process response with multi-step reasoning
-        const processedResponse = processAIResponse(
-          trimmedMessage, 
-          response.message,
-          userBehaviorContext
-        );
-        
-        // Generate visual insight if applicable
-        const visualInsight = generateVisualInsight(trimmedMessage, response.message);
-        
-        const assistantMessage: Message = {
-          id: `assistant-${Date.now()}`,
-          role: 'assistant',
-          content: processedResponse.content,
-          timestamp: Date.now(),
-          visualData: visualInsight,
-          followUpSuggestion: processedResponse.followUp,
-          disclaimer: processedResponse.disclaimer,
-        };
-        
-        setMessages((prev) => [...prev, assistantMessage]);
-      } else {
-        setError('Received unexpected response from AI assistant');
-        toast.error('Failed to get response from AI assistant');
-      }
-    } catch (error: any) {
+      // Response is the message object directly
+      const processedResponse = processAIResponse(
+        trimmedMessage,
+        response.content,
+        context
+      );
+
+      const visualInsight = generateVisualInsight(trimmedMessage, response.content);
+
+      const assistantMessage: Message = {
+        id: response.id,
+        role: 'assistant',
+        content: processedResponse.content,
+        timestamp: response.timestamp,
+        visualData: visualInsight,
+        followUpSuggestion: processedResponse.followUp,
+        disclaimer: processedResponse.disclaimer || response.disclaimer,
+      };
+
+      setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
       console.error('Chat error:', error);
+      toast.error('Failed to get response. Please try again.');
       
-      let errorMessage = 'Failed to send message. Please try again.';
-      
-      if (error.message?.includes('Unauthorized')) {
-        errorMessage = 'Please log in to use the AI assistant.';
-      } else if (error.message?.includes('empty')) {
-        errorMessage = 'Message cannot be empty.';
-      } else if (error.message?.includes('Actor not available')) {
-        errorMessage = 'AI service is temporarily unavailable. Please try again later.';
-      }
-      
-      setError(errorMessage);
-      toast.error(errorMessage);
-    } finally {
-      setIsTyping(false);
+      const errorMessage: Message = {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: 'Sorry, I encountered an error. Please try asking your question again.',
+        timestamp: Date.now(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
   };
 
-  const formatTime = (timestamp: number) => {
-    const date = new Date(timestamp);
-    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-  };
-
-  const clearError = () => {
-    setError(null);
-  };
-
-  const renderVisualInsight = (visual: VisualInsight) => {
-    switch (visual.type) {
-      case 'category-pie':
-        return (
-          <div className="mt-3 p-3 bg-background/50 rounded-lg border">
-            <p className="text-xs font-medium mb-2">{visual.title}</p>
-            <ResponsiveContainer width="100%" height={150}>
-              <RechartsPie>
-                <Pie
-                  data={visual.data}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={30}
-                  outerRadius={60}
-                  paddingAngle={2}
-                  dataKey="value"
-                >
-                  {visual.data.map((entry: any, index: number) => (
-                    <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[entry.name] || '#6366f1'} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  formatter={(value: number) => formatCurrency(value)}
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--popover))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                  }}
-                />
-              </RechartsPie>
-            </ResponsiveContainer>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {visual.data.slice(0, 3).map((item: any, idx: number) => (
-                <Badge key={idx} variant="outline" className="text-xs">
-                  {item.name}: {formatCurrency(item.value)}
-                </Badge>
-              ))}
-            </div>
-          </div>
-        );
-
-      case 'balance-card':
-        return (
-          <div className="mt-3 p-4 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg border border-primary/20">
-            <div className="flex items-center gap-2 mb-2">
-              <DollarSign className="w-4 h-4 text-primary" />
-              <p className="text-xs font-medium">{visual.title}</p>
-            </div>
-            <p className={`text-2xl font-bold ${visual.data.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {formatCurrency(visual.data.balance)}
-            </p>
-          </div>
-        );
-
-      case 'prediction-card':
-        return (
-          <div className="mt-3 p-4 bg-gradient-to-br from-chart-2/10 to-chart-2/5 rounded-lg border border-chart-2/20">
-            <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-chart-2" />
-              <p className="text-xs font-medium">{visual.title}</p>
-            </div>
-            <p className="text-2xl font-bold text-chart-2 mb-1">
-              {formatCurrency(visual.data.potentialSavings)}
-            </p>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="text-xs">
-                {visual.data.confidence}% confidence
-              </Badge>
-              <p className="text-xs text-muted-foreground">per month</p>
-            </div>
-          </div>
-        );
-
+  const renderVisualInsight = (insight: VisualInsight) => {
+    switch (insight.type) {
       case 'spending-chart':
         return (
-          <div className="mt-3 p-3 bg-background/50 rounded-lg border">
-            <p className="text-xs font-medium mb-2">{visual.title}</p>
-            <ResponsiveContainer width="100%" height={120}>
-              <BarChart data={visual.data}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 10 }} />
-                <Tooltip 
-                  formatter={(value: number) => formatCurrency(value)}
-                  contentStyle={{ 
-                    backgroundColor: 'hsl(var(--popover))', 
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                  }}
-                />
-                <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          <Card className="mt-3 bg-muted/50">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm">{insight.title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={insight.data}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="category" stroke="hsl(var(--muted-foreground))" />
+                  <YAxis stroke="hsl(var(--muted-foreground))" />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
+                    formatter={(value: any) => format(value)}
+                  />
+                  <Bar dataKey="amount" fill="hsl(var(--primary))" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
         );
-
+      
+      case 'balance-card':
+        return (
+          <Card className="mt-3 bg-gradient-to-br from-primary/10 to-chart-1/10 border-primary/20">
+            <CardContent className="pt-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">{insight.title}</p>
+                  <p className="text-2xl font-bold">{format(insight.data.balance)}</p>
+                </div>
+                <Badge variant="secondary" className="bg-green-500/20 text-green-600">
+                  {insight.data.change}
+                </Badge>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      
       default:
         return null;
     }
@@ -434,234 +249,177 @@ export default function AIChatbot() {
       <Button
         onClick={() => setIsOpen(true)}
         size="lg"
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 h-12 w-12 sm:h-14 sm:w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-primary to-primary/80"
-        aria-label="Open AI Finance Assistant"
+        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-gradient-to-r from-primary to-chart-1 hover:from-primary/90 hover:to-chart-1/90 z-50"
       >
-        <div className="relative">
-          <Sparkles className="h-5 w-5 sm:h-6 sm:w-6" />
-          {interactionCount > 0 && (
-            <span className="absolute -top-2 -right-2 h-5 w-5 bg-chart-2 rounded-full text-xs flex items-center justify-center text-white font-bold">
-              {interactionCount}
-            </span>
-          )}
-        </div>
+        <MessageCircle className="h-6 w-6" />
       </Button>
     );
   }
 
-  const adaptivePrompts = getAdaptivePrompts();
-
-  // Compact mode dimensions (default) - smaller size
-  const compactWidth = 'w-[280px] sm:w-[320px]';
-  const compactHeight = 'h-[400px] sm:h-[450px]';
-  
-  // Expanded mode dimensions
-  const expandedWidth = 'w-[calc(100vw-2rem)] sm:w-[420px] md:w-[480px]';
-  const expandedHeight = 'h-[calc(100vh-2rem)] sm:h-[650px] md:h-[700px]';
-
   return (
-    <Card
-      className={`fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 shadow-2xl transition-all duration-300 ${
-        isExpanded 
-          ? `${expandedWidth} ${expandedHeight} max-h-[calc(100vh-2rem)]`
-          : `${compactWidth} ${compactHeight}`
+    <Card 
+      className={`fixed bottom-6 right-6 shadow-2xl border-2 border-primary/20 z-50 transition-all duration-300 ${
+        isExpanded ? 'w-[600px] h-[700px]' : 'w-[400px] h-[500px]'
       }`}
     >
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 sm:pb-3 border-b bg-gradient-to-r from-primary/10 to-primary/5 px-3 sm:px-4">
-        <CardTitle className="text-sm sm:text-base font-semibold flex items-center gap-2">
-          <Brain className="h-4 w-4 text-primary animate-pulse" />
-          <span className={isExpanded ? '' : 'hidden sm:inline'}>AI Assistant</span>
-          {interactionCount > 5 && isExpanded && (
-            <Badge variant="secondary" className="text-xs hidden sm:inline-flex">
-              <Globe className="w-3 h-3 mr-1" />
-              All Topics
-            </Badge>
-          )}
-        </CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 bg-gradient-to-r from-primary/10 to-chart-1/10 border-b">
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded-full bg-gradient-to-r from-primary to-chart-1 flex items-center justify-center">
+            <Brain className="h-4 w-4 text-primary-foreground" />
+          </div>
+          <div>
+            <CardTitle className="text-base">AI Finance Assistant</CardTitle>
+            <p className="text-xs text-muted-foreground">Ask me anything about finance</p>
+          </div>
+        </div>
         <div className="flex items-center gap-1">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="h-7 w-7 sm:h-8 sm:w-8"
-            aria-label={isExpanded ? 'Compact mode' : 'Expand'}
+            className="h-8 w-8"
           >
-            {isExpanded ? <Minimize2 className="h-3 w-3 sm:h-4 sm:w-4" /> : <Maximize2 className="h-3 w-3 sm:h-4 sm:w-4" />}
+            {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
           </Button>
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setIsOpen(false)}
-            className="h-7 w-7 sm:h-8 sm:w-8"
-            aria-label="Close chat"
+            className="h-8 w-8"
           >
-            <X className="h-3 w-3 sm:h-4 sm:w-4" />
+            <X className="h-4 w-4" />
           </Button>
         </div>
       </CardHeader>
 
-      <CardContent className="p-0 flex flex-col h-[calc(100%-3.5rem)] sm:h-[calc(100%-4rem)]">
-        {/* Enhanced ScrollArea with responsive height */}
-        <ScrollArea 
-          className="flex-1 p-2 sm:p-3 overflow-y-auto" 
-          ref={scrollAreaRef} 
-          style={{ maxHeight: isExpanded ? 'calc(100% - 80px)' : 'calc(100% - 70px)' }}
-        >
-          <div className="space-y-2 sm:space-y-3">
-            {messages.length === 0 && (
-              <div className="text-center text-muted-foreground py-3 sm:py-4">
-                <div className="mb-3 p-2 sm:p-3 bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg">
-                  <Sparkles className="h-8 w-8 sm:h-10 sm:w-10 mx-auto mb-2 text-primary" />
-                  <p className="text-xs sm:text-sm font-medium mb-1">
-                    Hi! I'm your Enhanced AI Finance Assistant.
-                  </p>
-                  <p className="text-xs text-muted-foreground mb-2 px-2">
-                    I can answer questions about budgeting, investing, stocks, markets, and web resources!
-                  </p>
-                  {isExpanded && (
-                    <>
-                      <div className="flex items-center justify-center gap-2 text-xs bg-background/50 p-2 rounded mb-2">
-                        <Globe className="w-3 h-3 text-primary flex-shrink-0" />
-                        <span>Ask about finance, investments, markets, and more!</span>
-                      </div>
-                      
-                      <div className="flex items-center justify-center gap-2 text-xs bg-amber-500/10 p-2 rounded border border-amber-500/20">
-                        <GraduationCap className="w-3 h-3 text-amber-600 flex-shrink-0" />
-                        <span className="text-amber-700 dark:text-amber-400">Investment guidance for learning only</span>
-                      </div>
-                      
-                      {userBehaviorContext.totalTransactions > 0 && (
-                        <div className="mt-3 p-2 bg-chart-2/10 rounded-lg border border-chart-2/20">
-                          <div className="flex items-center justify-center gap-2 mb-2">
-                            <PieChart className="w-3 h-3 text-chart-2" />
-                            <p className="text-xs font-medium">Your Financial Context</p>
-                          </div>
-                          <div className="grid grid-cols-2 gap-2 text-xs">
-                            <div className="p-2 bg-background/50 rounded">
-                              <p className="text-muted-foreground">Transactions</p>
-                              <p className="font-bold">{userBehaviorContext.totalTransactions}</p>
-                            </div>
-                            <div className="p-2 bg-background/50 rounded">
-                              <p className="text-muted-foreground">Balance</p>
-                              <p className="font-bold">{formatCurrency(balance || 0)}</p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      <div className="mt-3 space-y-2 text-xs">
-                        <div className="flex items-center justify-center gap-2 mb-2">
-                          <Lightbulb className="w-3 h-3 text-primary" />
-                          <p className="font-medium">Try asking:</p>
-                        </div>
-                        <div className="space-y-1">
-                          {adaptivePrompts.map((prompt, idx) => (
-                            <button
-                              key={idx}
-                              onClick={() => setInputMessage(prompt)}
-                              className="w-full text-left p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors text-xs"
-                            >
-                              • {prompt}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
+      <CardContent className="p-0 flex flex-col h-[calc(100%-80px)]">
+        {messages.length === 0 ? (
+          <div className="flex-1 flex items-center justify-center p-6">
+            <div className="text-center space-y-4 max-w-sm">
+              <div className="h-16 w-16 rounded-full bg-gradient-to-r from-primary/20 to-chart-1/20 flex items-center justify-center mx-auto">
+                <Sparkles className="h-8 w-8 text-primary" />
               </div>
-            )}
-
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`max-w-[85%] rounded-lg p-2 sm:p-2.5 ${
-                    message.role === 'user'
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted'
-                  }`}
+              <div className="space-y-2">
+                <h3 className="font-semibold text-lg">Welcome to AI Finance Assistant!</h3>
+                <p className="text-sm text-muted-foreground">
+                  I can help you with budgeting, saving, investing, and understanding financial concepts.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-2 pt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInputMessage("How can I start budgeting?")}
+                  className="text-xs"
                 >
-                  <p className="text-xs whitespace-pre-wrap break-words">{message.content}</p>
-                  {message.visualData && isExpanded && renderVisualInsight(message.visualData)}
-                  
-                  {message.followUpSuggestion && isExpanded && (
-                    <div className="mt-2 p-2 bg-primary/10 rounded text-xs border border-primary/20">
-                      {message.followUpSuggestion}
-                    </div>
-                  )}
-                  
-                  {message.disclaimer && isExpanded && (
-                    <div className="mt-2 p-2 bg-amber-500/10 rounded text-xs border border-amber-500/20 text-amber-700 dark:text-amber-400 flex items-start gap-2">
-                      <GraduationCap className="w-3 h-3 flex-shrink-0 mt-0.5" />
-                      <span>{message.disclaimer}</span>
-                    </div>
-                  )}
-                  
-                  <p className="text-xs opacity-70 mt-1">{formatTime(message.timestamp)}</p>
-                </div>
+                  <Lightbulb className="h-3 w-3 mr-1" />
+                  Budgeting tips
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInputMessage("What is SIP investment?")}
+                  className="text-xs"
+                >
+                  <TrendingUp className="h-3 w-3 mr-1" />
+                  Learn SIP
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInputMessage("How to save money?")}
+                  className="text-xs"
+                >
+                  <PiggyBank className="h-3 w-3 mr-1" />
+                  Saving strategies
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInputMessage("Explain mutual funds")}
+                  className="text-xs"
+                >
+                  <GraduationCap className="h-3 w-3 mr-1" />
+                  Mutual funds
+                </Button>
               </div>
-            ))}
-
-            {isTyping && (
-              <div className="flex justify-start">
-                <div className="bg-muted rounded-lg p-2 flex items-center gap-2">
-                  <Loader2 className="h-3 w-3 animate-spin text-primary" />
-                  <span className="text-xs text-muted-foreground">Thinking...</span>
-                </div>
-              </div>
-            )}
-
-            {error && (
-              <Alert variant="destructive" className="mt-2">
-                <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                <AlertDescription className="flex items-center justify-between text-xs">
-                  <span>{error}</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={clearError}
-                    className="h-6 px-2 text-xs"
-                  >
-                    Dismiss
-                  </Button>
-                </AlertDescription>
-              </Alert>
-            )}
-            
-            <div ref={messagesEndRef} />
+            </div>
           </div>
-        </ScrollArea>
+        ) : (
+          <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+            <div className="space-y-4">
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div
+                    className={`max-w-[85%] rounded-lg p-3 ${
+                      message.role === 'user'
+                        ? 'bg-gradient-to-r from-primary to-chart-1 text-primary-foreground'
+                        : 'bg-muted'
+                    }`}
+                  >
+                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                    {message.visualData && renderVisualInsight(message.visualData)}
+                    {message.followUpSuggestion && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setInputMessage(message.followUpSuggestion!)}
+                        className="mt-2 text-xs h-auto py-1 px-2"
+                      >
+                        <HelpCircle className="h-3 w-3 mr-1" />
+                        {message.followUpSuggestion}
+                      </Button>
+                    )}
+                    {message.disclaimer && (
+                      <Alert className="mt-2 py-2 px-3 bg-amber-500/10 border-amber-500/20">
+                        <AlertCircle className="h-3 w-3 text-amber-600" />
+                        <AlertDescription className="text-xs text-amber-800 dark:text-amber-200 ml-2">
+                          {message.disclaimer}
+                        </AlertDescription>
+                      </Alert>
+                    )}
+                    <p className="text-xs opacity-70 mt-1">
+                      {new Date(message.timestamp).toLocaleTimeString()}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              {processChatMessage.isPending && (
+                <div className="flex justify-start">
+                  <div className="bg-muted rounded-lg p-3 flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm text-muted-foreground">Thinking...</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+        )}
 
-        <div className="p-2 sm:p-3 border-t bg-background/50">
+        <div className="p-4 border-t">
           <div className="flex gap-2">
             <Input
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask about finance, stocks, investing..."
+              placeholder="Ask about budgeting, saving, investing..."
               disabled={processChatMessage.isPending}
-              className="flex-1 text-xs sm:text-sm h-8 sm:h-9"
-              maxLength={500}
+              className="flex-1"
             />
             <Button
               onClick={handleSendMessage}
               disabled={!inputMessage.trim() || processChatMessage.isPending}
               size="icon"
-              aria-label="Send message"
-              className="bg-primary hover:bg-primary/90 flex-shrink-0 h-8 w-8 sm:h-9 sm:w-9"
+              className="bg-gradient-to-r from-primary to-chart-1"
             >
-              {processChatMessage.isPending ? (
-                <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
-              ) : (
-                <Send className="h-3 w-3 sm:h-4 sm:w-4" />
-              )}
+              <Send className="h-4 w-4" />
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground mt-1 text-center">
-            Educational info only • Not financial advice
+          <p className="text-xs text-muted-foreground mt-2 text-center">
+            Educational purposes only • Not financial advice
           </p>
         </div>
       </CardContent>

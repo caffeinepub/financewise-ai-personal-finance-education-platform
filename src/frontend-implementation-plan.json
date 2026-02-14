@@ -1,176 +1,98 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "FinanceWise AI: Advanced budget planner visuals + 100-question quiz library + 15+ long-form SEO blogs + refreshed theme and dark/green sidebar",
+  "title": "Build-time versioning + Deployment Info UI for verified rebuild of version 242",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Add advanced Budget Planner insights with a line chart projection, clear pie breakdown, and input-driven guidance on saving/investing/next steps.",
+      "summary": "Add a build-time configurable frontend version identifier and surface it in always-visible UI for both public and authenticated areas.",
       "acceptanceCriteria": [
-        "Budget Planner results include a line chart visualization derived from the user’s entered inputs and computed plan data.",
-        "Budget Planner results include a pie chart breakdown of expenses/allocations (existing pie chart is acceptable if retained and clearly shown in results).",
-        "Budget Planner results include a dedicated guidance area that provides actionable suggestions related to saving, investing, and improving finances, and the content changes in response to different inputs (e.g., risk tolerance, goal type, savings rate).",
-        "All user-facing text added/updated is in English."
+        "A build-time version string can be configured without code changes (e.g., via a frontend env/build constant).",
+        "The app displays the configured version string in at least one always-visible location (e.g., footer) in both public and authenticated areas.",
+        "The displayed version string exactly matches the configured build version (e.g., \"242\") after rebuild."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/BudgetPlanner.tsx",
-          "operation": "modify",
-          "description": "Extend the results section to render (1) a Recharts line chart projection (e.g., monthly cashflow/savings trajectory over time based on generated plan data) and (2) a clearly labeled pie chart breakdown (retain existing pie but ensure it is prominent in results). Add a dedicated “Guidance / Next steps” area that explains saving/investing improvements in educational language and varies based on user inputs (riskTolerance, goalType, savings rate, debt/EMI presence, emergency fund level, etc.). Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/lib/budget-planner/budgetLogic.ts",
-          "operation": "modify",
-          "description": "Augment computed budget plan outputs to include time-series values needed for the line chart (e.g., month-by-month savings projection, cumulative savings, and/or net cashflow), derived deterministically from the provided BudgetInputs and existing plan assumptions."
-        },
-        {
-          "path": "frontend/src/lib/budget-planner/recommendations.ts",
-          "operation": "modify",
-          "description": "Enhance recommendation/guidance generation to explicitly cover saving, investing for beginners, and actionable next steps. Ensure guidance is educational (not licensed personalized advice) and responds to relevant inputs (riskTolerance, goalType, savingsType/amount, spendingBehavior, debt/loanEMIs, emergencyFund)."
-        },
-        {
-          "path": "frontend/src/lib/budget-planner/projections.ts",
+          "path": "frontend/.env.example",
           "operation": "create",
-          "description": "Create a small helper to compute the Budget Planner’s projection series used by the line chart (e.g., monthly points, labels, cumulative totals) so BudgetPlanner.tsx can map it directly into Recharts datasets."
+          "description": "Document build-time configuration for the frontend build version via a Vite env variable (e.g., VITE_APP_VERSION=242) and any optional build metadata env vars used by the UI (e.g., VITE_BUILD_TIMESTAMP, VITE_GIT_SHA)."
+        },
+        {
+          "path": "frontend/vercel.json",
+          "operation": "modify",
+          "description": "Add/ensure a build-time environment variable entry for the frontend build version (VITE_APP_VERSION) so operators can set it per deployment without code changes."
+        },
+        {
+          "path": "frontend/src/lib/buildInfo.ts",
+          "operation": "create",
+          "description": "Add a small helper module that exposes a single source of truth for the configured frontend build version (from import.meta.env.VITE_APP_VERSION) and optional locally-available build metadata (mode/prod flags and optional timestamp/SHA env vars)."
+        },
+        {
+          "path": "frontend/src/components/BuildVersionBadge.tsx",
+          "operation": "create",
+          "description": "Create a reusable UI snippet that reads the frontend version from the buildInfo helper and renders it in a compact, always-visible format. Use shadcn-ui primitives (e.g., badge/card/typography) by composing existing components only; verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/Footer.tsx",
+          "operation": "modify",
+          "description": "Render the BuildVersionBadge in the public footer bottom bar so the frontend version is always visible on public pages. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/AppLayout.tsx",
+          "operation": "modify",
+          "description": "Render the BuildVersionBadge in an always-visible location within the authenticated layout (e.g., sidebar bottom section and/or mobile header area) so authenticated users can also verify the frontend version. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Expand finance quiz question source to 100+ unique questions across required topics and ensure the UI/flow initializes and displays the full total.",
+      "summary": "Implement the Deployment Info page to display frontend build/version and other locally-available build metadata, and make it reachable via routing/navigation.",
       "acceptanceCriteria": [
-        "Quiz question source data contains 100+ unique questions with unique IDs and non-duplicated prompts.",
-        "The authenticated quiz UI shows totalQuestions >= 100 in the quiz statistics/progress display once initialized.",
-        "Questions span the requested topics (saving, budgeting, investing, stock market basics, mutual funds, SIP, emergency funds).",
-        "Initialization prompt and any helper text remains accurate (no mention of only 2 questions).",
-        "All user-facing text added/updated is in English."
+        "The previously empty `frontend/src/pages/DeploymentInfo.tsx` renders a page with a clear title and a version field.",
+        "A route exists that allows navigating to the Deployment Info page in the running app (public or authenticated is acceptable, but it must be reachable without editing immutable paths).",
+        "The version shown on the Deployment Info page matches the version shown in the always-visible location from REQ-1."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/content/defaultQuizQuestions.ts",
-          "operation": "modify",
-          "description": "Replace/expand the quiz question library to at least 100 unique questions with unique IDs and non-duplicated prompts. Ensure broad coverage of saving strategies, budgeting methods, investing for beginners, stock market basics, mutual funds, SIP investing, and emergency funds. Keep all user-facing text in English."
+          "path": "frontend/src/hooks/useBackendVersion.ts",
+          "operation": "create",
+          "description": "Add a small React Query hook that uses useActor() to fetch the backend version via the existing actor method getBackendVersion(), returning loading/error states for the Deployment Info UI."
         },
         {
-          "path": "frontend/src/hooks/useQueries.ts",
+          "path": "frontend/src/pages/DeploymentInfo.tsx",
           "operation": "modify",
-          "description": "Update the quiz-related query/mutation logic so the quiz initialization and statistics reflect the full 100+ question library (e.g., totalQuestions derived from the expanded source, and question selection iterates the full set). Verify the component's usage instructions before implementing."
+          "description": "Implement the Deployment Info page UI with a clear English title and fields for frontend version (from buildInfo) plus backend version (from useBackendVersion), along with any optional locally-available build metadata (e.g., build timestamp/SHA if present). Use shadcn-ui components by composing existing UI components only; verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/lib/quizProgressStorage.ts",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Ensure local quiz progress initialization, storage, and completion logic properly supports 100+ questions (including asked/remaining tracking and totalQuestions computation consistency)."
+          "description": "Wire the Deployment Info page into the router by adding a reachable route (e.g., /deployment-info) and include it in the route tree so it can be navigated to in the running app."
         },
         {
-          "path": "frontend/src/pages/Quiz.tsx",
+          "path": "frontend/src/components/Footer.tsx",
           "operation": "modify",
-          "description": "Confirm all helper/initialization copy remains accurate for 100+ questions and that the progress display uses the initialized totalQuestions value (no lingering references to tiny libraries). Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Replace Blogs page content with a 15+ post SEO long-form library (800+ words each) and ensure old problem/solution entries are removed.",
-      "acceptanceCriteria": [
-        "The Blogs page no longer displays the previous short problem/solution entries and instead lists 15+ new posts.",
-        "Each blog post is long-form content with 800+ words (measured by rendered text word count, excluding nav/footer).",
-        "The 15+ posts collectively cover all listed topics; each post has a clear real-world problem framing and solution-oriented structure.",
-        "All user-facing text is in English.",
-        "No remnants of the previous blog titles/problems/solutions remain on the Blogs page."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/FinanceBlog.tsx",
-          "operation": "modify",
-          "description": "Replace the current problem→solution card grid rendering with a 15+ long-form post library listing (title, excerpt, topical tags/SEO meta where appropriate) sourced from the new long-form dataset, linking into the existing /blog/$slug route. Remove any rendering of the short problem/solution entries so no old content appears."
-        },
-        {
-          "path": "frontend/src/content/defaultBlogPosts.ts",
-          "operation": "modify",
-          "description": "Replace current blog metadata/content with at least 15 SEO-focused long-form posts (800+ words each) covering: personal finance, saving strategies, budgeting methods, investing for beginners, stock market basics, mutual funds, SIP investing, and emergency funds. Ensure each post is structured around a real-world problem and practical solutions, and that all user-facing text is English."
-        },
-        {
-          "path": "frontend/src/pages/BlogPost.tsx",
-          "operation": "modify",
-          "description": "Ensure the post rendering view correctly displays the new long-form content, maintains readability with the refreshed theme, and supports featured images and SEO-friendly structure (headings, sections) consistent with 800+ word articles."
-        },
-        {
-          "path": "frontend/src/content/staticProblemSolutionBlogs.ts",
-          "operation": "delete",
-          "description": "Remove the old short problem/solution blog dataset so it cannot be rendered on the Blogs page and no remnants of prior titles/problems/solutions remain."
+          "description": "Add a navigation link/button to the Deployment Info route so the page is reachable from the public UI without needing to know the URL. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Refresh the app theme to remove purple/violet/blue-heavy backgrounds and apply a consistent creative, advanced look across public and authenticated pages.",
+      "summary": "Add an informational deployment safety warning on the Deployment Info page when the configured frontend build version is not the requested target version 242.",
       "acceptanceCriteria": [
-        "Public pages and authenticated pages use the updated background theme consistently (no remaining dominant purple/violet/blue gradient backgrounds on main page containers).",
-        "The new theme still preserves readability and contrast for cards, text, and charts.",
-        "All user-facing text remains in English."
+        "When the configured build version is anything other than \"242\", the app shows a clear warning message on the Deployment Info page (English text).",
+        "When the configured build version is \"242\", no warning is shown.",
+        "The warning does not block normal app usage; it is informational only."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/index.css",
+          "path": "frontend/src/pages/DeploymentInfo.tsx",
           "operation": "modify",
-          "description": "Update global theme variables (background/foreground/card/border/chart/sidebar tokens) to shift away from purple/violet/blue-heavy appearance toward a more creative, advanced palette (e.g., charcoal + emerald/green accents). Ensure sufficient contrast for text, cards, and charts."
+          "description": "Add an English, informational-only warning block that appears when the configured frontend version (from buildInfo) !== \"242\". Also add a clear visual comparison between frontend and backend versions (e.g., show both values and a mismatch indicator) without blocking usage. Use shadcn-ui components by composing existing UI components only; verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/components/AppLayout.tsx",
+          "path": "frontend/src/lib/buildInfo.ts",
           "operation": "modify",
-          "description": "Update authenticated layout container/background classes so the overall page background aligns with the new theme (remove purple/violet/blue-heavy gradients) while preserving existing layout behavior across desktop and mobile."
-        },
-        {
-          "path": "frontend/src/pages/FinanceBlog.tsx",
-          "operation": "modify",
-          "description": "Adjust the public Blogs page background/container styling to match the refreshed theme consistently (remove purple/violet/blue-heavy gradients), maintaining readability for long-form content previews."
-        },
-        {
-          "path": "frontend/src/pages/BlogPost.tsx",
-          "operation": "modify",
-          "description": "Adjust the public Blog Post page background/container styling to match the refreshed theme consistently (remove purple/violet/blue-heavy gradients), maintaining readability for long-form article content."
-        },
-        {
-          "path": "frontend/src/pages/Quiz.tsx",
-          "operation": "modify",
-          "description": "Align Quiz page background/container styling with the refreshed theme (remove purple/violet/blue-heavy gradients) while keeping progress and feedback UI readable."
-        }
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "summary": "Restyle the authenticated desktop sidebar to be dark with green hover effects while preserving navigation structure and active-state clarity.",
-      "acceptanceCriteria": [
-        "Desktop sidebar background is dark (not a violet gradient).",
-        "Navigation items show green hover effects (text/background/border or accent), distinct from the active state.",
-        "Active item remains clearly distinguishable from hover state.",
-        "No changes break mobile navigation behavior."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/AppLayout.tsx",
-          "operation": "modify",
-          "description": "Replace the desktop sidebar violet gradient with a dark sidebar style and introduce green hover effects for nav items, while keeping the current navigation list, routes, and active-state clarity. Ensure mobile header/menu behavior remains unchanged."
-        },
-        {
-          "path": "frontend/src/index.css",
-          "operation": "modify",
-          "description": "If needed, refine sidebar-related theme tokens (e.g., --sidebar, --sidebar-accent, --sidebar-primary) to support dark sidebar + green hover accents consistently with Tailwind theme variables."
-        }
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "summary": "Update internal requirement documentation to remove the ‘no quiz changes’ contradiction and allow quiz expansion for this build.",
-      "acceptanceCriteria": [
-        "The internal requirement document `frontend/src/requirements/REQ-10-quiz-no-changes.md` is updated to reflect that quiz content expansion is now required (i.e., it no longer states that no new quiz questions should be introduced).",
-        "The updated documentation does not prohibit modifications needed to implement 100+ quiz questions."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/requirements/REQ-10-quiz-no-changes.md",
-          "operation": "modify",
-          "description": "Revise the document to reflect the new requirement that quiz content must be expanded to 100+ questions for this build, removing any instructions that prohibit adding/modifying quiz questions."
+          "description": "Add a single exported constant for the target review version (\"242\") or a helper comparison function used by the Deployment Info page so the safety check logic stays centralized and consistent."
         }
       ]
     }

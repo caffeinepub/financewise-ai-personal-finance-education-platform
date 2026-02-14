@@ -1,11 +1,11 @@
 {
+  "installCommand": "corepack enable && pnpm install",
+  "buildCommand": "pnpm install vite && pnpm run build:skip-bindings",
   "outputDirectory": "dist",
-  "framework": null,
-  "buildCommand": "corepack enable && corepack prepare pnpm@9.0.0 --activate && pnpm install vite && pnpm run build",
-  "installCommand": "corepack enable && corepack prepare pnpm@9.0.0 --activate && pnpm install",
   "env": {
-    "VITE_CANISTER_ID_BACKEND": "financewiseai.ic0.app",
-    "VITE_DFX_NETWORK": "ic"
+    "VITE_BACKEND_CANISTER_ID": "bkyz2-fmaaa-aaaaa-qaaaq-cai",
+    "VITE_IC_HOST": "https://icp-api.io",
+    "VITE_APP_VERSION": "242"
   },
   "rewrites": [
     {
@@ -19,11 +19,11 @@
       "headers": [
         {
           "key": "Content-Type",
-          "value": "text/plain; charset=utf-8"
+          "value": "text/plain"
         },
         {
           "key": "Cache-Control",
-          "value": "public, max-age=3600"
+          "value": "public, max-age=86400"
         }
       ]
     },
@@ -43,25 +43,12 @@
           "value": "1; mode=block"
         },
         {
-          "key": "Strict-Transport-Security",
-          "value": "max-age=31536000; includeSubDomains; preload"
-        },
-        {
           "key": "Referrer-Policy",
           "value": "strict-origin-when-cross-origin"
         },
         {
           "key": "Permissions-Policy",
           "value": "camera=(), microphone=(), geolocation=()"
-        }
-      ]
-    },
-    {
-      "source": "/assets/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
         }
       ]
     }

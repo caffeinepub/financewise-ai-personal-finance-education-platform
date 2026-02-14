@@ -1,96 +1,48 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T11:35:40.378Z",
-  "summary": "REQ-1 appears implemented via new projection logic and BudgetPlanner updates including Recharts line/pie chart imports and input-responsive recommendations. Several other requested items are either not evidenced or contradicted by the diff summary (blogs remain short problem/solution cards; sidebar remains violet gradient; no evidence of global background theme change; no evidence of updating REQ-10 quiz documentation; quiz expansion to 100+ is not verifiable from the truncated questions file and no quiz-UI/progress evidence is shown). The diff also introduces multiple unrelated features/pages not requested in the BuildRequest.",
+  "generatedAt": "2026-02-14T06:42:04.190Z",
+  "summary": "REQ-1, REQ-2, and REQ-4 appear implemented via a build-time version constant (VITE_APP_VERSION), an always-visible version badge (Footer + authenticated AppLayout), a Deployment Info page/route, and a non-blocking warning when the frontend version is not 242. REQ-3 is not confirmed by the diff summary: the frontend calls actor.getBackendVersion(), but the backend diff excerpt does not show an exposed query method, and the backend version constant shown is formatted as \"2.4.2\" rather than \"242\".",
   "missing_requirements": [
     {
-      "id": "REQ-2",
-      "requirement": "Increase the quiz question library to at least 100 unique finance quiz questions and ensure the app actually uses them (totalQuestions >= 100 shown in UI), covering the specified topics.",
-      "reason": "The questions file is truncated and does not provide evidence that 100+ unique questions exist (unique IDs/prompts) or that the quiz UI initializes/reflects totalQuestions >= 100; no quiz flow/UI files are shown as changed.",
-      "evidence": [
-        "frontend/src/content/defaultQuizQuestions.ts (truncated)"
-      ]
-    },
-    {
       "id": "REQ-3",
-      "requirement": "Replace Blogs page content with 15+ new SEO-focused long-form posts (800+ words each) covering the specified topics; remove all remnants of previous short problem/solution entries.",
-      "reason": "The blog page is described as showing exactly 15 static Problem→Solution entries in a card grid, which conflicts with the requirement for 15+ long-form (800+ words each) posts and explicitly indicates the short problem/solution format remains.",
+      "requirement": "Expose a backend query method that returns a backend build/version identifier so the frontend can display both frontend and backend versions for deployment verification.",
+      "reason": "The frontend hook calls actor.getBackendVersion(), but the backend diff excerpt does not show any public query method (e.g., getBackendVersion) being added/exposed. Also, the only backend version indicator shown is a constant formatted as \"2.4.2\", not clearly the required \"242\" string.",
       "evidence": [
-        "frontend-file-summaries.txt (\"frontend/src/pages/FinanceBlog.tsx\": \"Public blog page displaying exactly 15 static Problem→Solution finance entries...\")"
+        "backend/main.mo",
+        "frontend/src/hooks/useBackendVersion.ts"
       ]
-    },
-    {
-      "id": "REQ-4",
-      "requirement": "Update overall background styling to remove purple/violet/blue-heavy look and apply a new creative advanced theme consistently across public and authenticated pages.",
-      "reason": "No diff evidence shows global/background theme changes; the private layout is still described as using a violet gradient background, suggesting the old theme remains at least in authenticated areas.",
-      "evidence": [
-        "frontend-file-summaries.txt (\"frontend/src/components/AppLayout.tsx\": \"...violet gradient background (from violet-600 to violet-800)...\")"
-      ]
-    },
-    {
-      "id": "REQ-5",
-      "requirement": "Restyle authenticated sidebar to be dark with green hover effects for navigation items, preserving navigation structure and active-state clarity.",
-      "reason": "The authenticated sidebar is described as having a violet gradient background with white text; there is no evidence of a dark sidebar or green hover effects.",
-      "evidence": [
-        "frontend-file-summaries.txt (\"frontend/src/components/AppLayout.tsx\": \"...responsive sidebar navigation featuring violet gradient background...\")"
-      ]
-    },
-    {
-      "id": "REQ-6",
-      "requirement": "Update internal requirement documentation `frontend/src/requirements/REQ-10-quiz-no-changes.md` so it no longer instructs developers to avoid quiz question additions for this build.",
-      "reason": "No change to the specified requirements document is shown in the diff summary.",
-      "evidence": []
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Added/expanded multiple non-requested finance app modules and pages (Dashboard/Analytics/Transactions/ExpenseLog) with extensive charting, transaction CRUD, and monthly grouping.",
-      "reason": "BuildRequest focuses on Budget Planner enhancements, quiz expansion, blogs replacement, and theme/sidebar styling; it does not request a full transaction system overhaul or additional analytics dashboards.",
+      "description": "Large-scale enhancements/changes to multiple finance and content pages (Dashboard, Analytics, Transactions, AIInsights, Home, Settings, FinanceBlog, etc.) beyond adding version visibility and deployment verification.",
+      "reason": "The BuildRequest explicitly lists non-goals about changing existing finance features/content beyond adding version visibility and deployment verification, but the diff summary indicates substantial feature expansions across many pages.",
       "evidence": [
-        "frontend-file-summaries.txt (\"frontend/src/pages/Dashboard.tsx\" ...)",
-        "frontend-file-summaries.txt (\"frontend/src/pages/Analytics.tsx\" ...)",
-        "frontend-file-summaries.txt (\"frontend/src/pages/Transactions.tsx\" ...)",
-        "frontend-file-summaries.txt (\"frontend/src/pages/ExpenseLog.tsx\" ...)"
+        "frontend-file-summaries.txt"
       ]
     },
     {
-      "description": "Introduced/expanded an 'AI Financial Intelligence' page describing multiple ML models (Linear Regression, GRU, LSTM) and risk analysis content.",
-      "reason": "No AI/ML model feature expansion is requested; the request explicitly targets budget planner visuals/guidance, quizzes, blogs, and styling.",
+      "description": "Changes involving quiz functionality within shared query hooks (mock localStorage implementations including quiz).",
+      "reason": "Constraints say not to modify quiz-related files unless fixing critical bugs, but the diff summary states useQueries includes quiz functionality changes; no critical quiz bug fix requirement is stated in the BuildRequest.",
       "evidence": [
-        "frontend-file-summaries.txt (\"frontend/src/pages/AIInsights.tsx\": \"...3 focused ML models (Linear Regression, GRU, LSTM)...\")"
-      ]
-    },
-    {
-      "description": "Added cookie-consent and cookie-policy functionality (banner, policy page) and related compliance-oriented content.",
-      "reason": "Not requested by BuildRequest.",
-      "evidence": [
-        "frontend-file-summaries.txt (\"frontend/src/components/CookieConsent.tsx\" ...)",
-        "frontend-file-summaries.txt (\"frontend/src/pages/CookiePolicy.tsx\" ...)"
-      ]
-    },
-    {
-      "description": "Added a deployment/SSL troubleshooting guide page.",
-      "reason": "Not requested by BuildRequest.",
-      "evidence": [
-        "frontend-file-summaries.txt (\"frontend/src/pages/DeploymentInfo.tsx\": \"Comprehensive SSL certificate issue resolution guide...\")"
-      ]
-    },
-    {
-      "description": "Added/modified React Query hooks with mock localStorage implementations and AI training/prediction mutations.",
-      "reason": "Not requested by BuildRequest and goes beyond the specified scope.",
-      "evidence": [
-        "frontend-file-summaries.txt (\"frontend/src/hooks/useQueries.ts\": \"React Query hooks with mock localStorage implementations...\")"
+        "frontend-file-summaries.txt"
       ]
     }
   ],
-  "confidence": 0.74,
+  "confidence": 0.72,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/src/content/defaultQuizQuestions.ts",
-    "frontend/src/lib/budget-planner/projections.ts",
-    "frontend/src/lib/budget-planner/recommendations.ts",
-    "frontend/src/pages/BudgetPlanner.tsx",
+    "frontend/.env.example",
+    "frontend/src/App.tsx",
+    "frontend/src/components/AppLayout.tsx",
+    "frontend/src/components/BuildVersionBadge.tsx",
+    "frontend/src/components/Footer.tsx",
+    "frontend/src/hooks/useBackendVersion.ts",
+    "frontend/src/lib/buildInfo.ts",
+    "frontend/src/pages/DeploymentInfo.tsx",
+    "frontend/vercel.json",
     "project_state.json"
   ]
 }

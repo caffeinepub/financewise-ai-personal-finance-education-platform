@@ -1,147 +1,166 @@
-import { useParams, useNavigate } from '@tanstack/react-router';
-import { useGetBlogPostBySlug } from '../hooks/useQueries';
+import { useParams, Link } from '@tanstack/react-router';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, Calendar, User, Share2 } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import { Calendar, ArrowLeft, BookOpen, AlertCircle } from 'lucide-react';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import { useGetBlogPost } from '../hooks/useQueries';
+import { generateAdsenseArticle } from '../lib/blog/generateAdsenseArticle';
 
 export default function BlogPost() {
   const { slug } = useParams({ from: '/blog/$slug' });
-  const navigate = useNavigate();
-  const { data: post, isLoading } = useGetBlogPostBySlug(slug);
-
+  const { data: post, isLoading } = useGetBlogPost(slug);
+  
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <div className="min-h-screen flex flex-col">
         <Header />
-        <div className="container mx-auto px-4 py-20">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary/30 border-t-primary mx-auto"></div>
-            <p className="mt-4 text-muted-foreground">Loading article...</p>
+        <main className="flex-1 py-16 px-4">
+          <div className="container mx-auto max-w-4xl">
+            <div className="animate-pulse space-y-4">
+              <div className="h-8 bg-muted rounded w-3/4" />
+              <div className="h-4 bg-muted rounded w-1/2" />
+              <div className="h-64 bg-muted rounded" />
+              <div className="space-y-2">
+                <div className="h-4 bg-muted rounded" />
+                <div className="h-4 bg-muted rounded" />
+                <div className="h-4 bg-muted rounded w-5/6" />
+              </div>
+            </div>
           </div>
-        </div>
+        </main>
         <Footer />
       </div>
     );
   }
-
+  
   if (!post) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <div className="min-h-screen flex flex-col">
         <Header />
-        <div className="container mx-auto px-4 py-20">
-          <Card className="max-w-4xl mx-auto">
-            <CardContent className="p-12 text-center space-y-6">
-              <h2 className="text-3xl font-bold">Article Not Found</h2>
-              <p className="text-muted-foreground">The article you're looking for doesn't exist.</p>
-              <Button onClick={() => navigate({ to: '/blog' })}>
+        <main className="flex-1 py-16 px-4">
+          <div className="container mx-auto max-w-4xl text-center space-y-4">
+            <h1 className="text-3xl font-bold">Blog Post Not Found</h1>
+            <p className="text-muted-foreground">The blog post you're looking for doesn't exist.</p>
+            <Link to="/blog">
+              <Button>
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Blog
               </Button>
-            </CardContent>
-          </Card>
-        </div>
+            </Link>
+          </div>
+        </main>
         <Footer />
       </div>
     );
   }
-
-  const publishDate = new Date(Number(post.publicationDate) / 1000000);
-
+  
+  const article = generateAdsenseArticle(post);
+  
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <div className="min-h-screen flex flex-col">
       <Header />
-
-      <article className="py-12">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            {/* Back Button */}
-            <Button
-              variant="ghost"
-              onClick={() => navigate({ to: '/blog' })}
-              className="mb-6"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Blog
-            </Button>
-
-            {/* Article Header */}
-            <div className="mb-8">
-              <h1 className="text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-primary via-chart-1 to-chart-2 bg-clip-text text-transparent">
-                {post.title}
+      
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section className="py-12 px-4 bg-gradient-to-br from-primary/10 via-chart-1/10 to-chart-2/10">
+          <div className="container mx-auto max-w-4xl">
+            <Link to="/blog">
+              <Button variant="ghost" size="sm" className="mb-6">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Blog
+              </Button>
+            </Link>
+            
+            <div className="space-y-4">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <BookOpen className="w-4 h-4" />
+                <span>Financial Education</span>
+                <span>•</span>
+                <Calendar className="w-4 h-4" />
+                <span>
+                  {new Date(article.publicationDate).toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric'
+                  })}
+                </span>
+              </div>
+              
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
+                {article.title}
               </h1>
               
-              <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-6">
-                <div className="flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  <span>{post.author}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
-                  <span>{publishDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                </div>
-                <Button variant="ghost" size="sm">
-                  <Share2 className="w-4 h-4 mr-2" />
-                  Share
-                </Button>
-              </div>
-
-              {post.excerpt && (
-                <p className="text-xl text-muted-foreground italic border-l-4 border-primary pl-4">
-                  {post.excerpt}
-                </p>
-              )}
-            </div>
-
-            {/* Featured Image */}
-            {post.featuredImage && (
-              <div className="mb-8 rounded-lg overflow-hidden">
-                <img
-                  src={post.featuredImage}
-                  alt={post.title}
-                  className="w-full h-auto"
-                />
-              </div>
-            )}
-
-            {/* Article Content */}
-            <Card className="border-2 border-primary/20">
-              <CardContent className="p-8 lg:p-12">
-                <div 
-                  className="prose prose-lg dark:prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{ __html: post.content }}
-                />
-              </CardContent>
-            </Card>
-
-            {/* Disclaimer */}
-            <Card className="mt-8 border-2 border-yellow-500/20 bg-yellow-500/5">
-              <CardContent className="p-6">
-                <p className="text-sm text-muted-foreground">
-                  <strong>Educational Disclaimer:</strong> This content is for educational purposes only and does not constitute financial advice. 
-                  Always consult with a qualified financial advisor before making investment decisions.
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Tags */}
-            {post.tags && post.tags.length > 0 && (
-              <div className="mt-8 flex flex-wrap gap-2">
-                {post.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 bg-primary/10 text-primary rounded-full text-sm"
-                  >
+              <p className="text-lg text-muted-foreground">
+                {article.excerpt}
+              </p>
+              
+              <div className="flex flex-wrap gap-2">
+                {article.tags.map((tag) => (
+                  <Badge key={tag} variant="secondary">
                     {tag}
-                  </span>
+                  </Badge>
                 ))}
               </div>
-            )}
+            </div>
           </div>
-        </div>
-      </article>
-
+        </section>
+        
+        {/* Featured Image */}
+        <section className="px-4 -mt-8">
+          <div className="container mx-auto max-w-4xl">
+            <div className="relative h-64 md:h-96 rounded-lg overflow-hidden shadow-xl">
+              <img
+                src={article.featuredImage}
+                alt={article.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        </section>
+        
+        {/* Article Content */}
+        <section className="py-12 px-4">
+          <div className="container mx-auto max-w-4xl">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <BookOpen className="w-4 h-4 text-primary" />
+                    </div>
+                    <span className="font-medium">{article.author}</span>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div 
+                  className="prose prose-lg max-w-none prose-headings:font-bold prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3 prose-p:text-muted-foreground prose-p:leading-relaxed prose-ul:my-4 prose-li:text-muted-foreground prose-strong:text-foreground"
+                  dangerouslySetInnerHTML={{ __html: article.content }}
+                />
+              </CardContent>
+            </Card>
+            
+            {/* Educational Disclaimer */}
+            <Card className="mt-8 border-amber-500/20 bg-amber-500/5">
+              <CardContent className="pt-6">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+                  <div className="space-y-1">
+                    <p className="font-semibold text-sm text-amber-900 dark:text-amber-100">Educational Purpose Only</p>
+                    <p className="text-xs text-amber-800 dark:text-amber-200">
+                      This content is for educational purposes and general guidance only. It is not personalized financial advice. 
+                      Always consult qualified financial advisors before making significant financial decisions.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
+      </main>
+      
       <Footer />
     </div>
   );

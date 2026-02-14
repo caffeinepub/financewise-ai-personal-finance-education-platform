@@ -1,100 +1,94 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-12T11:35:40.384Z",
+  "generatedAt": "2026-02-14T06:42:04.194Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 6,
-    "implemented": 2,
+    "total": 4,
+    "implemented": 3,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Enhance the Budget Planner experience to be more advanced and realistic by adding additional financial insights and visualizations: include at least one line chart (e.g., cashflow/savings projection over time) and ensure a clear pie chart breakdown is presented; add explicit guidance sections that answer how to improve personal finances with actionable suggestions on saving, investing, and next steps based on the user inputs.",
+        "summary": "Add a single, explicit application version identifier that can be set at build time and surfaced in the UI so operators can verify that the deployed build is version 242 (and not 244).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/BudgetPlanner.tsx",
-          "frontend/src/lib/budget-planner/budgetLogic.ts",
-          "frontend/src/lib/budget-planner/recommendations.ts",
-          "frontend/src/lib/budget-planner/projections.ts"
+          "frontend/.env.example",
+          "frontend/vercel.json",
+          "frontend/src/lib/buildInfo.ts",
+          "frontend/src/components/BuildVersionBadge.tsx",
+          "frontend/src/components/Footer.tsx",
+          "frontend/src/components/AppLayout.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/pages/BudgetPlanner.tsx",
-          "frontend/src/lib/budget-planner/recommendations.ts",
-          "frontend/src/lib/budget-planner/projections.ts"
+          "frontend/.env.example",
+          "frontend/vercel.json",
+          "frontend/src/lib/buildInfo.ts",
+          "frontend/src/components/BuildVersionBadge.tsx",
+          "frontend/src/components/Footer.tsx",
+          "frontend/src/components/AppLayout.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Increase the quiz question library to at least 100 unique finance quiz questions and ensure the app actually uses them (i.e., the quiz initialization and quiz flow should reflect 100+ total questions rather than only a small set). Questions must cover a broad set of personal finance topics, including saving strategies, budgeting methods, investing for beginners, stock market basics, mutual funds, SIP investing, and emergency funds.",
+        "summary": "Implement the currently-empty Deployment Info page to show build/version information (and any other locally-available build metadata) so reviewers can confirm the running version in draft and production.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/content/defaultQuizQuestions.ts",
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/lib/quizProgressStorage.ts",
-          "frontend/src/pages/Quiz.tsx"
+          "frontend/src/hooks/useBackendVersion.ts",
+          "frontend/src/pages/DeploymentInfo.tsx",
+          "frontend/src/App.tsx",
+          "frontend/src/components/Footer.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/content/defaultQuizQuestions.ts"
+          "frontend/src/hooks/useBackendVersion.ts",
+          "frontend/src/pages/DeploymentInfo.tsx",
+          "frontend/src/App.tsx",
+          "frontend/src/components/Footer.tsx"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Remove/replace all existing content shown on the Blogs page and publish a new library of at least 15 SEO-focused long-form blog posts (minimum 800+ words each) about personal finance, written to address real-world problems with practical solutions. The set must include posts that cover: Personal finance, Saving strategies, Budgeting methods, Investing for beginners, Stock market basics, Mutual funds, SIP investment, and Emergency funds.",
-        "status": "missing",
-        "plannedFiles": [
-          "frontend/src/pages/FinanceBlog.tsx",
-          "frontend/src/content/defaultBlogPosts.ts",
-          "frontend/src/pages/BlogPost.tsx",
-          "frontend/src/content/staticProblemSolutionBlogs.ts"
-        ],
+        "summary": "Expose a backend query method that returns a backend build/version identifier so the frontend can display both frontend and backend versions for deployment verification when rebuilding version 242.",
+        "status": "unknown",
+        "plannedFiles": [],
         "matchedFiles": []
       },
       {
         "id": "REQ-4",
-        "summary": "Update the app’s overall background styling to remove the current purple/violet/blue-heavy background look and replace it with a more creative, advanced theme applied consistently across both public pages (unauthenticated) and private/authenticated pages.",
-        "status": "missing",
+        "summary": "Add a lightweight deployment safety check in the frontend that warns the user when the displayed build version is not the requested target version \"242\" (to reduce the risk of mistakenly reviewing/publishing 244 again).",
+        "status": "implemented",
         "plannedFiles": [
-          "frontend/src/index.css",
-          "frontend/src/components/AppLayout.tsx",
-          "frontend/src/pages/FinanceBlog.tsx",
-          "frontend/src/pages/BlogPost.tsx",
-          "frontend/src/pages/Quiz.tsx"
+          "frontend/src/pages/DeploymentInfo.tsx",
+          "frontend/src/lib/buildInfo.ts"
         ],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-5",
-        "summary": "Restyle the authenticated app sidebar to be dark and use green hover effects for navigation items, while preserving current navigation structure and active-state clarity.",
-        "status": "missing",
-        "plannedFiles": [
-          "frontend/src/components/AppLayout.tsx",
-          "frontend/src/index.css"
-        ],
-        "matchedFiles": []
-      },
-      {
-        "id": "REQ-6",
-        "summary": "Resolve the internal contradiction between the current repository requirement that forbids quiz changes and the new request to add 100+ questions by updating the internal requirement documentation so it no longer instructs developers to avoid quiz question additions for this build.",
-        "status": "missing",
-        "plannedFiles": [
-          "frontend/src/requirements/REQ-10-quiz-no-changes.md"
-        ],
-        "matchedFiles": []
+        "matchedFiles": [
+          "frontend/src/pages/DeploymentInfo.tsx",
+          "frontend/src/lib/buildInfo.ts"
+        ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/content/defaultQuizQuestions.ts",
-    "frontend/src/lib/budget-planner/projections.ts",
-    "frontend/src/lib/budget-planner/recommendations.ts",
-    "frontend/src/pages/BudgetPlanner.tsx",
+    "frontend/.env.example",
+    "frontend/src/App.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/components/AppLayout.tsx",
+    "frontend/src/components/BuildVersionBadge.tsx",
+    "frontend/src/components/Footer.tsx",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useBackendVersion.ts",
+    "frontend/src/lib/buildInfo.ts",
+    "frontend/src/pages/DeploymentInfo.tsx",
+    "frontend/vercel.json",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",
