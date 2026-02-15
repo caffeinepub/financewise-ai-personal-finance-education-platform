@@ -6,12 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { TrendingUp, DollarSign, Calendar, PlusCircle, TrendingDown } from 'lucide-react';
+import { TrendingUp, DollarSign, Calendar, PlusCircle, TrendingDown, Loader2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import AccessDenied from '../components/AccessDenied';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, PieChart, Pie, Legend } from 'recharts';
 import type { Transaction } from '../types/transaction';
 import { toast } from 'sonner';
+import { useCurrency } from '../hooks/useCurrency';
 
 const EXPENSE_CATEGORIES = ['Entertainment', 'Housing & Utilities', 'Transportation', 'Shopping', 'Food & Dining', 'Healthcare', 'Other'];
 const INCOME_CATEGORIES = ['Salary', 'Freelance', 'Investment', 'Business', 'Gift', 'Other'];
@@ -39,6 +40,7 @@ export default function Analytics() {
   const { data: categoryData = [] } = useGetCategoryData();
   const { data: financialTrends = [] } = useGetFinancialTrends();
   const addTransaction = useAddTransaction();
+  const { format } = useCurrency();
 
   // Expense form state
   const [expenseAmount, setExpenseAmount] = useState('');
@@ -90,11 +92,11 @@ export default function Analytics() {
 
     const totalSpending = monthTransactions
       .filter(t => t.transactionType === 'expense')
-      .reduce((sum, t) => sum + t.amount, 0);
+      .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
     
     const totalIncome = monthTransactions
       .filter(t => t.transactionType === 'income')
-      .reduce((sum, t) => sum + t.amount, 0);
+      .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
     
     const remainingBalance = totalIncome - totalSpending;
     
@@ -105,37 +107,48 @@ export default function Analytics() {
         const today = new Date().toDateString();
         return txDate === today;
       })
-      .reduce((sum, t) => sum + t.amount, 0);
+      .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
 
-    return { totalSpending, totalIncome, remainingBalance, todaySpending };
+    return { 
+      totalSpending: totalSpending || 0, 
+      totalIncome: totalIncome || 0, 
+      remainingBalance: remainingBalance || 0, 
+      todaySpending: todaySpending || 0 
+    };
   }, [transactions]);
 
-  // Category breakdown for pie chart
-  const categoryBreakdown = useMemo(() => {
-    const expensesByCategory: Record<string, number> = {};
-    const incomeByCategory: Record<string, number> = {};
-
+  const expenseCategoryData = useMemo(() => {
+    const categoryMap = new Map<string, number>();
+    
     transactions.forEach(t => {
       if (t.transactionType === 'expense') {
-        expensesByCategory[t.category] = (expensesByCategory[t.category] || 0) + t.amount;
-      } else {
-        incomeByCategory[t.category] = (incomeByCategory[t.category] || 0) + t.amount;
+        const current = categoryMap.get(t.category) || 0;
+        categoryMap.set(t.category, current + (Number(t.amount) || 0));
       }
     });
-
-    const expenseData = Object.entries(expensesByCategory).map(([name, value]) => ({
+    
+    return Array.from(categoryMap.entries()).map(([name, value]) => ({
       name,
-      value,
-      type: 'Expense',
+      value: value || 0,
+      fill: CATEGORY_COLORS[name] || 'oklch(var(--chart-1))',
     }));
+  }, [transactions]);
 
-    const incomeData = Object.entries(incomeByCategory).map(([name, value]) => ({
+  const incomeCategoryData = useMemo(() => {
+    const categoryMap = new Map<string, number>();
+    
+    transactions.forEach(t => {
+      if (t.transactionType === 'income') {
+        const current = categoryMap.get(t.category) || 0;
+        categoryMap.set(t.category, current + (Number(t.amount) || 0));
+      }
+    });
+    
+    return Array.from(categoryMap.entries()).map(([name, value]) => ({
       name,
-      value,
-      type: 'Income',
+      value: value || 0,
+      fill: CATEGORY_COLORS[name] || 'oklch(var(--chart-2))',
     }));
-
-    return { expenseData, incomeData };
   }, [transactions]);
 
   if (!identity) {
@@ -144,153 +157,173 @@ export default function Analytics() {
 
   const handleAddExpense = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     if (!expenseAmount || !expenseCategory || !expensePaymentType) {
-      toast.error('Error: Please enter all required fields (amount, category, payment type)');
+      toast.error('Please fill in all required fields');
       return;
     }
 
     const amount = parseFloat(expenseAmount);
     if (isNaN(amount) || amount <= 0) {
-      toast.error('Error: Please enter a valid amount greater than 0');
+      toast.error('Please enter a valid amount');
       return;
     }
 
-    const transaction: Transaction = {
-      id: `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      amount,
-      category: expenseCategory,
-      notes: expenseNote,
-      date: BigInt(new Date(expenseDate).getTime() * 1000000),
-      paymentType: expensePaymentType,
-      user: identity.getPrincipal(),
-      createdAt: BigInt(Date.now() * 1000000),
-      transactionType: 'expense',
-    };
+    try {
+      const dateMs = new Date(expenseDate).getTime();
+      
+      await addTransaction.mutateAsync({
+        amount,
+        category: expenseCategory,
+        notes: expenseNote,
+        date: dateMs * 1000000,
+        paymentType: expensePaymentType,
+        user: identity.getPrincipal(),
+        transactionType: 'expense',
+      });
 
-    addTransaction.mutate(transaction, {
-      onSuccess: () => {
-        setExpenseAmount('');
-        setExpenseCategory('');
-        setExpenseNote('');
-        setExpensePaymentType('');
-        setExpenseDate(new Date().toISOString().split('T')[0]);
-      },
-    });
+      setExpenseAmount('');
+      setExpenseCategory('');
+      setExpenseNote('');
+      setExpensePaymentType('');
+      setExpenseDate(new Date().toISOString().split('T')[0]);
+      
+      toast.success('Expense added successfully');
+    } catch (error) {
+      console.error('Failed to add expense:', error);
+      toast.error('Failed to add expense');
+    }
   };
 
   const handleAddIncome = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     if (!incomeAmount || !incomeCategory || !incomePaymentType) {
-      toast.error('Error: Please enter all required fields (amount, category, payment type)');
+      toast.error('Please fill in all required fields');
       return;
     }
 
     const amount = parseFloat(incomeAmount);
     if (isNaN(amount) || amount <= 0) {
-      toast.error('Error: Please enter a valid amount greater than 0');
+      toast.error('Please enter a valid amount');
       return;
     }
 
-    const transaction: Transaction = {
-      id: `tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      amount,
-      category: incomeCategory,
-      notes: incomeNote,
-      date: BigInt(new Date(incomeDate).getTime() * 1000000),
-      paymentType: incomePaymentType,
-      user: identity.getPrincipal(),
-      createdAt: BigInt(Date.now() * 1000000),
-      transactionType: 'income',
-    };
+    try {
+      const dateMs = new Date(incomeDate).getTime();
+      
+      await addTransaction.mutateAsync({
+        amount,
+        category: incomeCategory,
+        notes: incomeNote,
+        date: dateMs * 1000000,
+        paymentType: incomePaymentType,
+        user: identity.getPrincipal(),
+        transactionType: 'income',
+      });
 
-    addTransaction.mutate(transaction, {
-      onSuccess: () => {
-        setIncomeAmount('');
-        setIncomeCategory('');
-        setIncomeNote('');
-        setIncomePaymentType('');
-        setIncomeDate(new Date().toISOString().split('T')[0]);
-      },
-    });
-  };
-
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-popover border border-border rounded-lg p-3 shadow-lg">
-          <p className="font-medium text-foreground">{payload[0].payload.name || payload[0].name}</p>
-          {payload.map((entry: any, index: number) => (
-            <p key={index} className="text-sm" style={{ color: entry.color }}>
-              {entry.name}: ₹{entry.value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-            </p>
-          ))}
-        </div>
-      );
+      setIncomeAmount('');
+      setIncomeCategory('');
+      setIncomeNote('');
+      setIncomePaymentType('');
+      setIncomeDate(new Date().toISOString().split('T')[0]);
+      
+      toast.success('Income added successfully');
+    } catch (error) {
+      console.error('Failed to add income:', error);
+      toast.error('Failed to add income');
     }
-    return null;
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 lg:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="space-y-2">
-          <h1 className="text-3xl lg:text-4xl font-bold text-foreground">Analytics</h1>
-          <p className="text-muted-foreground">Track and manage your income and expenses with detailed insights.</p>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-4 lg:p-8">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Financial Analytics</h1>
+          <p className="text-muted-foreground">Track your income and expenses with detailed insights</p>
         </div>
 
-        {/* Smart Expense Input */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Add Expense</CardTitle>
-            <CardDescription>Record a new expense transaction</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleAddExpense} className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
+        {/* Monthly Statistics */}
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Income</CardTitle>
+              <TrendingUp className="h-4 w-4 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-600">{format(monthlyStats.totalIncome)}</div>
+              <p className="text-xs text-muted-foreground">Last 30 days</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
+              <TrendingDown className="h-4 w-4 text-red-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-600">{format(monthlyStats.totalSpending)}</div>
+              <p className="text-xs text-muted-foreground">Last 30 days</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Remaining Balance</CardTitle>
+              <DollarSign className="h-4 w-4 text-primary" />
+            </CardHeader>
+            <CardContent>
+              <div className={`text-2xl font-bold ${monthlyStats.remainingBalance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {format(monthlyStats.remainingBalance)}
+              </div>
+              <p className="text-xs text-muted-foreground">Income - Expenses</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Today's Spending</CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{format(monthlyStats.todaySpending)}</div>
+              <p className="text-xs text-muted-foreground">Current day</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Add Transaction Forms */}
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Add Expense Form */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingDown className="h-5 w-5 text-red-600" />
+                Add Expense
+              </CardTitle>
+              <CardDescription>Record a new expense transaction</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleAddExpense} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="expense-amount">Amount Spent *</Label>
+                  <Label htmlFor="expense-amount">Amount *</Label>
                   <Input
                     id="expense-amount"
                     type="number"
                     step="0.01"
-                    placeholder="₹0.00"
+                    placeholder="0.00"
                     value={expenseAmount}
                     onChange={(e) => setExpenseAmount(e.target.value)}
                     required
+                    disabled={addTransaction.isPending}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="expense-date">Date *</Label>
-                  <Input
-                    id="expense-date"
-                    type="date"
-                    value={expenseDate}
-                    onChange={(e) => setExpenseDate(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="expense-note">Note</Label>
-                <Textarea
-                  id="expense-note"
-                  placeholder="Add a note (optional)..."
-                  value={expenseNote}
-                  onChange={(e) => setExpenseNote(e.target.value)}
-                  rows={3}
-                />
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="expense-category">Category *</Label>
-                  <Select value={expenseCategory} onValueChange={setExpenseCategory} required>
+                  <Select value={expenseCategory} onValueChange={setExpenseCategory} disabled={addTransaction.isPending}>
                     <SelectTrigger id="expense-category">
-                      <SelectValue placeholder="Select a category" />
+                      <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
                       {EXPENSE_CATEGORIES.map(cat => (
@@ -299,9 +332,10 @@ export default function Analytics() {
                     </SelectContent>
                   </Select>
                 </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="expense-payment">Payment Type *</Label>
-                  <Select value={expensePaymentType} onValueChange={setExpensePaymentType} required>
+                  <Select value={expensePaymentType} onValueChange={setExpensePaymentType} disabled={addTransaction.isPending}>
                     <SelectTrigger id="expense-payment">
                       <SelectValue placeholder="Select payment type" />
                     </SelectTrigger>
@@ -312,66 +346,76 @@ export default function Analytics() {
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
 
-              <Button type="submit" className="w-full" disabled={addTransaction.isPending}>
-                <TrendingDown className="w-4 h-4 mr-2" />
-                {addTransaction.isPending ? 'Adding...' : 'Add Expense'}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
-
-        {/* Income Input */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Add Income</CardTitle>
-            <CardDescription>Record earned income and view your balance</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleAddIncome} className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="income-amount">Amount Earned *</Label>
+                  <Label htmlFor="expense-date">Date</Label>
+                  <Input
+                    id="expense-date"
+                    type="date"
+                    value={expenseDate}
+                    onChange={(e) => setExpenseDate(e.target.value)}
+                    disabled={addTransaction.isPending}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="expense-note">Note (Optional)</Label>
+                  <Textarea
+                    id="expense-note"
+                    placeholder="Add a note..."
+                    value={expenseNote}
+                    onChange={(e) => setExpenseNote(e.target.value)}
+                    disabled={addTransaction.isPending}
+                  />
+                </div>
+
+                <Button type="submit" className="w-full" disabled={addTransaction.isPending}>
+                  {addTransaction.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Adding...
+                    </>
+                  ) : (
+                    <>
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Add Expense
+                    </>
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          {/* Add Income Form */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-green-600" />
+                Add Income
+              </CardTitle>
+              <CardDescription>Record a new income transaction</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleAddIncome} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="income-amount">Amount *</Label>
                   <Input
                     id="income-amount"
                     type="number"
                     step="0.01"
-                    placeholder="₹0.00"
+                    placeholder="0.00"
                     value={incomeAmount}
                     onChange={(e) => setIncomeAmount(e.target.value)}
                     required
+                    disabled={addTransaction.isPending}
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="income-date">Date *</Label>
-                  <Input
-                    id="income-date"
-                    type="date"
-                    value={incomeDate}
-                    onChange={(e) => setIncomeDate(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="income-note">Note</Label>
-                <Textarea
-                  id="income-note"
-                  placeholder="e.g., Monthly salary, Freelance project..."
-                  value={incomeNote}
-                  onChange={(e) => setIncomeNote(e.target.value)}
-                  rows={3}
-                />
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="income-category">Category *</Label>
-                  <Select value={incomeCategory} onValueChange={setIncomeCategory} required>
+                  <Select value={incomeCategory} onValueChange={setIncomeCategory} disabled={addTransaction.isPending}>
                     <SelectTrigger id="income-category">
-                      <SelectValue placeholder="Select a category" />
+                      <SelectValue placeholder="Select category" />
                     </SelectTrigger>
                     <SelectContent>
                       {INCOME_CATEGORIES.map(cat => (
@@ -380,9 +424,10 @@ export default function Analytics() {
                     </SelectContent>
                   </Select>
                 </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="income-payment">Payment Type *</Label>
-                  <Select value={incomePaymentType} onValueChange={setIncomePaymentType} required>
+                  <Select value={incomePaymentType} onValueChange={setIncomePaymentType} disabled={addTransaction.isPending}>
                     <SelectTrigger id="income-payment">
                       <SelectValue placeholder="Select payment type" />
                     </SelectTrigger>
@@ -393,99 +438,113 @@ export default function Analytics() {
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
 
-              <Button type="submit" className="w-full" disabled={addTransaction.isPending}>
-                <PlusCircle className="w-4 h-4 mr-2" />
-                {addTransaction.isPending ? 'Adding...' : 'Add Income'}
-              </Button>
-            </form>
-
-            <div className="pt-6 mt-6 border-t">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <span className="text-sm text-muted-foreground">Total Income</span>
-                  <p className="text-2xl font-bold text-chart-2">₹{monthlyStats.totalIncome.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</p>
+                <div className="space-y-2">
+                  <Label htmlFor="income-date">Date</Label>
+                  <Input
+                    id="income-date"
+                    type="date"
+                    value={incomeDate}
+                    onChange={(e) => setIncomeDate(e.target.value)}
+                    disabled={addTransaction.isPending}
+                  />
                 </div>
-                <div className="space-y-1">
-                  <span className="text-sm text-muted-foreground">Remaining Balance</span>
-                  <p className={`text-2xl font-bold ${monthlyStats.remainingBalance >= 0 ? 'text-chart-2' : 'text-destructive'}`}>
-                    ₹{monthlyStats.remainingBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Enhanced Analytics Charts */}
-        <div className="grid lg:grid-cols-2 gap-6">
-          {/* Expense Category Breakdown */}
+                <div className="space-y-2">
+                  <Label htmlFor="income-note">Note (Optional)</Label>
+                  <Textarea
+                    id="income-note"
+                    placeholder="Add a note..."
+                    value={incomeNote}
+                    onChange={(e) => setIncomeNote(e.target.value)}
+                    disabled={addTransaction.isPending}
+                  />
+                </div>
+
+                <Button type="submit" className="w-full" disabled={addTransaction.isPending}>
+                  {addTransaction.isPending ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Adding...
+                    </>
+                  ) : (
+                    <>
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Add Income
+                    </>
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Charts */}
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Expense Breakdown */}
           <Card>
             <CardHeader>
-              <CardTitle>Expense Category Breakdown</CardTitle>
-              <CardDescription>Distribution of your expenses by category</CardDescription>
+              <CardTitle>Expense Breakdown</CardTitle>
+              <CardDescription>Distribution by category</CardDescription>
             </CardHeader>
             <CardContent>
-              {categoryBreakdown.expenseData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={350}>
+              {expenseCategoryData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
-                      data={categoryBreakdown.expenseData}
+                      data={expenseCategoryData}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
                       label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={100}
+                      outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
                     >
-                      {categoryBreakdown.expenseData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[entry.name] || 'oklch(var(--primary))'} />
+                      {expenseCategoryData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
                       ))}
                     </Pie>
-                    <Tooltip content={<CustomTooltip />} />
-                    <Legend />
+                    <Tooltip formatter={(value: any) => format(value)} />
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="h-[350px] flex items-center justify-center text-muted-foreground">
+                <div className="h-[300px] flex items-center justify-center text-muted-foreground">
                   No expense data available
                 </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Income Category Breakdown */}
+          {/* Income Breakdown */}
           <Card>
             <CardHeader>
-              <CardTitle>Income Category Breakdown</CardTitle>
-              <CardDescription>Distribution of your income by category</CardDescription>
+              <CardTitle>Income Breakdown</CardTitle>
+              <CardDescription>Distribution by source</CardDescription>
             </CardHeader>
             <CardContent>
-              {categoryBreakdown.incomeData.length > 0 ? (
-                <ResponsiveContainer width="100%" height={350}>
+              {incomeCategoryData.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
-                      data={categoryBreakdown.incomeData}
+                      data={incomeCategoryData}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
                       label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                      outerRadius={100}
+                      outerRadius={80}
                       fill="#8884d8"
                       dataKey="value"
                     >
-                      {categoryBreakdown.incomeData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[entry.name] || 'oklch(var(--primary))'} />
+                      {incomeCategoryData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
                       ))}
                     </Pie>
-                    <Tooltip content={<CustomTooltip />} />
-                    <Legend />
+                    <Tooltip formatter={(value: any) => format(value)} />
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
-                <div className="h-[350px] flex items-center justify-center text-muted-foreground">
+                <div className="h-[300px] flex items-center justify-center text-muted-foreground">
                   No income data available
                 </div>
               )}
@@ -493,102 +552,61 @@ export default function Analytics() {
           </Card>
         </div>
 
-        {/* Income vs Expenses Trend */}
+        {/* Spending Trend */}
         <Card>
           <CardHeader>
-            <CardTitle>Income vs Expenses Trend</CardTitle>
-            <CardDescription>Daily comparison of your income and expenses over the last 30 days</CardDescription>
+            <CardTitle>Income vs Expenses (Last 30 Days)</CardTitle>
+            <CardDescription>Daily comparison of your financial activity</CardDescription>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={350}>
+            <ResponsiveContainer width="100%" height={300}>
               <LineChart data={spendingTrendData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="oklch(var(--border))" />
-                <XAxis dataKey="date" stroke="oklch(var(--muted-foreground))" />
-                <YAxis stroke="oklch(var(--muted-foreground))" />
-                <Tooltip content={<CustomTooltip />} />
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" />
+                <YAxis stroke="hsl(var(--muted-foreground))" />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
+                  formatter={(value: any) => format(value)}
+                />
                 <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="expenses"
-                  stroke="oklch(var(--destructive))"
-                  strokeWidth={2}
-                  dot={{ fill: 'oklch(var(--destructive))' }}
-                  name="Expenses"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="income"
-                  stroke="oklch(var(--chart-2))"
-                  strokeWidth={2}
-                  dot={{ fill: 'oklch(var(--chart-2))' }}
-                  name="Income"
-                />
+                <Line type="monotone" dataKey="income" stroke="oklch(var(--chart-2))" name="Income" strokeWidth={2} />
+                <Line type="monotone" dataKey="expenses" stroke="oklch(var(--chart-1))" name="Expenses" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        {/* Category Insights with Bar Chart */}
+        {/* Category Insights */}
         <Card>
           <CardHeader>
-            <CardTitle>Category-Based Insights</CardTitle>
-            <CardDescription>Compare spending across different categories</CardDescription>
+            <CardTitle>Category Insights</CardTitle>
+            <CardDescription>Compare spending across categories</CardDescription>
           </CardHeader>
           <CardContent>
-            {categoryBreakdown.expenseData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={350}>
-                <BarChart data={categoryBreakdown.expenseData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="oklch(var(--border))" />
-                  <XAxis dataKey="name" stroke="oklch(var(--muted-foreground))" />
-                  <YAxis stroke="oklch(var(--muted-foreground))" />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Bar dataKey="value" radius={[8, 8, 0, 0]} name="Amount">
-                    {categoryBreakdown.expenseData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[entry.name] || 'oklch(var(--primary))'} />
+            {expenseCategoryData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={expenseCategoryData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
+                  <YAxis stroke="hsl(var(--muted-foreground))" />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
+                    formatter={(value: any) => format(value)}
+                  />
+                  <Bar dataKey="value" name="Amount">
+                    {expenseCategoryData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.fill} />
                     ))}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-[350px] flex items-center justify-center text-muted-foreground">
+              <div className="h-[300px] flex items-center justify-center text-muted-foreground">
                 No category data available
               </div>
             )}
           </CardContent>
         </Card>
-
-        {/* Monthly Stats */}
-        <div className="grid md:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Monthly Spending</CardTitle>
-              <TrendingDown className="h-4 w-4 text-destructive" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">₹{monthlyStats.totalSpending.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Monthly Income</CardTitle>
-              <TrendingUp className="h-4 w-4 text-chart-2" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">₹{monthlyStats.totalIncome.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Today's Spending</CardTitle>
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">₹{monthlyStats.todaySpending.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
-            </CardContent>
-          </Card>
-        </div>
       </div>
     </div>
   );

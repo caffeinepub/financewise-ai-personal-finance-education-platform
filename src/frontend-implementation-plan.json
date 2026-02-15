@@ -1,98 +1,136 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Build-time versioning + Deployment Info UI for verified rebuild of version 242",
+  "title": "Fix Analytics transaction persistence, improve AI chat scrolling, remove Challenges, and enable working display preferences",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Add a build-time configurable frontend version identifier and surface it in always-visible UI for both public and authenticated areas.",
+      "summary": "Make AI assistant chat conversation fully scrollable for long sessions and ensure reliable auto-scroll to the latest message.",
       "acceptanceCriteria": [
-        "A build-time version string can be configured without code changes (e.g., via a frontend env/build constant).",
-        "The app displays the configured version string in at least one always-visible location (e.g., footer) in both public and authenticated areas.",
-        "The displayed version string exactly matches the configured build version (e.g., \"242\") after rebuild."
+        "User can send 200+ messages in one session and all messages remain visible via scrolling (none disappear or get clipped).",
+        "After sending/receiving a message, the chat view scrolls to the latest message reliably.",
+        "No console errors related to scroll container refs."
       ],
       "file_operations": [
         {
-          "path": "frontend/.env.example",
-          "operation": "create",
-          "description": "Document build-time configuration for the frontend build version via a Vite env variable (e.g., VITE_APP_VERSION=242) and any optional build metadata env vars used by the UI (e.g., VITE_BUILD_TIMESTAMP, VITE_GIT_SHA)."
-        },
-        {
-          "path": "frontend/vercel.json",
+          "path": "frontend/src/components/AIChatbot.tsx",
           "operation": "modify",
-          "description": "Add/ensure a build-time environment variable entry for the frontend build version (VITE_APP_VERSION) so operators can set it per deployment without code changes."
-        },
-        {
-          "path": "frontend/src/lib/buildInfo.ts",
-          "operation": "create",
-          "description": "Add a small helper module that exposes a single source of truth for the configured frontend build version (from import.meta.env.VITE_APP_VERSION) and optional locally-available build metadata (mode/prod flags and optional timestamp/SHA env vars)."
-        },
-        {
-          "path": "frontend/src/components/BuildVersionBadge.tsx",
-          "operation": "create",
-          "description": "Create a reusable UI snippet that reads the frontend version from the buildInfo helper and renders it in a compact, always-visible format. Use shadcn-ui primitives (e.g., badge/card/typography) by composing existing components only; verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/Footer.tsx",
-          "operation": "modify",
-          "description": "Render the BuildVersionBadge in the public footer bottom bar so the frontend version is always visible on public pages. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/AppLayout.tsx",
-          "operation": "modify",
-          "description": "Render the BuildVersionBadge in an always-visible location within the authenticated layout (e.g., sidebar bottom section and/or mobile header area) so authenticated users can also verify the frontend version. Verify the component's usage instructions before implementing."
+          "description": "Replace the current ScrollArea ref approach with a reliable scroll container (e.g., an overflow-y-auto div with a bottom sentinel ref) and adjust the flex layout (min-h-0 where needed) so long message lists never get clipped; implement robust auto-scroll (only when user is near bottom, and after new messages append) without null-ref errors. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Implement the Deployment Info page to display frontend build/version and other locally-available build metadata, and make it reachable via routing/navigation.",
+      "summary": "Fix Analytics add-income/add-expense so transactions persist and analytics refresh correctly after creation.",
       "acceptanceCriteria": [
-        "The previously empty `frontend/src/pages/DeploymentInfo.tsx` renders a page with a clear title and a version field.",
-        "A route exists that allows navigating to the Deployment Info page in the running app (public or authenticated is acceptable, but it must be reachable without editing immutable paths).",
-        "The version shown on the Deployment Info page matches the version shown in the always-visible location from REQ-1."
+        "Submitting the Add Expense form creates a new expense transaction that persists (still present after page refresh) and appears in analytics charts/derived data.",
+        "Submitting the Add Income form creates a new income transaction that persists (still present after page refresh) and appears in analytics charts/derived data.",
+        "No runtime error occurs during transaction persistence (including JSON serialization issues).",
+        "After a successful add, the form fields reset as they currently attempt to do."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/hooks/useBackendVersion.ts",
-          "operation": "create",
-          "description": "Add a small React Query hook that uses useActor() to fetch the backend version via the existing actor method getBackendVersion(), returning loading/error states for the Deployment Info UI."
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Make useAddTransaction and useGetUserTransactions persist to and read from localStorage (or the app’s existing client-side storage mechanism), ensuring analytics queries invalidate/refetch after a successful add; use safe (de)serialization for BigInt fields to avoid JSON errors and ensure data survives reloads."
         },
         {
-          "path": "frontend/src/pages/DeploymentInfo.tsx",
+          "path": "frontend/src/lib/serialization.ts",
           "operation": "modify",
-          "description": "Implement the Deployment Info page UI with a clear English title and fields for frontend version (from buildInfo) plus backend version (from useBackendVersion), along with any optional locally-available build metadata (e.g., build timestamp/SHA if present). Use shadcn-ui components by composing existing UI components only; verify the component's usage instructions before implementing."
+          "description": "Add/adjust reusable helpers for safely serializing and deserializing transaction-like objects containing BigInt fields so localStorage persistence does not throw and restores correct types."
         },
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/pages/Analytics.tsx",
           "operation": "modify",
-          "description": "Wire the Deployment Info page into the router by adding a reachable route (e.g., /deployment-info) and include it in the route tree so it can be navigated to in the running app."
+          "description": "Ensure the add-income/add-expense submit handlers use the corrected mutation flow (await/handle success and errors explicitly), and trigger appropriate query invalidations (via the hook’s onSuccess) so charts/derived data refresh immediately after adds while preserving the current form reset behavior."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Prevent Remaining Balance from rendering as a bare dash/minus and ensure consistent zero/currency formatting when no transactions exist.",
+      "acceptanceCriteria": [
+        "With zero saved transactions, Remaining Balance renders as a formatted 0 value (not '-' and not NaN).",
+        "With valid income/expense transactions, Remaining Balance renders correctly and updates after adding a transaction."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/Analytics.tsx",
+          "operation": "modify",
+          "description": "Harden Remaining Balance rendering by coercing invalid/NaN values to 0 and using a single consistent currency formatting approach for totals/balance; ensure the display updates immediately after adding a transaction."
         },
         {
-          "path": "frontend/src/components/Footer.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Add a navigation link/button to the Deployment Info route so the page is reachable from the public UI without needing to know the URL. Verify the component's usage instructions before implementing."
+          "description": "When hydrating transactions from storage, validate/coerce numeric fields (e.g., amount) and timestamps so downstream computations (Remaining Balance) never produce NaN or malformed values."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Add an informational deployment safety warning on the Deployment Info page when the configured frontend build version is not the requested target version 242.",
+      "summary": "Remove Challenges from navigation and routing so users cannot access the Challenges page.",
       "acceptanceCriteria": [
-        "When the configured build version is anything other than \"242\", the app shows a clear warning message on the Deployment Info page (English text).",
-        "When the configured build version is \"242\", no warning is shown.",
-        "The warning does not block normal app usage; it is informational only."
+        "The sidebar/navigation no longer shows “Challenges”.",
+        "Visiting /challenges does not render the Challenges page (route removed or replaced with a not-found/redirect behavior consistent with the app).",
+        "No build errors remain from stale imports/references to the Challenges page."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/DeploymentInfo.tsx",
+          "path": "frontend/src/components/AppLayout.tsx",
           "operation": "modify",
-          "description": "Add an English, informational-only warning block that appears when the configured frontend version (from buildInfo) !== \"242\". Also add a clear visual comparison between frontend and backend versions (e.g., show both values and a mismatch indicator) without blocking usage. Use shadcn-ui components by composing existing UI components only; verify the component's usage instructions before implementing."
+          "description": "Remove the Challenges item from the navigation list so it no longer appears in desktop/mobile menus."
         },
         {
-          "path": "frontend/src/lib/buildInfo.ts",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Add a single exported constant for the target review version (\"242\") or a helper comparison function used by the Deployment Info page so the safety check logic stays centralized and consistent."
+          "description": "Remove the Challenges page import and remove the /challenges route from the router tree; ensure route registration no longer references Challenges anywhere."
+        },
+        {
+          "path": "frontend/src/pages/Challenges.tsx",
+          "operation": "delete",
+          "description": "Delete the Challenges page implementation to prevent stale references and ensure the feature is fully removed from the shipped UI."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Make Settings display preferences functional: theme selection (light/dark/system) applies app-wide and persists; Show Analytics toggle controls Analytics visibility/access.",
+      "acceptanceCriteria": [
+        "Changing Theme in Settings immediately updates the app theme and the selection persists across reloads.",
+        "If “Show Analytics” is turned off, the Analytics navigation item is hidden and the user is prevented from accessing the Analytics experience (either via route guard message or redirect).",
+        "If “Show Analytics” is turned on, Analytics is accessible and appears in navigation again.",
+        "All user-facing text for these controls remains in English."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Fix ThemeProvider configuration so next-themes can actually switch between light/dark/system and persist across reloads (remove forced dark-only behavior; enable system where required)."
+        },
+        {
+          "path": "frontend/src/pages/Settings.tsx",
+          "operation": "modify",
+          "description": "Wire the Theme select to persist correctly (align displayed selection with saved preferences) and ensure the Show Analytics toggle updates preferences in storage so it survives reloads; keep all control text in English. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/AppLayout.tsx",
+          "operation": "modify",
+          "description": "Read the saved display preferences (via existing preferences hook/storage) and conditionally hide/show the Analytics navigation item based on the Show Analytics toggle."
+        },
+        {
+          "path": "frontend/src/components/AnalyticsGuard.tsx",
+          "operation": "create",
+          "description": "Create a small route-guard component that checks the saved Show Analytics preference and either renders Analytics or redirects/shows an in-app access message consistent with the app when analytics is disabled."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Wrap the /analytics route component with the AnalyticsGuard so direct navigation to /analytics is blocked when Show Analytics is turned off (redirect or guard message)."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Ensure userPreferences storage/update logic supports the themeMode and analyticsVisible fields reliably (including persistence and reactivity via React Query invalidation) so AppLayout and route guards respond to changes."
         }
       ]
     }

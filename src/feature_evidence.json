@@ -2,15 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-add-a-single-explicit-application-version-identifier-that-can-be-set-at-build-time-and-surfaced-in-the-ui-so-operators-can-verify-that-the-deployed-build-is-version-242-and-not-244",
-      "featureTitle": "Add a single, explicit application version identifier that can be set at build time and surfaced in the UI so operators can verify that the deployed build is version 242 (and not 244).",
+      "featureId": "feature-update-the-ai-assistant-chat-ui-frontend-src-components-aichatbot-tsx-so-long-conversations-are-fully-scrollable-without-cutting-off-messages-with-reliable-auto-scroll-to-latest-behavior-after-new-messages-are-appended",
+      "featureTitle": "Update the AI assistant chat UI (frontend/src/components/AIChatbot.tsx) so long conversations are fully scrollable without cutting off messages, with reliable auto-scroll-to-latest behavior after new messages are appended.",
       "files": [
-        "frontend/.env.example",
-        "frontend/src/components/AppLayout.tsx",
-        "frontend/src/components/BuildVersionBadge.tsx",
-        "frontend/src/components/Footer.tsx",
-        "frontend/src/lib/buildInfo.ts",
-        "frontend/vercel.json"
+        "frontend/src/components/AIChatbot.tsx"
       ],
       "components": [
         "authorization@3.0.0",
@@ -28,13 +23,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-the-currently-empty-deployment-info-page-to-show-build-version-information-and-any-other-locally-available-build-metadata-so-reviewers-can-confirm-the-running-version-in-draft-and-production",
-      "featureTitle": "Implement the currently-empty Deployment Info page to show build/version information (and any other locally-available build metadata) so reviewers can confirm the running version in draft and production.",
+      "featureId": "feature-fix-analytics-page-add-income-and-add-expense-flows-so-clicking-add-expense-and-add-income-persists-the-new-transaction-and-refreshes-analytics-data-correctly",
+      "featureTitle": "Fix Analytics page add-income and add-expense flows so clicking “Add Expense” and “Add Income” persists the new transaction and refreshes analytics data correctly.",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/components/Footer.tsx",
-        "frontend/src/hooks/useBackendVersion.ts",
-        "frontend/src/pages/DeploymentInfo.tsx"
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/Analytics.tsx"
       ],
       "components": [
         "authorization@3.0.0",
@@ -52,11 +45,34 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-a-lightweight-deployment-safety-check-in-the-frontend-that-warns-the-user-when-the-displayed-build-version-is-not-the-requested-target-version-242-to-reduce-the-risk-of-mistakenly-reviewing-publishing-244-again",
-      "featureTitle": "Add a lightweight deployment safety check in the frontend that warns the user when the displayed build version is not the requested target version \"242\" (to reduce the risk of mistakenly reviewing/publishing 244 again).",
+      "featureId": "feature-ensure-the-analytics-remaining-balance-display-never-renders-as-a-bare-dash-minus-due-to-missing-invalid-data-when-there-are-no-transactions-show-a-zero-balance-and-consistent-currency-formatting",
+      "featureTitle": "Ensure the Analytics “Remaining Balance” display never renders as a bare dash/minus due to missing/invalid data; when there are no transactions, show a zero balance and consistent currency formatting.",
       "files": [
-        "frontend/src/lib/buildInfo.ts",
-        "frontend/src/pages/DeploymentInfo.tsx"
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/Analytics.tsx"
+      ],
+      "components": [
+        "authorization@3.0.0",
+        "blob-storage@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-remove-the-challenges-feature-from-the-app-ui-and-routing-eliminate-the-challenges-navigation-entry-and-disable-remove-the-challenges-route-so-users-cannot-navigate-to-the-challenges-page",
+      "featureTitle": "Remove the Challenges feature from the app UI and routing: eliminate the Challenges navigation entry and disable/remove the /challenges route so users cannot navigate to the Challenges page.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/AppLayout.tsx",
+        "frontend/src/pages/Challenges.tsx"
       ],
       "components": [
         "authorization@3.0.0",
@@ -70,6 +86,31 @@
       ],
       "testIds": [
         "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-make-settings-display-preferences-functional-1-theme-selection-light-dark-system-must-actually-change-the-app-theme-and-2-the-show-analytics-toggle-must-control-visibility-access-to-analytics-in-the-app-navigation-and-or-page-access",
+      "featureTitle": "Make Settings display preferences functional: (1) theme selection (light/dark/system) must actually change the app theme, and (2) the “Show Analytics” toggle must control visibility/access to Analytics in the app navigation and/or page access.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/components/AnalyticsGuard.tsx",
+        "frontend/src/components/AppLayout.tsx",
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/Settings.tsx"
+      ],
+      "components": [
+        "authorization@3.0.0",
+        "blob-storage@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
       ],
       "confidence": "high"
     }

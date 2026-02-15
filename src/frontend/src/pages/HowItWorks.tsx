@@ -152,7 +152,7 @@ export default function HowItWorks() {
                 Join FinanceWise AI today and start your journey to financial freedom
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" onClick={() => navigate({ to: '/signup' })} className="bg-gradient-to-r from-primary to-chart-1">
+                <Button size="lg" onClick={() => navigate({ to: '/login' })} className="bg-gradient-to-r from-primary to-chart-1">
                   Sign Up Free
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>

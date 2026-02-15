@@ -73,7 +73,7 @@ export default function Home() {
               FinanceWise AI combines cutting-edge artificial intelligence with intuitive design to help you take control of your financial future. Track expenses, set goals, and get personalized recommendations—all for free.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" onClick={() => navigate({ to: '/signup' })} className="bg-gradient-to-r from-primary to-chart-1 text-lg px-8">
+              <Button size="lg" onClick={() => navigate({ to: '/login' })} className="bg-gradient-to-r from-primary to-chart-1 text-lg px-8">
                 Get Started Free
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
@@ -205,7 +205,7 @@ export default function Home() {
                 Join thousands of users who are already taking control of their finances with FinanceWise AI
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" onClick={() => navigate({ to: '/signup' })} className="bg-gradient-to-r from-primary to-chart-1">
+                <Button size="lg" onClick={() => navigate({ to: '/login' })} className="bg-gradient-to-r from-primary to-chart-1">
                   Start Your Journey Today
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>

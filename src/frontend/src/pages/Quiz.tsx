@@ -1,112 +1,115 @@
 import { useState, useEffect } from 'react';
-import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useGetQuizQuestion, useSubmitQuizAnswer, useGetQuizStatistics } from '../hooks/useQueries';
-import { useInitializeDefaultContent } from '../hooks/useDefaultContentInitialization';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle2, XCircle, Lightbulb, AlertCircle } from 'lucide-react';
-import { useNavigate } from '@tanstack/react-router';
+import { Badge } from '@/components/ui/badge';
+import { CheckCircle2, XCircle, Lightbulb, Trophy, BookOpen } from 'lucide-react';
+import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import AccessDenied from '../components/AccessDenied';
+import { defaultQuizQuestions } from '../content/defaultQuizQuestions';
+
+interface QuizQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correctAnswer: string;
+  explanation: string;
+  realLifeTip: string;
+  topic: string;
+  difficulty: string;
+}
 
 export default function Quiz() {
   const { identity } = useInternetIdentity();
-  const navigate = useNavigate();
-  const { data: currentQuestion, refetch, isLoading: questionLoading } = useGetQuizQuestion();
-  const { data: statistics, isLoading: statsLoading, refetch: refetchStats } = useGetQuizStatistics();
-  const submitAnswer = useSubmitQuizAnswer();
-  const initializeContent = useInitializeDefaultContent();
-  
-  const [selectedAnswer, setSelectedAnswer] = useState<string>('');
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
-  const [feedback, setFeedback] = useState<any>(null);
+  const [score, setScore] = useState(0);
+  const [answeredQuestions, setAnsweredQuestions] = useState(0);
 
-  useEffect(() => {
-    if (!currentQuestion && !questionLoading) {
-      refetch();
-    }
-  }, [currentQuestion, questionLoading, refetch]);
-
-  useEffect(() => {
-    if (initializeContent.isSuccess) {
-      setTimeout(() => {
-        refetch();
-        refetchStats();
-      }, 500);
-    }
-  }, [initializeContent.isSuccess, refetch, refetchStats]);
+  const currentQuestion: QuizQuestion | null = defaultQuizQuestions[currentQuestionIndex] || null;
 
   if (!identity) {
     return <AccessDenied />;
   }
 
-  const handleSubmit = async () => {
+  const handleAnswerSelect = (answer: string) => {
+    if (showFeedback) return;
+    setSelectedAnswer(answer);
+  };
+
+  const handleSubmitAnswer = () => {
     if (!selectedAnswer || !currentQuestion) return;
 
-    const result = await submitAnswer.mutateAsync({
-      questionId: currentQuestion.id,
-      userAnswer: selectedAnswer,
-    });
-
-    setFeedback(result);
     setShowFeedback(true);
+    setAnsweredQuestions(prev => prev + 1);
+
+    if (selectedAnswer === currentQuestion.correctAnswer) {
+      setScore(prev => prev + 1);
+    }
   };
 
-  const handleNext = () => {
-    setSelectedAnswer('');
+  const handleNextQuestion = () => {
+    if (currentQuestionIndex < defaultQuizQuestions.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+      setSelectedAnswer(null);
+      setShowFeedback(false);
+    }
+  };
+
+  const handleRestart = () => {
+    setCurrentQuestionIndex(0);
+    setSelectedAnswer(null);
     setShowFeedback(false);
-    setFeedback(null);
-    refetch();
+    setScore(0);
+    setAnsweredQuestions(0);
   };
 
-  const handleInitialize = async () => {
-    await initializeContent.mutateAsync();
-  };
+  const progressPercentage = (answeredQuestions / defaultQuizQuestions.length) * 100;
+  const isCorrect = selectedAnswer === currentQuestion?.correctAnswer;
+  const isQuizComplete = answeredQuestions === defaultQuizQuestions.length;
 
-  // Show initialization prompt if no questions available
-  if (!questionLoading && !statsLoading && statistics && statistics.totalQuestions === 0) {
+  if (isQuizComplete) {
+    const percentage = (score / defaultQuizQuestions.length) * 100;
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-4 lg:p-8">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-3xl mx-auto">
           <Card className="border-2 border-primary/20">
-            <CardHeader>
-              <div className="flex items-center gap-3 mb-2">
-                <AlertCircle className="w-8 h-8 text-yellow-500" />
-                <CardTitle className="text-2xl">Quiz Not Available Yet</CardTitle>
-              </div>
-              <CardDescription>
-                The quiz database needs to be initialized with questions. Click below to load 100 educational finance questions.
+            <CardHeader className="text-center">
+              <Trophy className="w-16 h-16 text-primary mx-auto mb-4" />
+              <CardTitle className="text-3xl">Quiz Complete!</CardTitle>
+              <CardDescription className="text-lg">
+                You've completed all {defaultQuizQuestions.length} questions
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="p-4 rounded-lg bg-muted">
-                <p className="text-sm text-muted-foreground">
-                  This will initialize the quiz with 100 questions covering budgeting, saving, investing, debt management, and more financial topics.
+              <div className="text-center space-y-4">
+                <div className="text-6xl font-bold bg-gradient-to-r from-primary to-chart-1 bg-clip-text text-transparent">
+                  {percentage.toFixed(0)}%
+                </div>
+                <p className="text-xl text-muted-foreground">
+                  {score} out of {defaultQuizQuestions.length} correct
                 </p>
+                <Progress value={percentage} className="h-3" />
               </div>
-              <Button
-                size="lg"
-                className="w-full"
-                onClick={handleInitialize}
-                disabled={initializeContent.isPending}
-              >
-                {initializeContent.isPending ? (
-                  <>
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent mr-2"></div>
-                    Initializing Quiz...
-                  </>
-                ) : (
-                  'Initialize Quiz Database'
-                )}
-              </Button>
-              <Button
-                variant="outline"
-                size="lg"
-                className="w-full"
-                onClick={() => navigate({ to: '/learning' })}
-              >
-                Back to Learning
-              </Button>
+
+              <div className="grid gap-4 mt-8">
+                <div className="p-4 bg-muted rounded-lg">
+                  <p className="text-sm text-muted-foreground mb-2">Performance</p>
+                  <p className="text-lg font-semibold">
+                    {percentage >= 80 ? '🌟 Excellent!' : percentage >= 60 ? '👍 Good Job!' : '💪 Keep Learning!'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <Button onClick={handleRestart} className="flex-1 bg-gradient-to-r from-primary to-chart-1">
+                  Restart Quiz
+                </Button>
+                <Button onClick={() => window.location.href = '/dashboard'} variant="outline" className="flex-1">
+                  Back to Dashboard
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -114,193 +117,140 @@ export default function Quiz() {
     );
   }
 
-  // Show completion screen if all questions answered
-  if (!currentQuestion && statistics && statistics.totalQuestions > 0) {
-    const finalScore = statistics.totalQuestions > 0 
-      ? Math.round((Number(statistics.correctAnswers) / statistics.totalQuestions) * 100)
-      : 0;
-
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-4 lg:p-8">
-        <div className="max-w-4xl mx-auto">
-          <Card className="border-2 border-primary/20">
-            <CardHeader>
-              <CardTitle className="text-2xl text-center">🎉 Quiz Complete!</CardTitle>
-              <CardDescription className="text-center">
-                You've completed all available questions. Great job!
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid md:grid-cols-3 gap-4 p-4 rounded-lg bg-muted">
-                <div className="text-center">
-                  <p className="text-sm text-muted-foreground mb-1">Total Questions</p>
-                  <p className="text-3xl font-bold">{statistics.totalQuestions}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-sm text-muted-foreground mb-1">Correct Answers</p>
-                  <p className="text-3xl font-bold text-green-500">{Number(statistics.correctAnswers)}</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-sm text-muted-foreground mb-1">Final Score</p>
-                  <p className="text-3xl font-bold text-primary">{finalScore}%</p>
-                </div>
-              </div>
-              <Button
-                size="lg"
-                className="w-full"
-                onClick={() => navigate({ to: '/learning' })}
-              >
-                Back to Learning
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
-  if (questionLoading || statsLoading || !currentQuestion || !statistics) {
+  if (!currentQuestion) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-4 lg:p-8 flex items-center justify-center">
-        <div className="text-center">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading quiz...</p>
-        </div>
+        <Card className="max-w-md">
+          <CardContent className="pt-6 text-center">
+            <p className="text-muted-foreground">Loading questions...</p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
-
-  const progressPercentage = statistics.totalQuestions > 0 
-    ? (Number(statistics.questionsCompleted) / statistics.totalQuestions) * 100 
-    : 0;
-
-  const accuracyPercentage = Number(statistics.questionsCompleted) > 0 
-    ? Math.round((Number(statistics.correctAnswers) / Number(statistics.questionsCompleted)) * 100) 
-    : 0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-4 lg:p-8">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header with Progress */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl lg:text-3xl font-bold">Finance Quiz</h1>
-            <Button variant="outline" onClick={() => navigate({ to: '/learning' })}>
-              Back to Learning
-            </Button>
+      <div className="max-w-3xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <BookOpen className="w-6 h-6 text-primary" />
+            <h1 className="text-2xl font-bold">Finance Quiz</h1>
           </div>
-          
-          <Card>
-            <CardContent className="pt-6">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Progress</span>
-                  <span className="font-semibold">
-                    {Number(statistics.questionsCompleted)} / {statistics.totalQuestions}
-                  </span>
-                </div>
-                <Progress value={progressPercentage} className="h-3" />
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>Correct: {Number(statistics.correctAnswers)}</span>
-                  <span>Accuracy: {accuracyPercentage}%</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <Badge variant="secondary" className="text-sm">
+            Question {currentQuestionIndex + 1} of {defaultQuizQuestions.length}
+          </Badge>
         </div>
+
+        {/* Progress */}
+        <Card>
+          <CardContent className="pt-6">
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm text-muted-foreground">
+                <span>Progress</span>
+                <span>{progressPercentage.toFixed(0)}%</span>
+              </div>
+              <Progress value={progressPercentage} className="h-2" />
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Score: {score}/{answeredQuestions}</span>
+                <span className="text-muted-foreground">
+                  {answeredQuestions > 0 ? `${((score / answeredQuestions) * 100).toFixed(0)}% correct` : ''}
+                </span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Question Card */}
         <Card className="border-2 border-primary/20">
           <CardHeader>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium px-3 py-1 rounded-full bg-primary/10 text-primary">
-                {currentQuestion.topic}
-              </span>
-              <span className="text-sm font-medium px-3 py-1 rounded-full bg-chart-1/10 text-chart-1">
-                {currentQuestion.difficulty}
-              </span>
+            <div className="flex gap-2 mb-2">
+              <Badge variant="outline">{currentQuestion.topic}</Badge>
+              <Badge variant="outline">{currentQuestion.difficulty}</Badge>
             </div>
             <CardTitle className="text-xl">{currentQuestion.question}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Answer Options */}
+            {/* Options */}
             <div className="space-y-3">
               {currentQuestion.options.map((option, index) => (
                 <button
                   key={index}
-                  onClick={() => !showFeedback && setSelectedAnswer(option)}
+                  onClick={() => handleAnswerSelect(option)}
                   disabled={showFeedback}
-                  className={`w-full p-4 text-left rounded-lg border-2 transition-all duration-200 ${
-                    showFeedback
-                      ? option === feedback?.correctAnswer
-                        ? 'border-green-500 bg-green-500/10'
-                        : option === selectedAnswer && !feedback?.isCorrect
-                        ? 'border-red-500 bg-red-500/10'
-                        : 'border-border bg-muted/50'
-                      : selectedAnswer === option
-                      ? 'border-primary bg-primary/10'
-                      : 'border-border hover:border-primary/50 hover:bg-primary/5'
-                  }`}
+                  className={`w-full p-4 text-left rounded-lg border-2 transition-all ${
+                    selectedAnswer === option
+                      ? showFeedback
+                        ? option === currentQuestion.correctAnswer
+                          ? 'border-green-500 bg-green-500/10'
+                          : 'border-red-500 bg-red-500/10'
+                        : 'border-primary bg-primary/10'
+                      : showFeedback && option === currentQuestion.correctAnswer
+                      ? 'border-green-500 bg-green-500/10'
+                      : 'border-border hover:border-primary/50'
+                  } ${showFeedback ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-medium">{option}</span>
-                    {showFeedback && option === feedback?.correctAnswer && (
-                      <CheckCircle2 className="w-5 h-5 text-green-500" />
+                    <span>{option}</span>
+                    {showFeedback && option === currentQuestion.correctAnswer && (
+                      <CheckCircle2 className="w-5 h-5 text-green-600" />
                     )}
-                    {showFeedback && option === selectedAnswer && !feedback?.isCorrect && (
-                      <XCircle className="w-5 h-5 text-red-500" />
+                    {showFeedback && selectedAnswer === option && option !== currentQuestion.correctAnswer && (
+                      <XCircle className="w-5 h-5 text-red-600" />
                     )}
                   </div>
                 </button>
               ))}
             </div>
 
-            {/* Feedback Section */}
-            {showFeedback && feedback && (
-              <div className={`p-4 rounded-lg border-2 ${
-                feedback.isCorrect
-                  ? 'border-green-500/20 bg-green-500/10'
-                  : 'border-red-500/20 bg-red-500/10'
-              }`}>
-                <div className="flex items-start gap-3 mb-3">
-                  {feedback.isCorrect ? (
-                    <CheckCircle2 className="w-6 h-6 text-green-500 shrink-0 mt-0.5" />
-                  ) : (
-                    <XCircle className="w-6 h-6 text-red-500 shrink-0 mt-0.5" />
-                  )}
-                  <div>
-                    <p className="font-semibold text-lg mb-2">{feedback.encouragement}</p>
-                    <p className="text-sm mb-3">{feedback.explanation}</p>
-                    <div className="flex items-start gap-2 p-3 rounded-lg bg-card/50">
-                      <Lightbulb className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-semibold mb-1">Real-Life Tip:</p>
-                        <p className="text-sm text-muted-foreground">{feedback.realLifeTip}</p>
-                      </div>
+            {/* Feedback */}
+            {showFeedback && (
+              <div className="space-y-4 pt-4 border-t">
+                <div className={`p-4 rounded-lg ${isCorrect ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
+                  <div className="flex items-start gap-2">
+                    {isCorrect ? (
+                      <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5" />
+                    ) : (
+                      <XCircle className="w-5 h-5 text-red-600 mt-0.5" />
+                    )}
+                    <div>
+                      <p className="font-semibold mb-1">
+                        {isCorrect ? 'Correct!' : 'Incorrect'}
+                      </p>
+                      <p className="text-sm text-muted-foreground">{currentQuestion.explanation}</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-primary/5 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <Lightbulb className="w-5 h-5 text-primary mt-0.5" />
+                    <div>
+                      <p className="font-semibold mb-1">Real-Life Tip</p>
+                      <p className="text-sm text-muted-foreground">{currentQuestion.realLifeTip}</p>
                     </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="flex gap-3">
+            {/* Actions */}
+            <div className="flex gap-3 pt-4">
               {!showFeedback ? (
                 <Button
-                  size="lg"
-                  className="w-full"
-                  onClick={handleSubmit}
-                  disabled={!selectedAnswer || submitAnswer.isPending}
+                  onClick={handleSubmitAnswer}
+                  disabled={!selectedAnswer}
+                  className="flex-1 bg-gradient-to-r from-primary to-chart-1"
                 >
-                  {submitAnswer.isPending ? 'Submitting...' : 'Submit Answer'}
+                  Submit Answer
                 </Button>
               ) : (
                 <Button
-                  size="lg"
-                  className="w-full"
-                  onClick={handleNext}
+                  onClick={handleNextQuestion}
+                  className="flex-1 bg-gradient-to-r from-primary to-chart-1"
                 >
-                  Next Question
+                  {currentQuestionIndex < defaultQuizQuestions.length - 1 ? 'Next Question' : 'Finish Quiz'}
                 </Button>
               )}
             </div>

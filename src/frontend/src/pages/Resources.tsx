@@ -38,51 +38,51 @@ export default function Resources() {
     {
       icon: Calculator,
       title: 'Financial Calculators',
-      description: 'Interactive tools to help you plan investments, loans, and retirement',
+      description: 'Interactive tools for SIP, EMI, FIRE, tax planning, and investment calculations',
       items: [
         'SIP Calculator',
         'EMI Calculator',
         'FIRE Calculator',
-        'Tax Planning Calculator',
+        'Tax Calculator',
       ],
       action: () => navigate({ to: '/calculators' }),
       color: 'text-chart-2',
     },
     {
       icon: GraduationCap,
-      title: 'Learning Path',
-      description: 'Structured learning with 100 quiz questions across financial topics',
+      title: 'Learning Paths',
+      description: 'Structured courses on personal finance, investing, and wealth building',
       items: [
-        'Budgeting Fundamentals',
-        'Saving & Emergency Funds',
-        'Investment Principles',
-        'Financial Psychology',
+        'Personal Finance 101',
+        'Investment Fundamentals',
+        'Advanced Portfolio Management',
+        'Tax Optimization Strategies',
       ],
       action: () => navigate({ to: '/learning' }),
       color: 'text-chart-3',
     },
     {
       icon: FileText,
-      title: 'Templates & Checklists',
-      description: 'Downloadable templates to organize your financial life',
+      title: 'Templates & Tools',
+      description: 'Downloadable templates for budgeting, goal tracking, and financial planning',
       items: [
         'Monthly Budget Template',
-        'Goal Setting Worksheet',
-        'Expense Tracking Sheet',
-        'Financial Health Checklist',
+        'Goal Tracker Worksheet',
+        'Net Worth Calculator',
+        'Expense Log Template',
       ],
       action: () => {},
       color: 'text-chart-4',
     },
     {
-      icon: BookOpen,
+      icon: Download,
       title: 'Blog Articles',
-      description: 'Expert insights and tips on personal finance topics',
+      description: 'In-depth articles on financial topics, market trends, and money management',
       items: [
-        'Latest Financial Tips',
+        'Latest Financial News',
         'Investment Strategies',
-        'Money Management',
-        'Financial Wellness',
+        'Saving Tips & Tricks',
+        'Market Analysis',
       ],
       action: () => navigate({ to: '/blog' }),
       color: 'text-chart-5',
@@ -101,7 +101,7 @@ export default function Resources() {
               Financial Resources
             </h1>
             <p className="text-xl text-muted-foreground">
-              Everything you need to master your finances—guides, videos, calculators, and more
+              Everything you need to master your finances—guides, calculators, videos, and more
             </p>
           </div>
         </div>
@@ -110,27 +110,28 @@ export default function Resources() {
       {/* Resources Grid */}
       <section className="py-12">
         <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-6">
+          <div className="max-w-6xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {resourceCategories.map((category, index) => {
               const Icon = category.icon;
               return (
-                <Card key={index} className="border-2 border-primary/20 hover:border-primary/40 transition-all">
+                <Card key={index} className="border-2 border-primary/20 hover:border-primary/40 transition-all hover:shadow-lg">
                   <CardHeader>
-                    <Icon className={`w-12 h-12 ${category.color} mb-4`} />
-                    <CardTitle className="text-2xl">{category.title}</CardTitle>
-                    <CardDescription className="text-base">{category.description}</CardDescription>
+                    <Icon className={`w-10 h-10 ${category.color} mb-2`} />
+                    <CardTitle>{category.title}</CardTitle>
+                    <CardDescription>{category.description}</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <ul className="space-y-2">
                       {category.items.map((item, idx) => (
-                        <li key={idx} className="flex items-center gap-2 text-muted-foreground">
-                          <ArrowRight className="w-4 h-4 text-primary shrink-0" />
+                        <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
+                          <span className="text-primary mt-1">•</span>
                           <span>{item}</span>
                         </li>
                       ))}
                     </ul>
                     <Button onClick={category.action} variant="outline" className="w-full">
-                      Explore {category.title}
+                      Explore
+                      <ArrowRight className="w-4 h-4 ml-2" />
                     </Button>
                   </CardContent>
                 </Card>
@@ -147,15 +148,15 @@ export default function Resources() {
             <CardContent className="p-12 text-center space-y-6">
               <h2 className="text-3xl lg:text-4xl font-bold">Ready to Start Learning?</h2>
               <p className="text-xl text-muted-foreground">
-                Access all resources for free and take control of your financial future
+                Access all resources for free with your FinanceWise AI account
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" onClick={() => navigate({ to: '/signup' })} className="bg-gradient-to-r from-primary to-chart-1">
-                  Sign Up Free
+                <Button size="lg" onClick={() => navigate({ to: '/login' })} className="bg-gradient-to-r from-primary to-chart-1">
+                  Get Started Free
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
-                <Button size="lg" variant="outline" onClick={() => navigate({ to: '/learning' })}>
-                  Start Learning
+                <Button size="lg" variant="outline" onClick={() => navigate({ to: '/blog' })}>
+                  Browse Blog
                 </Button>
               </div>
             </CardContent>

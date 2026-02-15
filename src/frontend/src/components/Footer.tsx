@@ -131,14 +131,6 @@ export default function Footer() {
                   </button>
                 </li>
               ))}
-              <li>
-                <button
-                  onClick={() => navigate({ to: '/deployment-info' })}
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
-                >
-                  Deployment Info
-                </button>
-              </li>
             </ul>
           </div>
         </div>

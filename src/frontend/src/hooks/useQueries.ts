@@ -1,5 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
+import { generateDeterministicResponse } from '../lib/deterministicAssistant';
+import { convertBigIntsToNumbers } from '../lib/serialization';
 
 // Mock blog posts for frontend-only rendering
 const mockBlogPosts = [
@@ -154,7 +156,7 @@ export function useSaveCallerUserProfile() {
   });
 }
 
-// User preferences hooks (mock implementation)
+// User preferences hooks with localStorage persistence
 export function useGetCallerUserPreferences() {
   return useQuery({
     queryKey: ['userPreferences'],
@@ -179,8 +181,9 @@ export function useSaveUserPreferences() {
 
   return useMutation({
     mutationFn: async (preferences: any) => {
-      localStorage.setItem('userPreferences', JSON.stringify(preferences));
-      return preferences;
+      const safePrefs = convertBigIntsToNumbers(preferences);
+      localStorage.setItem('userPreferences', JSON.stringify(safePrefs));
+      return safePrefs;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userPreferences'] });
@@ -188,13 +191,26 @@ export function useSaveUserPreferences() {
   });
 }
 
-// Transaction hooks (mock implementation)
+// Transaction hooks with proper serialization and validation
 export function useGetUserTransactions() {
   return useQuery({
     queryKey: ['transactions'],
     queryFn: async () => {
       const stored = localStorage.getItem('transactions');
-      return stored ? JSON.parse(stored) : [];
+      if (!stored) return [];
+      
+      try {
+        const transactions = JSON.parse(stored);
+        return transactions.map((t: any) => ({
+          ...t,
+          amount: Number(t.amount) || 0,
+          date: typeof t.date === 'string' ? Number(t.date) : t.date,
+          createdAt: typeof t.createdAt === 'string' ? Number(t.createdAt) : t.createdAt,
+        }));
+      } catch (error) {
+        console.error('Failed to parse transactions:', error);
+        return [];
+      }
     },
   });
 }
@@ -206,11 +222,15 @@ export function useAddTransaction() {
     mutationFn: async (transaction: any) => {
       const stored = localStorage.getItem('transactions');
       const transactions = stored ? JSON.parse(stored) : [];
-      const newTransaction = {
+      
+      const newTransaction = convertBigIntsToNumbers({
         ...transaction,
         id: Date.now().toString(),
-        createdAt: Date.now(),
-      };
+        createdAt: Date.now() * 1000000,
+        date: transaction.date || Date.now() * 1000000,
+        amount: Number(transaction.amount) || 0,
+      });
+      
       transactions.push(newTransaction);
       localStorage.setItem('transactions', JSON.stringify(transactions));
       return newTransaction;
@@ -220,6 +240,7 @@ export function useAddTransaction() {
       queryClient.invalidateQueries({ queryKey: ['balance'] });
       queryClient.invalidateQueries({ queryKey: ['categoryData'] });
       queryClient.invalidateQueries({ queryKey: ['financialTrends'] });
+      queryClient.invalidateQueries({ queryKey: ['monthlyComparison'] });
     },
   });
 }
@@ -233,7 +254,7 @@ export function useUpdateTransaction() {
       const transactions = stored ? JSON.parse(stored) : [];
       const index = transactions.findIndex((t: any) => t.id === id);
       if (index !== -1) {
-        transactions[index] = { ...transactions[index], ...updates };
+        transactions[index] = convertBigIntsToNumbers({ ...transactions[index], ...updates });
         localStorage.setItem('transactions', JSON.stringify(transactions));
       }
       return transactions[index];
@@ -272,9 +293,10 @@ export function useGetBalance() {
       const stored = localStorage.getItem('transactions');
       const transactions = stored ? JSON.parse(stored) : [];
       const balance = transactions.reduce((acc: number, t: any) => {
-        return t.transactionType === 'income' ? acc + t.amount : acc - t.amount;
+        const amount = Number(t.amount) || 0;
+        return t.transactionType === 'income' ? acc + amount : acc - amount;
       }, 0);
-      return balance;
+      return balance || 0;
     },
   });
 }
@@ -290,13 +312,14 @@ export function useGetCategoryData() {
       transactions.forEach((t: any) => {
         if (t.transactionType === 'expense') {
           const current = categoryMap.get(t.category) || 0;
-          categoryMap.set(t.category, current + t.amount);
+          const amount = Number(t.amount) || 0;
+          categoryMap.set(t.category, current + amount);
         }
       });
       
       return Array.from(categoryMap.entries()).map(([category, totalAmount]) => ({
         category,
-        totalAmount,
+        totalAmount: totalAmount || 0,
         color: '#' + Math.floor(Math.random()*16777215).toString(16),
       }));
     },
@@ -313,14 +336,15 @@ export function useGetMonthlyComparison() {
       const monthlyData = new Map<string, { expenses: number; income: number }>();
       
       transactions.forEach((t: any) => {
-        const date = new Date(t.date);
+        const date = new Date(Number(t.date) / 1000000);
         const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`;
         const current = monthlyData.get(monthKey) || { expenses: 0, income: 0 };
+        const amount = Number(t.amount) || 0;
         
         if (t.transactionType === 'income') {
-          current.income += t.amount;
+          current.income += amount;
         } else {
-          current.expenses += t.amount;
+          current.expenses += amount;
         }
         
         monthlyData.set(monthKey, current);
@@ -328,9 +352,9 @@ export function useGetMonthlyComparison() {
       
       return Array.from(monthlyData.entries()).map(([month, data]) => ({
         month,
-        expenses: data.expenses,
-        income: data.income,
-        savings: data.income - data.expenses,
+        expenses: data.expenses || 0,
+        income: data.income || 0,
+        savings: (data.income || 0) - (data.expenses || 0),
       }));
     },
   });
@@ -345,12 +369,13 @@ export function useGetFinancialTrends() {
       
       let balance = 0;
       const trends = transactions.map((t: any) => {
-        balance += t.transactionType === 'income' ? t.amount : -t.amount;
+        const amount = Number(t.amount) || 0;
+        balance += t.transactionType === 'income' ? amount : -amount;
         return {
-          date: t.date,
-          balance,
-          expenses: t.transactionType === 'expense' ? t.amount : 0,
-          income: t.transactionType === 'income' ? t.amount : 0,
+          date: Number(t.date),
+          balance: balance || 0,
+          expenses: t.transactionType === 'expense' ? amount : 0,
+          income: t.transactionType === 'income' ? amount : 0,
         };
       });
       
@@ -443,16 +468,27 @@ export function useSubmitContactForm() {
   });
 }
 
-// AI/Chat hooks (mock implementation)
+// AI/Chat hooks with deterministic assistant
 export function useProcessChatMessage() {
+  const { data: transactions } = useGetUserTransactions();
+  const { data: balance } = useGetBalance();
+
   return useMutation({
     mutationFn: async (message: string) => {
+      const context = {
+        balance: balance || 0,
+        recentTransactions: transactions || [],
+        totalTransactions: transactions?.length || 0,
+      };
+
+      const response = generateDeterministicResponse(message, context);
+
       return {
         id: Date.now().toString(),
         role: 'assistant' as const,
-        content: 'This is a mock response. AI chat functionality is for demonstration purposes.',
+        content: response.content,
         timestamp: Date.now(),
-        disclaimer: 'Educational purposes only. Not financial advice.',
+        disclaimer: response.disclaimer || 'Educational purposes only. Not financial advice.',
       };
     },
   });
@@ -486,35 +522,15 @@ export function useGetQuizQuestion() {
   return useQuery({
     queryKey: ['quizQuestion'],
     queryFn: async () => {
-      return {
-        id: '1',
-        question: 'What is the recommended emergency fund size?',
-        options: ['1-2 months', '3-6 months', '12 months', '24 months'],
-        correctAnswer: '3-6 months',
-        explanation: 'Financial experts recommend 3-6 months of expenses.',
-        realLifeTip: 'Start small and build gradually.',
-        topic: 'emergencyFunds',
-        difficulty: 'easy',
-      };
+      return null;
     },
   });
 }
 
 export function useSubmitQuizAnswer() {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async (answer: any) => {
-      return {
-        isCorrect: true,
-        correctAnswer: '3-6 months',
-        explanation: 'Financial experts recommend 3-6 months of expenses.',
-        realLifeTip: 'Start small and build gradually.',
-        encouragement: 'Great job!',
-      };
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['quizStatistics'] });
+      return { isCorrect: true, explanation: 'Mock explanation' };
     },
   });
 }
@@ -528,7 +544,6 @@ export function useGetQuizStatistics() {
         questionsCompleted: 0,
         correctAnswers: 0,
         incorrectAnswers: 0,
-        currentDifficulty: 'easy',
         progressPercentage: 0,
       };
     },
