@@ -5,6 +5,10 @@ interface AssistantContext {
   balance?: number;
   recentTransactions?: Array<{ amount: number; category: string; transactionType: string }>;
   totalTransactions?: number;
+  totalIncome?: number;
+  totalExpenses?: number;
+  savingsGoals?: Array<{ name: string; targetAmount: number; currentAmount: number }>;
+  hasData?: boolean;
 }
 
 interface AssistantResponse {
@@ -31,7 +35,7 @@ function classifyQuery(query: string): QueryCategory {
   if (lowerQuery.match(/\b(save|saving|emergency fund|goal)/)) {
     return 'saving';
   }
-  if (lowerQuery.match(/\b(expense|cost|reduce|cut|lower)/)) {
+  if (lowerQuery.match(/\b(expense|cost|reduce|cut|lower|control)/)) {
     return 'expenses';
   }
   return 'general';
@@ -78,12 +82,47 @@ function generateClarifyingQuestions(query: string): string {
 • "Tips for avoiding unnecessary spending"`;
 }
 
+// Generate data-aware context prefix
+function generateDataAwarePrefix(context: AssistantContext): string {
+  if (!context.hasData) {
+    return `**Note:** I don't see any financial data in your account yet. To get personalized advice based on your actual spending and goals, please add some transactions and savings goals first.\n\n`;
+  }
+
+  const parts: string[] = [];
+  
+  if (context.balance !== undefined) {
+    parts.push(`Current Balance: ${context.balance.toFixed(2)}`);
+  }
+  
+  if (context.totalIncome !== undefined && context.totalIncome > 0) {
+    parts.push(`Total Income: ${context.totalIncome.toFixed(2)}`);
+  }
+  
+  if (context.totalExpenses !== undefined && context.totalExpenses > 0) {
+    parts.push(`Total Expenses: ${context.totalExpenses.toFixed(2)}`);
+  }
+  
+  if (context.savingsGoals && context.savingsGoals.length > 0) {
+    const activeGoals = context.savingsGoals.length;
+    const totalGoalAmount = context.savingsGoals.reduce((sum, g) => sum + g.targetAmount, 0);
+    const totalSaved = context.savingsGoals.reduce((sum, g) => sum + g.currentAmount, 0);
+    parts.push(`Active Goals: ${activeGoals} (${totalSaved.toFixed(2)} of ${totalGoalAmount.toFixed(2)} saved)`);
+  }
+
+  if (parts.length > 0) {
+    return `**Based on your data:** ${parts.join(' • ')}\n\n`;
+  }
+
+  return '';
+}
+
 // Generate response for budgeting queries
 function generateBudgetingResponse(query: string, context: AssistantContext): string {
   const lowerQuery = query.toLowerCase();
+  const dataPrefix = generateDataAwarePrefix(context);
   
   if (lowerQuery.includes('50/30/20') || lowerQuery.includes('rule')) {
-    return `**The 50/30/20 Budgeting Rule**
+    return `${dataPrefix}**The 50/30/20 Budgeting Rule**
 
 This simple budgeting framework divides your after-tax income into three categories:
 
@@ -118,7 +157,7 @@ This simple budgeting framework divides your after-tax income into three categor
   }
   
   if (lowerQuery.includes('create') || lowerQuery.includes('start') || lowerQuery.includes('make')) {
-    return `**How to Create a Monthly Budget (Step-by-Step)**
+    return `${dataPrefix}**How to Create a Monthly Budget (Step-by-Step)**
 
 **Step 1: Calculate Your Income**
 • Add up all sources of income (salary, freelance, side hustles)
@@ -157,7 +196,7 @@ This simple budgeting framework divides your after-tax income into three categor
   }
   
   if (lowerQuery.includes('track')) {
-    return `**Best Ways to Track Your Expenses**
+    return `${dataPrefix}**Best Ways to Track Your Expenses**
 
 **Digital Tools:**
 • **Mobile Apps:** Use expense tracking apps (many are free)
@@ -185,7 +224,7 @@ This simple budgeting framework divides your after-tax income into three categor
 **Pro Tip:** The first month is just data collection—don't judge yourself. After 30 days, you'll have a clear picture of your spending habits and can make informed changes.`;
   }
   
-  return `**Budgeting Basics**
+  return `${dataPrefix}**Budgeting Basics**
 
 Budgeting is simply planning how you'll spend your money each month. Here's why it matters:
 
@@ -219,9 +258,10 @@ Would you like to know about specific budgeting methods like the 50/30/20 rule o
 // Generate response for saving queries
 function generateSavingResponse(query: string, context: AssistantContext): string {
   const lowerQuery = query.toLowerCase();
+  const dataPrefix = generateDataAwarePrefix(context);
   
   if (lowerQuery.includes('emergency fund')) {
-    return `**Building an Emergency Fund**
+    return `${dataPrefix}**Building an Emergency Fund**
 
 An emergency fund is money set aside for unexpected expenses like medical bills, car repairs, or job loss.
 
@@ -269,7 +309,7 @@ An emergency fund is money set aside for unexpected expenses like medical bills,
   }
   
   if (lowerQuery.includes('how much') || lowerQuery.includes('percentage')) {
-    return `**How Much Should You Save Each Month?**
+    return `${dataPrefix}**How Much Should You Save Each Month?**
 
 **General Guidelines:**
 
@@ -310,7 +350,7 @@ An emergency fund is money set aside for unexpected expenses like medical bills,
   }
   
   if (lowerQuery.includes('tight budget') || lowerQuery.includes('low income')) {
-    return `**Saving Money on a Tight Budget**
+    return `${dataPrefix}**Saving Money on a Tight Budget**
 
 Even with limited income, you can build savings with these strategies:
 
@@ -371,7 +411,7 @@ Even with limited income, you can build savings with these strategies:
 **Remember:** Every rupee saved is a rupee earned. Start small, stay consistent, and celebrate small wins!`;
   }
   
-  return `**Smart Saving Strategies**
+  return `${dataPrefix}**Smart Saving Strategies**
 
 **Core Principles:**
 • **Pay yourself first** - Save before spending
@@ -401,12 +441,71 @@ Even with limited income, you can build savings with these strategies:
 Would you like specific advice on building an emergency fund or saving on a tight budget?`;
 }
 
+// Generate response for expense control queries
+function generateExpenseControlResponse(query: string, context: AssistantContext): string {
+  const dataPrefix = generateDataAwarePrefix(context);
+  
+  return `${dataPrefix}**How to Control and Reduce Expenses**
+
+**Immediate Actions:**
+
+**1. Track Everything for 30 Days**
+• Write down every purchase
+• Categorize spending
+• Identify patterns and leaks
+
+**2. Cut the "Big Three"**
+• **Housing:** Negotiate rent, get roommate, downsize
+• **Transportation:** Public transit, carpool, bike
+• **Food:** Meal prep, cook at home, buy in bulk
+
+**3. Cancel Subscriptions**
+• Review all recurring charges
+• Cancel unused services
+• Negotiate better rates
+
+**4. The 24-Hour Rule**
+• Wait 24 hours before non-essential purchases
+• Most impulse buys lose appeal
+• Saves hundreds monthly
+
+**5. Use Cash for Discretionary Spending**
+• Withdraw weekly allowance
+• When cash is gone, stop spending
+• Makes spending more "real"
+
+**Smart Shopping:**
+• Make shopping lists and stick to them
+• Buy generic brands
+• Use coupons and cashback apps
+• Shop sales and clearance
+• Avoid shopping when emotional
+
+**Lifestyle Adjustments:**
+• Cook at home (saves 50-70% vs eating out)
+• Free entertainment (library, parks, YouTube)
+• DIY repairs and maintenance
+• Buy used or refurbished items
+• Share subscriptions with family
+
+**Monthly Review:**
+• Compare spending to budget
+• Celebrate wins
+• Adjust categories as needed
+• Set new reduction goals
+
+**Pro Tip:** Focus on reducing one category at a time. Once you master that, move to the next. Small wins build momentum!`;
+}
+
 // Generate response for investing queries
 function generateInvestingResponse(query: string, context: AssistantContext): string {
   const lowerQuery = query.toLowerCase();
+  const dataPrefix = generateDataAwarePrefix(context);
+  
+  const disclaimer = '\n\n**⚠️ Important Disclaimer:** This is educational information only, not financial advice. Investing involves risk. Consult a certified financial advisor before making investment decisions.';
   
   if (lowerQuery.includes('sip')) {
-    return `**SIP (Systematic Investment Plan) Explained**
+    return `${dataPrefix}**SIP (Systematic Investment Plan) Explained**
 
 SIP is a method of investing a fixed amount regularly in mutual funds.
 
@@ -462,11 +561,11 @@ SIP is a method of investing a fixed amount regularly in mutual funds.
 • Regular income earners
 • Building retirement corpus
 
-**Pro Tip:** Start small (₹1,000-2,000) and increase by 10% every year as your income grows!`;
+**Pro Tip:** Start small (₹1,000-2,000) and increase by 10% every year as your income grows!${disclaimer}`;
   }
   
   if (lowerQuery.includes('mutual fund')) {
-    return `**Mutual Funds Explained Simply**
+    return `${dataPrefix}**Mutual Funds Explained Simply**
 
 A mutual fund pools money from many investors to invest in stocks, bonds, or other assets.
 
@@ -527,10 +626,10 @@ A mutual fund pools money from many investors to invest in stocks, bonds, or oth
 3. Invest lump sum or via SIP
 4. Monitor annually, don't check daily
 
-**Pro Tip:** For beginners, start with a diversified equity fund via SIP. Stay invested for at least 5 years to see good returns!`;
+**Pro Tip:** For beginners, start with a diversified equity fund via SIP. Stay invested for at least 5 years to see good returns!${disclaimer}`;
   }
   
-  return `**Investing Basics**
+  return `${dataPrefix}**Investing Basics**
 
 Investing means putting your money to work to generate returns over time.
 
@@ -560,15 +659,15 @@ Investing means putting your money to work to generate returns over time.
 3. Increase investment as income grows
 4. Stay invested for 5+ years
 
-Would you like to know more about SIPs, mutual funds, or stock market basics?`;
+Would you like to know more about SIPs, mutual funds, or stock market basics?${disclaimer}`;
 }
 
 // Generate response for stock market queries
 function generateStocksResponse(query: string, context: AssistantContext): string {
-  const lowerQuery = query.toLowerCase();
+  const dataPrefix = generateDataAwarePrefix(context);
+  const disclaimer = '\n\n**⚠️ Important Disclaimer:** This is educational information only, not financial advice. Stock market investing involves significant risk. Consult a certified financial advisor before making investment decisions.';
   
-  if (lowerQuery.includes('what are') || lowerQuery.includes('basics')) {
-    return `**Stock Market Basics**
+  return `${dataPrefix}**Stock Market Basics**
 
 **What Are Stocks?**
 Stocks (or shares) represent ownership in a company. When you buy a stock, you own a small piece of that company.
@@ -579,329 +678,84 @@ Stocks (or shares) represent ownership in a company. When you buy a stock, you o
 • Prices change based on supply and demand
 • You profit when you sell at a higher price than you bought
 
-**Key Concepts:**
-
-**1. Stock Price**
-• Determined by what buyers are willing to pay
-• Influenced by company performance, news, economy
-• Can be volatile (change rapidly)
-
-**2. Market Indices**
-• **Sensex:** Top 30 companies on BSE
-• **Nifty 50:** Top 50 companies on NSE
-• Show overall market performance
-
-**3. Bull vs Bear Market**
-• **Bull Market:** Prices rising, optimism high
-• **Bear Market:** Prices falling, pessimism high
-
-**4. Dividends**
-• Portion of company profits paid to shareholders
-• Extra income beyond stock price gains
-• Not all companies pay dividends
+**Why Stock Prices Change:**
+• Company performance (profits, growth)
+• Economic conditions
+• Industry trends
+• Investor sentiment
+• News and events
 
 **Types of Stocks:**
-• **Large-cap:** Big, stable companies (lower risk)
-• **Mid-cap:** Medium-sized, growing companies
-• **Small-cap:** Small companies (higher risk, higher potential)
-
-**How to Make Money:**
-1. **Capital Gains:** Buy low, sell high
-2. **Dividends:** Regular income from company profits
-
-**Risks:**
-• Stock prices can fall (you may lose money)
-• Company can go bankrupt
-• Market volatility (prices swing wildly)
-• No guaranteed returns
+• **Blue-chip:** Large, stable companies (lower risk)
+• **Growth:** Fast-growing companies (higher risk/reward)
+• **Dividend:** Pay regular income (stable returns)
+• **Small-cap:** Smaller companies (highest risk/reward)
 
 **How to Start:**
-1. Open demat and trading account with broker
+1. Open demat and trading account
 2. Complete KYC
-3. Research companies or invest via mutual funds
-4. Start small, learn as you go
-5. Diversify (don't buy just one stock)
+3. Research companies
+4. Start with small amounts
+5. Diversify across sectors
 
-**Beginner Tip:** Instead of picking individual stocks, start with index funds or diversified equity mutual funds. They're less risky and easier to manage!`;
-  }
-  
-  if (lowerQuery.includes('start') || lowerQuery.includes('begin')) {
-    return `**How to Start Investing in Stocks**
-
-**Step 1: Learn the Basics**
-• Understand what stocks are
-• Learn about risk and returns
-• Study market indices (Sensex, Nifty)
-• Read about successful investors
-
-**Step 2: Set Your Goals**
-• Why are you investing? (retirement, wealth, income)
-• Time horizon (5 years, 10 years, 20 years)
-• Risk tolerance (how much loss can you handle?)
-
-**Step 3: Open Trading Account**
-• Choose a broker (Zerodha, Groww, Upstox, etc.)
-• Complete KYC (Aadhaar, PAN, bank details)
-• Open demat account (holds your shares)
-• Open trading account (to buy/sell)
-
-**Step 4: Start Small**
-• Begin with ₹5,000-10,000
-• Don't invest money you need soon
-• Use only surplus funds
-
-**Step 5: Choose Your Approach**
-
-**Option A: Direct Stock Picking**
-• Research companies thoroughly
-• Check financial statements
-• Understand the business
-• Higher risk, requires time and knowledge
-
-**Option B: Mutual Funds/ETFs (Recommended for Beginners)**
-• Invest in index funds (track Nifty/Sensex)
-• Diversified equity mutual funds
-• Lower risk, professionally managed
-• Start with SIP
-
-**Step 6: Diversify**
-• Don't put all money in one stock
-• Spread across sectors (IT, banking, pharma, etc.)
-• Mix large-cap, mid-cap, small-cap
-• Include some debt for stability
-
-**Step 7: Invest Regularly**
-• Use SIP for mutual funds
-• Or invest fixed amount monthly in stocks
-• Rupee cost averaging reduces risk
-
-**Step 8: Stay Informed**
-• Read financial news
-• Track your investments monthly (not daily!)
-• Learn from mistakes
-• Adjust strategy as needed
-
-**Common Mistakes to Avoid:**
-❌ Investing borrowed money
-❌ Following tips blindly
-❌ Panic selling in downturns
-❌ Putting all money in one stock
-❌ Checking prices every hour
-
-**Beginner-Friendly Strategy:**
-1. Start with index fund SIP (₹2,000-5,000/month)
-2. After 6 months, add 2-3 large-cap stocks
-3. Gradually increase investment as you learn
-4. Stay invested for 5+ years
-
-**Pro Tip:** The best time to start was yesterday. The second-best time is today. Start small, learn continuously, and stay patient!`;
-  }
-  
-  if (lowerQuery.includes('diversif')) {
-    return `**Diversification in Investing**
-
-**What Is Diversification?**
-"Don't put all your eggs in one basket" - Spread your investments across different assets to reduce risk.
-
-**Why Diversify?**
-• If one investment fails, others may succeed
-• Reduces overall portfolio risk
-• Smoother returns over time
-• Better sleep at night!
-
-**How to Diversify:**
-
-**1. Across Asset Classes**
-• **Stocks (Equity):** 50-70% (high growth)
-• **Bonds (Debt):** 20-30% (stability)
-• **Gold:** 5-10% (hedge against inflation)
-• **Real Estate:** 10-20% (long-term)
-
-**2. Across Sectors**
-• IT & Technology
-• Banking & Finance
-• Healthcare & Pharma
-• Consumer Goods
-• Energy & Utilities
-• Manufacturing
-
-**3. Across Company Sizes**
-• **Large-cap:** 50-60% (stable, lower risk)
-• **Mid-cap:** 25-35% (growth potential)
-• **Small-cap:** 10-15% (high risk, high reward)
-
-**4. Across Geographies**
-• Indian stocks
-• International stocks (US, Europe, Asia)
-• Emerging markets
-
-**5. Across Investment Styles**
-• Growth stocks (high potential)
-• Value stocks (undervalued)
-• Dividend stocks (regular income)
-
-**Example Diversified Portfolio (₹1,00,000):**
-• Large-cap stocks: ₹30,000
-• Mid-cap stocks: ₹15,000
-• Small-cap stocks: ₹5,000
-• Equity mutual funds: ₹20,000
-• Debt mutual funds: ₹15,000
-• Gold: ₹10,000
-• Emergency fund (liquid): ₹5,000
-
-**Easy Way to Diversify:**
-• Invest in index funds (automatically diversified)
-• Diversified equity mutual funds
-• Balanced/hybrid funds
-
-**How Much Diversification?**
-• **Too little:** High risk (all in one stock)
-• **Too much:** Diluted returns (100 stocks)
-• **Just right:** 10-20 stocks or 3-5 mutual funds
-
-**Rebalancing:**
-• Review portfolio every 6-12 months
-• Sell overperformers, buy underperformers
-• Maintain target allocation
-
-**Pro Tip:** For beginners, a single diversified equity mutual fund or index fund provides instant diversification across 50-100 stocks!`;
-  }
-  
-  return `**Stock Market Overview**
-
-The stock market is where shares of public companies are bought and sold.
-
-**Key Points:**
-• Represents ownership in companies
-• Prices fluctuate based on supply/demand
-• Long-term returns average 10-15% per year
-• Short-term volatility is normal
-
-**How to Invest:**
-• **Direct stocks:** Buy individual company shares
-• **Mutual funds:** Professional management, diversified
-• **Index funds:** Track market indices (Nifty, Sensex)
-• **ETFs:** Trade like stocks, diversified like funds
-
-**Important Principles:**
-• Invest for long-term (5+ years)
-• Diversify across sectors and companies
-• Don't try to time the market
-• Stay invested through ups and downs
-• Invest only surplus money
+**Key Concepts:**
+• **Diversification:** Spread risk across multiple stocks
+• **Long-term investing:** Hold for 5+ years
+• **Fundamental analysis:** Study company financials
+• **Technical analysis:** Study price patterns
 
 **Risks:**
 • Market volatility
 • Company-specific risks
-• Economic downturns
 • No guaranteed returns
+• Requires research and monitoring
 
-Would you like to know more about how stocks work, how to start investing, or diversification strategies?`;
+**Beginner Tips:**
+• Start with mutual funds before individual stocks
+• Invest only money you can afford to lose
+• Don't follow tips blindly
+• Learn continuously
+• Stay patient and disciplined
+
+**Pro Tip:** For beginners, index funds or diversified equity mutual funds are safer than picking individual stocks!${disclaimer}`;
 }
 
-// Generate response for expense reduction queries
-function generateExpenseResponse(query: string, context: AssistantContext): string {
-  const lowerQuery = query.toLowerCase();
+export function generateDeterministicResponse(query: string, context: AssistantContext): AssistantResponse {
+  // Check for no data fallback
+  if (!context.hasData) {
+    const category = classifyQuery(query);
+    let response = '';
+    
+    if (category === 'saving' || category === 'expenses' || category === 'budgeting') {
+      response = `**I'd love to give you personalized advice!**
+
+However, I don't see any financial data in your account yet. To provide recommendations based on your actual spending patterns and goals:
+
+**Add Your Data:**
+1. **Transactions:** Go to the Transactions page and add your income and expenses
+2. **Goals:** Visit the Goals page to set your savings targets
+3. **Come back here:** Once you have some data, I can give you specific advice!
+
+**In the meantime, here's general advice:**\n\n`;
+      
+      // Add general advice based on category
+      if (category === 'saving') {
+        response += generateSavingResponse(query, context);
+      } else if (category === 'expenses') {
+        response += generateExpenseControlResponse(query, context);
+      } else {
+        response += generateBudgetingResponse(query, context);
+      }
+      
+      return {
+        content: response,
+        needsClarification: false,
+        disclaimer: 'Educational purposes only. Not financial advice.',
+      };
+    }
+  }
   
-  return `**How to Reduce Your Expenses**
-
-**Quick Wins (Immediate Savings):**
-
-**1. Subscriptions & Memberships**
-• Cancel unused streaming services
-• Downgrade phone/internet plans
-• Cancel gym membership (use free workouts)
-• Review all recurring charges
-• **Potential savings: ₹1,000-3,000/month**
-
-**2. Food & Dining**
-• Cook at home instead of ordering
-• Pack lunch for work
-• Reduce eating out by 50%
-• Buy groceries in bulk
-• Use meal planning
-• **Potential savings: ₹3,000-5,000/month**
-
-**3. Transportation**
-• Use public transport
-• Carpool with colleagues
-• Bike or walk for short distances
-• Combine errands to save fuel
-• **Potential savings: ₹1,500-3,000/month**
-
-**4. Utilities**
-• Turn off lights/AC when not needed
-• Use energy-efficient appliances
-• Fix water leaks
-• Unplug devices when not in use
-• **Potential savings: ₹500-1,500/month**
-
-**5. Shopping**
-• Wait 24 hours before buying
-• Use cashback and discount apps
-• Buy generic brands
-• Shop during sales
-• Avoid impulse purchases
-• **Potential savings: ₹2,000-4,000/month**
-
-**Medium-Term Changes:**
-
-**6. Housing**
-• Get a roommate
-• Move to cheaper area
-• Negotiate rent
-• **Potential savings: ₹3,000-10,000/month**
-
-**7. Insurance**
-• Compare and switch providers
-• Bundle policies for discounts
-• Increase deductibles
-• **Potential savings: ₹500-2,000/month**
-
-**8. Entertainment**
-• Free activities (parks, libraries, community events)
-• Share subscriptions with family
-• Host potlucks instead of restaurants
-• **Potential savings: ₹1,000-2,000/month**
-
-**9. Personal Care**
-• Cut hair less frequently
-• DIY beauty treatments
-• Buy products in bulk
-• **Potential savings: ₹500-1,500/month**
-
-**10. Debt Payments**
-• Refinance high-interest loans
-• Pay off credit cards (avoid interest)
-• Consolidate debts
-• **Potential savings: ₹1,000-5,000/month**
-
-**The 30-Day Challenge:**
-• Track every expense for 30 days
-• Identify your top 5 expense categories
-• Cut each by 10-20%
-• Redirect savings to emergency fund
-
-**Expenses You Should NOT Cut:**
-✅ Health insurance
-✅ Emergency fund contributions
-✅ Necessary medications
-✅ Basic nutrition
-✅ Essential transportation
-
-**Pro Tip:** Start with the easiest cuts first (subscriptions, eating out). Once you see savings, you'll be motivated to tackle bigger expenses!
-
-**Total Potential Monthly Savings: ₹10,000-30,000**
-
-Would you like specific advice on reducing expenses in a particular category?`;
-}
-
-// Main function to generate deterministic response
-export function generateDeterministicResponse(
-  query: string,
-  context: AssistantContext
-): AssistantResponse {
-  // Check for vague queries first
+  // Check for vague queries
   if (isVagueQuery(query)) {
     return {
       content: generateClarifyingQuestions(query),
@@ -909,59 +763,42 @@ export function generateDeterministicResponse(
     };
   }
 
-  // Classify and route to appropriate handler
   const category = classifyQuery(query);
-  let content: string;
-  let disclaimer: string | undefined;
+  let response = '';
 
   switch (category) {
     case 'budgeting':
-      content = generateBudgetingResponse(query, context);
+      response = generateBudgetingResponse(query, context);
       break;
     case 'saving':
-      content = generateSavingResponse(query, context);
-      break;
-    case 'investing':
-      content = generateInvestingResponse(query, context);
-      disclaimer = 'For learning purposes only. This is educational information, not financial advice. Always consult a qualified financial advisor before making investment decisions.';
-      break;
-    case 'stocks':
-      content = generateStocksResponse(query, context);
-      disclaimer = 'For learning purposes only. This is educational information, not financial advice. Stock market investments carry risk. Always consult a qualified financial advisor before making investment decisions.';
+      response = generateSavingResponse(query, context);
       break;
     case 'expenses':
-      content = generateExpenseResponse(query, context);
+      response = generateExpenseControlResponse(query, context);
+      break;
+    case 'investing':
+      response = generateInvestingResponse(query, context);
+      break;
+    case 'stocks':
+      response = generateStocksResponse(query, context);
       break;
     default:
-      content = `I can help you with:
+      response = `I can help you with:
 
-**Budgeting & Planning:**
-• Creating monthly budgets
-• Tracking expenses
-• 50/30/20 rule and other methods
+• **Budgeting** - Creating budgets, tracking expenses, 50/30/20 rule
+• **Saving** - Emergency funds, saving strategies, tips for tight budgets
+• **Investing** - SIPs, mutual funds, investment basics
+• **Stocks** - Stock market basics, how to start investing
+• **Expense Control** - Reducing spending, cutting costs
 
-**Saving Money:**
-• Building emergency funds
-• Saving strategies
-• Reducing expenses
-
-**Investing:**
-• SIP investments
-• Mutual funds
-• Stock market basics
-• Diversification
-
-**Expense Management:**
-• Cutting unnecessary costs
-• Smart shopping tips
-• Reducing bills
-
-What would you like to learn about?`;
+What would you like to know more about?`;
   }
 
   return {
-    content,
+    content: response,
     needsClarification: false,
-    disclaimer,
+    disclaimer: category === 'investing' || category === 'stocks' 
+      ? 'Educational purposes only. Not financial advice. Consult a certified financial advisor before investing.'
+      : 'Educational purposes only. Not financial advice.',
   };
 }

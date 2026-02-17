@@ -8,7 +8,9 @@ import Principal "mo:core/Principal";
 import AccessControl "authorization/access-control";
 import Storage "blob-storage/Storage";
 import MixinStorage "blob-storage/Mixin";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   let accessControlState = AccessControl.initState();
   let storage = Storage.new();
@@ -20,7 +22,6 @@ actor {
   var userPreferences = Map.empty<Principal, UserPreferences>();
   var userCookieConsent = Map.empty<Principal, CookieConsent>();
   var transactions = Map.empty<Principal, [TransactionData]>();
-  var userSavingsGoals = Map.empty<Principal, [SavingsGoal]>();
   var contactSubmissions = Map.empty<Text, ContactSubmission>();
   var aiPredictions = Map.empty<Principal, AIPrediction>();
   var caFeaturesContent = Map.empty<Text, CharteredAccountantFeaturesContent>();
@@ -420,7 +421,7 @@ actor {
 
   public query ({ caller }) func getCallerUserProfile() : async ?UserProfile {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
-      Runtime.trap("Unauthorized: Only users can save profiles");
+      Runtime.trap("Unauthorized: Only users can access profiles");
     };
     userProfiles.get(caller);
   };

@@ -84,7 +84,7 @@ export default function Header() {
                     Login
                   </Button>
                   <Button
-                    onClick={() => handleNavigation('/signup')}
+                    onClick={() => handleNavigation('/login')}
                     className="bg-gradient-to-r from-primary to-chart-1"
                   >
                     Sign Up Free
@@ -138,7 +138,7 @@ export default function Header() {
                         </Button>
                         <Button
                           className="w-full bg-gradient-to-r from-primary to-chart-1"
-                          onClick={() => handleNavigation('/signup')}
+                          onClick={() => handleNavigation('/login')}
                         >
                           Sign Up Free
                         </Button>

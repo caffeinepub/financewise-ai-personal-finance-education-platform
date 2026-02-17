@@ -1,14 +1,13 @@
+import { useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Sparkles, Shield, CheckCircle2, Lock, Eye, Zap } from 'lucide-react';
-import { toast } from 'sonner';
-import { useEffect } from 'react';
+import { Shield, TrendingUp, Brain, Lock } from 'lucide-react';
 
 export default function Login() {
+  const { login, loginStatus, identity } = useInternetIdentity();
   const navigate = useNavigate();
-  const { login: iiLogin, loginStatus, isLoggingIn, identity } = useInternetIdentity();
 
   useEffect(() => {
     if (identity) {
@@ -16,74 +15,60 @@ export default function Login() {
     }
   }, [identity, navigate]);
 
-  const handleInternetIdentityLogin = () => {
+  const handleLogin = async () => {
     try {
-      iiLogin();
+      await login();
     } catch (error: any) {
-      console.error('Internet Identity login error:', error);
-      toast.error('Failed to connect to Internet Identity. Please try again.');
+      console.error('Login error:', error);
+      if (error.message === 'User is already authenticated') {
+        navigate({ to: '/dashboard' });
+      }
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-chart-1/5 flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-chart-1/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-      </div>
+  const isLoggingIn = loginStatus === 'logging-in';
 
-      <div className="relative z-10 w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center">
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/10 p-4">
+      <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center">
         {/* Left Side - Branding */}
-        <div className="hidden lg:block space-y-8 p-8">
+        <div className="space-y-8 text-center lg:text-left">
           <div className="space-y-4">
-            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-              <Sparkles className="w-5 h-5 text-primary animate-pulse" />
-              <span className="text-sm font-medium text-primary">Private & Secure</span>
-            </div>
-            <h1 className="text-5xl font-bold leading-tight">
-              <span className="bg-gradient-to-r from-primary via-chart-1 to-chart-2 bg-clip-text text-transparent">
-                FinanceWise AI
-              </span>
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-chart-1 to-chart-2 bg-clip-text text-transparent">
+              FinanceWise AI
             </h1>
             <p className="text-xl text-muted-foreground">
-              Your private personal finance manager powered by AI
+              Your intelligent financial companion for smarter money management
             </p>
           </div>
 
-          <div className="space-y-4">
-            <div className="flex items-start gap-4 p-4 rounded-lg bg-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/50 transition-all duration-300">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Shield className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold mb-1">Complete Privacy</h3>
-                <p className="text-sm text-muted-foreground">
-                  All your financial data is encrypted and never shared with third parties
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-4 p-4 rounded-lg bg-card/50 backdrop-blur-sm border border-border/50 hover:border-chart-1/50 transition-all duration-300">
-              <div className="p-2 rounded-lg bg-chart-1/10">
-                <Zap className="w-6 h-6 text-chart-1" />
-              </div>
+          <div className="grid gap-4">
+            <div className="flex items-start gap-3 p-4 bg-card border border-border rounded-lg">
+              <Brain className="w-6 h-6 text-primary shrink-0 mt-1" />
               <div>
                 <h3 className="font-semibold mb-1">AI-Powered Insights</h3>
                 <p className="text-sm text-muted-foreground">
-                  Get personalized financial recommendations and predictions
+                  Get personalized financial advice and predictions powered by advanced AI
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-4 p-4 rounded-lg bg-card/50 backdrop-blur-sm border border-border/50 hover:border-chart-2/50 transition-all duration-300">
-              <div className="p-2 rounded-lg bg-chart-2/10">
-                <Eye className="w-6 h-6 text-chart-2" />
-              </div>
+            <div className="flex items-start gap-3 p-4 bg-card border border-border rounded-lg">
+              <TrendingUp className="w-6 h-6 text-primary shrink-0 mt-1" />
               <div>
-                <h3 className="font-semibold mb-1">Complete Control</h3>
+                <h3 className="font-semibold mb-1">Smart Analytics</h3>
                 <p className="text-sm text-muted-foreground">
-                  Manage every aspect of your financial life in one secure place
+                  Track expenses, set goals, and visualize your financial journey
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-3 p-4 bg-card border border-border rounded-lg">
+              <Shield className="w-6 h-6 text-primary shrink-0 mt-1" />
+              <div>
+                <h3 className="font-semibold mb-1">Secure & Private</h3>
+                <p className="text-sm text-muted-foreground">
+                  Your data is encrypted and stored securely on the blockchain
                 </p>
               </div>
             </div>
@@ -91,81 +76,47 @@ export default function Login() {
         </div>
 
         {/* Right Side - Login Card */}
-        <Card className="w-full shadow-2xl border-2 border-border/50 backdrop-blur-sm bg-card/95">
-          <CardHeader className="text-center space-y-6 pb-8">
-            <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary via-chart-1 to-chart-2 flex items-center justify-center mx-auto shadow-2xl relative">
-              <Sparkles className="w-12 h-12 text-primary-foreground animate-pulse" />
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/50 to-chart-1/50 blur-xl"></div>
-            </div>
-            <div>
-              <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-chart-1 bg-clip-text text-transparent">
-                Welcome Back
-              </CardTitle>
-              <CardDescription className="text-base mt-3">
-                Sign in to access your private financial dashboard
-              </CardDescription>
-            </div>
+        <Card className="w-full max-w-md mx-auto border-2 border-primary/20">
+          <CardHeader className="space-y-3">
+            <CardTitle className="text-2xl text-center">Welcome Back</CardTitle>
+            <CardDescription className="text-center">
+              Sign in with Internet Identity to access your financial dashboard
+            </CardDescription>
           </CardHeader>
-
           <CardContent className="space-y-6">
-            {/* Internet Identity Login Button */}
             <Button
-              onClick={handleInternetIdentityLogin}
+              onClick={handleLogin}
               disabled={isLoggingIn}
               size="lg"
-              className="w-full h-16 text-lg font-semibold bg-gradient-to-r from-primary to-chart-1 hover:from-primary/90 hover:to-chart-1/90 transition-all duration-300 shadow-lg hover:shadow-xl group relative overflow-hidden"
+              className="w-full bg-gradient-to-r from-primary to-chart-1 hover:from-primary/90 hover:to-chart-1/90"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-              <div className="flex items-center gap-3 relative z-10">
-                <Lock className="w-6 h-6" />
-                {isLoggingIn ? (
-                  <>
-                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent"></div>
-                    <span>Connecting...</span>
-                  </>
-                ) : (
-                  <span>Sign in with Internet Identity</span>
-                )}
-              </div>
+              {isLoggingIn ? (
+                <>
+                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent mr-2"></div>
+                  Connecting...
+                </>
+              ) : (
+                <>
+                  <Lock className="w-5 h-5 mr-2" />
+                  Sign In with Internet Identity
+                </>
+              )}
             </Button>
 
-            {/* Security Features */}
-            <div className="space-y-3 p-6 bg-gradient-to-br from-primary/5 to-chart-1/5 rounded-xl border border-primary/20">
-              <p className="text-sm font-semibold text-foreground mb-3">Why Internet Identity?</p>
-              <div className="flex items-center gap-3 text-sm">
-                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-                <span className="text-muted-foreground">Blockchain-based authentication</span>
+            <div className="space-y-3 pt-4 border-t border-border">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Shield className="w-4 h-4 text-primary" />
+                <span>Secure authentication via Internet Computer</span>
               </div>
-              <div className="flex items-center gap-3 text-sm">
-                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-                <span className="text-muted-foreground">No passwords to remember or manage</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-                <span className="text-muted-foreground">Complete privacy and data ownership</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm">
-                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-                <span className="text-muted-foreground">Military-grade encryption</span>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Lock className="w-4 h-4 text-primary" />
+                <span>No passwords required - use biometrics or security keys</span>
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="text-center text-xs text-muted-foreground pt-4 border-t border-border/50">
-              <p className="leading-relaxed">
-                By signing in, you agree to keep your financial data private and secure.
-                <br />
-                Built with ❤️ using{' '}
-                <a 
-                  href="https://caffeine.ai" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="text-primary hover:underline font-medium"
-                >
-                  caffeine.ai
-                </a>
-              </p>
-            </div>
+            <p className="text-xs text-center text-muted-foreground">
+              New to FinanceWise AI? Signing in will automatically create your account.
+            </p>
           </CardContent>
         </Card>
       </div>

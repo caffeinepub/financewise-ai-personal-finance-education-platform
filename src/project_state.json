@@ -1,48 +1,52 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "App updates requested: enable unlimited AI assistant chat scrolling, fix analytics income/expense saving and balance display, remove Challenge page, and add Settings display preferences (theme + show/hide analytics).",
-  "architectural_notes": [],
+  "summary": "Personal finance web app (financewiseai-acv.caffeine.xyz) to be updated with working Internet Identity sign-up/login, correct per-user account isolation, fixed goals deletion with confirmation, unified cross-page data flow, and an AI assistant that uses all user financial data to answer saving/investing/expense-control questions.",
+  "architectural_notes": [
+    "Auth platform constraint: Internet Computer supports Internet Identity (not traditional email/password auth); implement Sign Up/Login via Internet Identity."
+  ],
   "known_issues": [
-    "Analytics page: income/expense add buttons not saving values; balance display can be negative/incorrect."
+    "Sign Up button currently results in 'not found' (broken Internet Identity sign-up flow).",
+    "Different logins/emails are incorrectly showing the same account (user isolation bug).",
+    "Goals added on Goals page are not deleting (delete action broken)."
   ],
   "isFixRequest": true,
   "existing_features": [
     {
-      "id": "feature-update-the-ai-assistant-chat-ui-frontend-src-components-aichatbot-tsx-so-long-conversations-are-fully-scrollable-without-cutting-off-messages-with-reliable-auto-scroll-to-latest-behavior-after-new-messages-are-appended",
-      "title": "Update the AI assistant chat UI (frontend/src/components/AIChatbot.tsx) so long conversations are fully scrollable without cutting off messages, with reliable auto-scroll-to-latest behavior after new messages are appended.",
+      "id": "feature-fix-the-broken-sign-up-navigation-so-clicking-sign-up-free-does-not-go-to-a-not-found-route-and-instead-takes-the-user-to-a-working-internet-identity-authentication-screen",
+      "title": "Fix the broken Sign Up navigation so clicking “Sign Up Free” does not go to a Not Found route and instead takes the user to a working Internet Identity authentication screen.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-fix-analytics-page-add-income-and-add-expense-flows-so-clicking-add-expense-and-add-income-persists-the-new-transaction-and-refreshes-analytics-data-correctly",
-      "title": "Fix Analytics page add-income and add-expense flows so clicking “Add Expense” and “Add Income” persists the new transaction and refreshes analytics data correctly.",
+      "id": "feature-resolve-account-isolation-so-different-internet-identity-users-different-principals-always-see-different-profiles-goals-transactions-and-dashboard-data-switching-identities-must-not-show-the-previous-user-s-data",
+      "title": "Resolve account isolation so different Internet Identity users (different principals) always see different profiles, goals, transactions, and dashboard data; switching identities must not show the previous user’s data.",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-ensure-the-analytics-remaining-balance-display-never-renders-as-a-bare-dash-minus-due-to-missing-invalid-data-when-there-are-no-transactions-show-a-zero-balance-and-consistent-currency-formatting",
-      "title": "Ensure the Analytics “Remaining Balance” display never renders as a bare dash/minus due to missing/invalid data; when there are no transactions, show a zero balance and consistent currency formatting.",
+      "id": "feature-fix-the-goals-page-delete-flow-so-goals-are-actually-removed-from-storage-and-the-ui-and-replace-the-browser-confirm-with-an-in-app-confirmation-popup-shown-only-for-goal-deletion",
+      "title": "Fix the Goals page delete flow so goals are actually removed from storage and the UI, and replace the browser confirm() with an in-app confirmation popup shown only for goal deletion.",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
     },
     {
-      "id": "feature-remove-the-challenges-feature-from-the-app-ui-and-routing-eliminate-the-challenges-navigation-entry-and-disable-remove-the-challenges-route-so-users-cannot-navigate-to-the-challenges-page",
-      "title": "Remove the Challenges feature from the app UI and routing: eliminate the Challenges navigation entry and disable/remove the /challenges route so users cannot navigate to the Challenges page.",
+      "id": "feature-ensure-cross-page-data-consistency-when-the-user-adds-updates-deletes-transactions-or-goals-all-relevant-pages-dashboard-transactions-goals-analytics-and-the-ai-assistant-context-reflect-the-changes-correctly-via-shared-queries-and-proper-invalidation-refetch",
+      "title": "Ensure cross-page data consistency: when the user adds/updates/deletes transactions or goals, all relevant pages (Dashboard, Transactions, Goals, Analytics, and the AI assistant context) reflect the changes correctly via shared queries and proper invalidation/refetch.",
       "reqIds": [
         "REQ-4"
       ],
       "version": 1
     },
     {
-      "id": "feature-make-settings-display-preferences-functional-1-theme-selection-light-dark-system-must-actually-change-the-app-theme-and-2-the-show-analytics-toggle-must-control-visibility-access-to-analytics-in-the-app-navigation-and-or-page-access",
-      "title": "Make Settings display preferences functional: (1) theme selection (light/dark/system) must actually change the app theme, and (2) the “Show Analytics” toggle must control visibility/access to Analytics in the app navigation and/or page access.",
+      "id": "feature-upgrade-the-ai-assistant-so-its-answers-are-based-on-the-authenticated-user-s-actual-app-data-at-minimum-transactions-balance-and-savings-goals-and-it-can-answer-saving-investing-and-expense-control-questions-using-those-numbers-from-the-dashboard",
+      "title": "Upgrade the AI assistant so its answers are based on the authenticated user’s actual app data (at minimum: transactions, balance, and savings goals) and it can answer saving, investing, and expense-control questions using those numbers from the dashboard.",
       "reqIds": [
         "REQ-5"
       ],
@@ -52,30 +56,36 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "AI assistant chat should allow long/infinite conversations with normal scrolling (no cutoff).",
+      "summary": "Fix broken Sign Up flow (Internet Identity): Sign Up button currently leads to 'not found'; ensure sign-up/login works end-to-end",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Fix Analytics page: income/expense add buttons not saving values; resolve incorrect/negative balance display.",
+      "summary": "Fix account isolation: different Internet Identity / login emails should map to different user accounts (currently showing same account)",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-3",
-      "summary": "Remove the Challenge page from the app.",
+      "summary": "Goals page: fix delete-goal functionality and add confirmation popup for goal deletion only",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-4",
-      "summary": "Settings: add display preferences (theme toggle and show/hide analytics toggle) and ensure they work.",
+      "summary": "Connect data across all pages so user financial data is consistent and shared throughout the app",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Upgrade AI assistant to use aggregated user data from all pages (dashboard/expenses/goals/savings) to provide personalized analysis and guidance (saving, investing, expense control)",
       "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Fix Analytics transaction saving, enable AI chat unlimited scrolling, remove Challenges, and add working display preferences",
+  "projectName": "FinanceWise AI",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

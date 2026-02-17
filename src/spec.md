@@ -1,13 +1,14 @@
 # Specification
 
 ## Summary
-**Goal:** Fix key UX and persistence issues across AI Chat, Analytics, and Settings by enabling long chat scrolling, ensuring transactions save correctly, removing Challenges, and making display preferences work.
+**Goal:** Fix Internet Identity sign-up navigation, ensure per-user data isolation, make goal deletion work with an in-app confirmation dialog, keep data consistent across pages, and make the AI assistant respond using the authenticated user’s real FinanceWise data.
 
 **Planned changes:**
-- Update the AI assistant chat UI to support long conversations with a properly scrollable message container and reliable auto-scroll to the latest message.
-- Fix Analytics “Add Income” and “Add Expense” so new transactions persist (survive refresh) and analytics charts/derived data refresh correctly after adding.
-- Ensure Analytics “Remaining Balance” always renders as a properly formatted currency value (show 0 when there are no transactions), never a bare dash/minus or invalid value.
-- Remove the Challenges feature from navigation and disable/remove the `/challenges` route, cleaning up any stale references.
-- Make Settings display preferences functional: theme selection (light/dark/system) applies immediately and persists across reloads, and the “Show Analytics” toggle controls Analytics visibility/access (nav + route access behavior).
+- Fix “Sign Up Free” (desktop/mobile) to navigate to a valid Internet Identity auth route and redirect authenticated users to `/dashboard`.
+- Enforce account isolation so data (profile, goals, transactions, dashboard) is keyed by the authenticated Internet Identity principal and never shared across principals.
+- Reset/segment frontend cached queries on identity change so the UI does not briefly show the previous user’s data after switching accounts.
+- Repair Goals deletion end-to-end: show an in-app confirmation popup only for goal deletion, and on confirm delete from backend storage and update the goals list immediately.
+- Ensure cross-page consistency by using shared queries and proper invalidation/refetch so Dashboard, Transactions, Goals, Analytics, and AI context reflect goal/transaction changes without full reloads.
+- Upgrade the AI assistant to reference the authenticated user’s actual data (at minimum transactions, balance, savings goals) in responses, include an educational/not-financial-advice disclaimer, and provide a data-aware fallback when no data exists.
 
-**User-visible outcome:** Users can chat for long sessions without messages being clipped, Analytics can successfully add and retain income/expenses with correct balance display, Challenges is no longer accessible, and Settings theme + “Show Analytics” toggles actually affect the app.
+**User-visible outcome:** Clicking “Sign Up Free” opens a working Internet Identity auth flow and lands users on the dashboard after login; each Internet Identity account sees only its own data; goals can be deleted via an in-app confirmation dialog; updates to goals/transactions reflect across all relevant pages automatically; and the AI assistant answers saving/investing/expense-control questions using the user’s real dashboard numbers when available.

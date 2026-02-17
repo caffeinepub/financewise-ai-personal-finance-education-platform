@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
+import { useInternetIdentity } from './useInternetIdentity';
 import { generateDeterministicResponse } from '../lib/deterministicAssistant';
 import { convertBigIntsToNumbers } from '../lib/serialization';
 
@@ -97,6 +98,12 @@ const mockBlogPosts = [
   },
 ];
 
+// Helper to get principal-scoped storage key
+function getPrincipalKey(baseKey: string, principal?: string): string {
+  if (!principal) return baseKey;
+  return `${baseKey}_${principal}`;
+}
+
 // Blog hooks
 export function useGetAllBlogPosts() {
   return useQuery({
@@ -156,12 +163,16 @@ export function useSaveCallerUserProfile() {
   });
 }
 
-// User preferences hooks with localStorage persistence
+// User preferences hooks with principal-scoped localStorage
 export function useGetCallerUserPreferences() {
+  const { identity } = useInternetIdentity();
+  const principal = identity?.getPrincipal().toString();
+
   return useQuery({
-    queryKey: ['userPreferences'],
+    queryKey: ['userPreferences', principal],
     queryFn: async () => {
-      const stored = localStorage.getItem('userPreferences');
+      const key = getPrincipalKey('userPreferences', principal);
+      const stored = localStorage.getItem(key);
       if (stored) {
         return JSON.parse(stored);
       }
@@ -173,30 +184,38 @@ export function useGetCallerUserPreferences() {
         updatedAt: Date.now(),
       };
     },
+    enabled: !!principal,
   });
 }
 
 export function useSaveUserPreferences() {
   const queryClient = useQueryClient();
+  const { identity } = useInternetIdentity();
+  const principal = identity?.getPrincipal().toString();
 
   return useMutation({
     mutationFn: async (preferences: any) => {
       const safePrefs = convertBigIntsToNumbers(preferences);
-      localStorage.setItem('userPreferences', JSON.stringify(safePrefs));
+      const key = getPrincipalKey('userPreferences', principal);
+      localStorage.setItem(key, JSON.stringify(safePrefs));
       return safePrefs;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['userPreferences'] });
+      queryClient.invalidateQueries({ queryKey: ['userPreferences', principal] });
     },
   });
 }
 
-// Transaction hooks with proper serialization and validation
+// Transaction hooks with principal-scoped localStorage
 export function useGetUserTransactions() {
+  const { identity } = useInternetIdentity();
+  const principal = identity?.getPrincipal().toString();
+
   return useQuery({
-    queryKey: ['transactions'],
+    queryKey: ['transactions', principal],
     queryFn: async () => {
-      const stored = localStorage.getItem('transactions');
+      const key = getPrincipalKey('transactions', principal);
+      const stored = localStorage.getItem(key);
       if (!stored) return [];
       
       try {
@@ -212,15 +231,19 @@ export function useGetUserTransactions() {
         return [];
       }
     },
+    enabled: !!principal,
   });
 }
 
 export function useAddTransaction() {
   const queryClient = useQueryClient();
+  const { identity } = useInternetIdentity();
+  const principal = identity?.getPrincipal().toString();
 
   return useMutation({
     mutationFn: async (transaction: any) => {
-      const stored = localStorage.getItem('transactions');
+      const key = getPrincipalKey('transactions', principal);
+      const stored = localStorage.getItem(key);
       const transactions = stored ? JSON.parse(stored) : [];
       
       const newTransaction = convertBigIntsToNumbers({
@@ -232,65 +255,79 @@ export function useAddTransaction() {
       });
       
       transactions.push(newTransaction);
-      localStorage.setItem('transactions', JSON.stringify(transactions));
+      localStorage.setItem(key, JSON.stringify(transactions));
       return newTransaction;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['balance'] });
-      queryClient.invalidateQueries({ queryKey: ['categoryData'] });
-      queryClient.invalidateQueries({ queryKey: ['financialTrends'] });
-      queryClient.invalidateQueries({ queryKey: ['monthlyComparison'] });
+      queryClient.invalidateQueries({ queryKey: ['transactions', principal] });
+      queryClient.invalidateQueries({ queryKey: ['balance', principal] });
+      queryClient.invalidateQueries({ queryKey: ['categoryData', principal] });
+      queryClient.invalidateQueries({ queryKey: ['financialTrends', principal] });
+      queryClient.invalidateQueries({ queryKey: ['monthlyComparison', principal] });
     },
   });
 }
 
 export function useUpdateTransaction() {
   const queryClient = useQueryClient();
+  const { identity } = useInternetIdentity();
+  const principal = identity?.getPrincipal().toString();
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: any }) => {
-      const stored = localStorage.getItem('transactions');
+      const key = getPrincipalKey('transactions', principal);
+      const stored = localStorage.getItem(key);
       const transactions = stored ? JSON.parse(stored) : [];
       const index = transactions.findIndex((t: any) => t.id === id);
       if (index !== -1) {
         transactions[index] = convertBigIntsToNumbers({ ...transactions[index], ...updates });
-        localStorage.setItem('transactions', JSON.stringify(transactions));
+        localStorage.setItem(key, JSON.stringify(transactions));
       }
       return transactions[index];
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['balance'] });
-      queryClient.invalidateQueries({ queryKey: ['categoryData'] });
+      queryClient.invalidateQueries({ queryKey: ['transactions', principal] });
+      queryClient.invalidateQueries({ queryKey: ['balance', principal] });
+      queryClient.invalidateQueries({ queryKey: ['categoryData', principal] });
+      queryClient.invalidateQueries({ queryKey: ['financialTrends', principal] });
+      queryClient.invalidateQueries({ queryKey: ['monthlyComparison', principal] });
     },
   });
 }
 
 export function useDeleteTransaction() {
   const queryClient = useQueryClient();
+  const { identity } = useInternetIdentity();
+  const principal = identity?.getPrincipal().toString();
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const stored = localStorage.getItem('transactions');
+      const key = getPrincipalKey('transactions', principal);
+      const stored = localStorage.getItem(key);
       const transactions = stored ? JSON.parse(stored) : [];
       const filtered = transactions.filter((t: any) => t.id !== id);
-      localStorage.setItem('transactions', JSON.stringify(filtered));
+      localStorage.setItem(key, JSON.stringify(filtered));
       return id;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['balance'] });
-      queryClient.invalidateQueries({ queryKey: ['categoryData'] });
+      queryClient.invalidateQueries({ queryKey: ['transactions', principal] });
+      queryClient.invalidateQueries({ queryKey: ['balance', principal] });
+      queryClient.invalidateQueries({ queryKey: ['categoryData', principal] });
+      queryClient.invalidateQueries({ queryKey: ['financialTrends', principal] });
+      queryClient.invalidateQueries({ queryKey: ['monthlyComparison', principal] });
     },
   });
 }
 
 export function useGetBalance() {
+  const { identity } = useInternetIdentity();
+  const principal = identity?.getPrincipal().toString();
+
   return useQuery({
-    queryKey: ['balance'],
+    queryKey: ['balance', principal],
     queryFn: async () => {
-      const stored = localStorage.getItem('transactions');
+      const key = getPrincipalKey('transactions', principal);
+      const stored = localStorage.getItem(key);
       const transactions = stored ? JSON.parse(stored) : [];
       const balance = transactions.reduce((acc: number, t: any) => {
         const amount = Number(t.amount) || 0;
@@ -298,14 +335,19 @@ export function useGetBalance() {
       }, 0);
       return balance || 0;
     },
+    enabled: !!principal,
   });
 }
 
 export function useGetCategoryData() {
+  const { identity } = useInternetIdentity();
+  const principal = identity?.getPrincipal().toString();
+
   return useQuery({
-    queryKey: ['categoryData'],
+    queryKey: ['categoryData', principal],
     queryFn: async () => {
-      const stored = localStorage.getItem('transactions');
+      const key = getPrincipalKey('transactions', principal);
+      const stored = localStorage.getItem(key);
       const transactions = stored ? JSON.parse(stored) : [];
       const categoryMap = new Map<string, number>();
       
@@ -323,14 +365,19 @@ export function useGetCategoryData() {
         color: '#' + Math.floor(Math.random()*16777215).toString(16),
       }));
     },
+    enabled: !!principal,
   });
 }
 
 export function useGetMonthlyComparison() {
+  const { identity } = useInternetIdentity();
+  const principal = identity?.getPrincipal().toString();
+
   return useQuery({
-    queryKey: ['monthlyComparison'],
+    queryKey: ['monthlyComparison', principal],
     queryFn: async () => {
-      const stored = localStorage.getItem('transactions');
+      const key = getPrincipalKey('transactions', principal);
+      const stored = localStorage.getItem(key);
       const transactions = stored ? JSON.parse(stored) : [];
       
       const monthlyData = new Map<string, { expenses: number; income: number }>();
@@ -357,14 +404,19 @@ export function useGetMonthlyComparison() {
         savings: (data.income || 0) - (data.expenses || 0),
       }));
     },
+    enabled: !!principal,
   });
 }
 
 export function useGetFinancialTrends() {
+  const { identity } = useInternetIdentity();
+  const principal = identity?.getPrincipal().toString();
+
   return useQuery({
-    queryKey: ['financialTrends'],
+    queryKey: ['financialTrends', principal],
     queryFn: async () => {
-      const stored = localStorage.getItem('transactions');
+      const key = getPrincipalKey('transactions', principal);
+      const stored = localStorage.getItem(key);
       const transactions = stored ? JSON.parse(stored) : [];
       
       let balance = 0;
@@ -381,17 +433,23 @@ export function useGetFinancialTrends() {
       
       return trends;
     },
+    enabled: !!principal,
   });
 }
 
-// Savings goals hooks (mock implementation)
+// Savings goals hooks with principal-scoped localStorage
 export function useGetSavingsGoals() {
+  const { identity } = useInternetIdentity();
+  const principal = identity?.getPrincipal().toString();
+
   return useQuery({
-    queryKey: ['savingsGoals'],
+    queryKey: ['savingsGoals', principal],
     queryFn: async () => {
-      const stored = localStorage.getItem('savingsGoals');
+      const key = getPrincipalKey('savingsGoals', principal);
+      const stored = localStorage.getItem(key);
       return stored ? JSON.parse(stored) : [];
     },
+    enabled: !!principal,
   });
 }
 
@@ -401,10 +459,13 @@ export function useGetUserSavingsGoals() {
 
 export function useAddSavingsGoal() {
   const queryClient = useQueryClient();
+  const { identity } = useInternetIdentity();
+  const principal = identity?.getPrincipal().toString();
 
   return useMutation({
     mutationFn: async (goal: any) => {
-      const stored = localStorage.getItem('savingsGoals');
+      const key = getPrincipalKey('savingsGoals', principal);
+      const stored = localStorage.getItem(key);
       const goals = stored ? JSON.parse(stored) : [];
       const newGoal = {
         ...goal,
@@ -412,48 +473,54 @@ export function useAddSavingsGoal() {
         createdAt: Date.now(),
       };
       goals.push(newGoal);
-      localStorage.setItem('savingsGoals', JSON.stringify(goals));
+      localStorage.setItem(key, JSON.stringify(goals));
       return newGoal;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['savingsGoals'] });
+      queryClient.invalidateQueries({ queryKey: ['savingsGoals', principal] });
     },
   });
 }
 
 export function useUpdateSavingsGoal() {
   const queryClient = useQueryClient();
+  const { identity } = useInternetIdentity();
+  const principal = identity?.getPrincipal().toString();
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: any }) => {
-      const stored = localStorage.getItem('savingsGoals');
+      const key = getPrincipalKey('savingsGoals', principal);
+      const stored = localStorage.getItem(key);
       const goals = stored ? JSON.parse(stored) : [];
       const index = goals.findIndex((g: any) => g.id === id);
       if (index !== -1) {
         goals[index] = { ...goals[index], ...updates };
-        localStorage.setItem('savingsGoals', JSON.stringify(goals));
+        localStorage.setItem(key, JSON.stringify(goals));
       }
       return goals[index];
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['savingsGoals'] });
+      queryClient.invalidateQueries({ queryKey: ['savingsGoals', principal] });
     },
   });
 }
 
 export function useDeleteSavingsGoal() {
   const queryClient = useQueryClient();
+  const { identity } = useInternetIdentity();
+  const principal = identity?.getPrincipal().toString();
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const stored = localStorage.getItem('savingsGoals');
+      const key = getPrincipalKey('savingsGoals', principal);
+      const stored = localStorage.getItem(key);
       const goals = stored ? JSON.parse(stored) : [];
       const filtered = goals.filter((g: any) => g.id !== id);
-      localStorage.setItem('savingsGoals', JSON.stringify(filtered));
+      localStorage.setItem(key, JSON.stringify(filtered));
       return id;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['savingsGoals'] });
+      queryClient.invalidateQueries({ queryKey: ['savingsGoals', principal] });
     },
   });
 }
@@ -468,17 +535,26 @@ export function useSubmitContactForm() {
   });
 }
 
-// AI/Chat hooks with deterministic assistant
+// AI/Chat hooks with deterministic assistant and data-aware context
 export function useProcessChatMessage() {
   const { data: transactions } = useGetUserTransactions();
   const { data: balance } = useGetBalance();
+  const { data: goals } = useGetSavingsGoals();
 
   return useMutation({
     mutationFn: async (message: string) => {
+      // Compute aggregates for context
+      const totalIncome = transactions?.filter(t => t.transactionType === 'income').reduce((sum, t) => sum + t.amount, 0) || 0;
+      const totalExpenses = transactions?.filter(t => t.transactionType === 'expense').reduce((sum, t) => sum + t.amount, 0) || 0;
+      
       const context = {
         balance: balance || 0,
         recentTransactions: transactions || [],
         totalTransactions: transactions?.length || 0,
+        totalIncome,
+        totalExpenses,
+        savingsGoals: goals || [],
+        hasData: (transactions && transactions.length > 0) || (goals && goals.length > 0),
       };
 
       const response = generateDeterministicResponse(message, context);
@@ -496,41 +572,17 @@ export function useProcessChatMessage() {
 
 export function useTrainAIModel() {
   return useMutation({
-    mutationFn: async (data: any) => {
-      console.log('AI model training (mock):', data);
-      return { success: true };
+    mutationFn: async () => {
+      return { success: true, message: 'Model training simulated' };
     },
   });
 }
 
-export function useMakeAIPrediction() {
-  return useMutation({
-    mutationFn: async (data: any) => {
-      return {
-        balancePrediction: 50000,
-        riskLevel: 'medium',
-        futureSavings: 10000,
-        confidenceScore: 0.75,
-        lastUpdated: Date.now(),
-      };
-    },
-  });
-}
-
-// Quiz hooks (mock implementation)
-export function useGetQuizQuestion() {
+export function useGetAIPrediction() {
   return useQuery({
-    queryKey: ['quizQuestion'],
+    queryKey: ['aiPrediction'],
     queryFn: async () => {
       return null;
-    },
-  });
-}
-
-export function useSubmitQuizAnswer() {
-  return useMutation({
-    mutationFn: async (answer: any) => {
-      return { isCorrect: true, explanation: 'Mock explanation' };
     },
   });
 }
@@ -544,6 +596,7 @@ export function useGetQuizStatistics() {
         questionsCompleted: 0,
         correctAnswers: 0,
         incorrectAnswers: 0,
+        currentDifficulty: 'easy',
         progressPercentage: 0,
       };
     },

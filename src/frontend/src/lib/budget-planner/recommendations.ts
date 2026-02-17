@@ -1,109 +1,193 @@
-import type { BudgetInputs, BudgetPlan } from '../../types/budget-planner';
+import type { BudgetInputs } from './budgetLogic';
 
-export function generateRecommendations(
-  inputs: BudgetInputs,
-  plan: BudgetPlan
-): string[] {
-  const recommendations: string[] = [];
-  
-  // Recommendation 1: Savings optimization
-  const potentialSavings = plan.allocation.wants.amount * 0.2;
-  if (potentialSavings > 0) {
-    recommendations.push(
-      `You can save an additional ${Math.round(potentialSavings)} per month by reducing discretionary spending by just 20%. This could add up to ${Math.round(potentialSavings * 12)} annually!`
-    );
-  }
-  
-  // Recommendation 2: Emergency fund
-  const emergencyFundTarget = plan.summary.totalExpenses * 6;
-  const emergencyFundGap = emergencyFundTarget - (inputs.emergencyFund || 0);
-  if (emergencyFundGap > 0) {
-    const monthsToTarget = Math.ceil(emergencyFundGap / plan.summary.suggestedSavings);
-    recommendations.push(
-      `Your emergency fund target is ${Math.round(emergencyFundTarget)}. At your current savings rate, you can reach this goal in approximately ${monthsToTarget} months.`
-    );
-  } else {
-    recommendations.push(
-      'Great job! Your emergency fund is well-established. Consider directing extra savings toward long-term investments or specific goals.'
-    );
-  }
-  
-  // Recommendation 3: Expense optimization
-  const housingRatio = (inputs.rent / plan.summary.totalIncome) * 100;
-  if (housingRatio > 30) {
-    recommendations.push(
-      `Your housing costs are ${housingRatio.toFixed(0)}% of income. Consider ways to reduce this to below 30% for better financial flexibility.`
-    );
-  } else if (inputs.shopping + inputs.entertainment > plan.allocation.wants.amount) {
-    recommendations.push(
-      'Your discretionary spending exceeds the recommended allocation. Try the 24-hour rule before making non-essential purchases.'
-    );
-  } else {
-    recommendations.push(
-      'Your expense allocation looks balanced! Continue tracking your spending to maintain this healthy pattern.'
-    );
-  }
-  
-  // Recommendation 4: Income diversification
-  if (!inputs.secondaryIncome && !inputs.passiveIncome) {
-    recommendations.push(
-      'Consider exploring additional income streams like freelancing, side projects, or passive investments to accelerate your financial goals.'
-    );
-  }
-  
-  // Recommendation 5: Automation
-  if (inputs.savingStyle === 'manual') {
-    recommendations.push(
-      'Switch to automatic savings transfers to ensure consistent progress toward your goals without relying on willpower each month.'
-    );
-  }
-  
-  return recommendations.slice(0, 5);
+export interface Recommendations {
+  savingStrategy?: {
+    overview: string;
+    tips: string[];
+  };
+  investingGuidance?: {
+    overview: string;
+    tips: string[];
+  };
+  financialImprovement?: {
+    overview: string;
+    tips: string[];
+  };
 }
 
-export function generateActionPlan(
-  inputs: BudgetInputs,
-  plan: BudgetPlan
-): string[] {
-  const actions: string[] = [];
+export function generateRecommendations(inputs: BudgetInputs, plan: any): Recommendations {
+  const savingsRate = (plan.allocations.savings / plan.allocations.totalIncome) * 100;
+  const hasDebt = inputs.loanEMIs > 0;
+  const hasEmergencyFund = inputs.emergencyFund > 0;
+  const monthlyExpenses = plan.allocations.totalExpenses;
+  const emergencyFundTarget = monthlyExpenses * 6;
   
-  // Action 1: Set up savings
+  const recommendations: Recommendations = {};
+  
+  // Saving Strategy
+  recommendations.savingStrategy = {
+    overview: savingsRate >= 20 
+      ? "Your savings rate is excellent! Focus on maintaining this discipline while optimizing where your savings go."
+      : savingsRate >= 10
+      ? "Your savings rate is good, but there's room for improvement. Small increases can make a big difference over time."
+      : "Building a stronger savings habit should be your top priority. Start small and increase gradually.",
+    tips: []
+  };
+  
+  if (savingsRate < 20) {
+    recommendations.savingStrategy.tips.push(
+      "Try the 'pay yourself first' method: automatically transfer savings when you receive income, before spending on anything else."
+    );
+  }
+  
+  if (!hasEmergencyFund || inputs.emergencyFund < emergencyFundTarget) {
+    recommendations.savingStrategy.tips.push(
+      `Build an emergency fund covering 3-6 months of expenses (target: ${Math.round(emergencyFundTarget)}). Keep it in a liquid, easily accessible account.`
+    );
+  }
+  
   if (inputs.savingStyle === 'manual') {
-    actions.push(
-      `Set up an automatic transfer of ${Math.round(plan.summary.suggestedSavings)} to your savings account on the day after your salary is credited.`
-    );
-  } else {
-    actions.push(
-      `Review and confirm your automatic savings transfer of ${Math.round(plan.summary.suggestedSavings)} is active and scheduled correctly.`
+    recommendations.savingStrategy.tips.push(
+      "Consider switching to automatic savings transfers. Automation removes the temptation to skip savings and builds consistency."
     );
   }
   
-  // Action 2: Track expenses
+  recommendations.savingStrategy.tips.push(
+    "Use the 50/30/20 rule as a baseline: 50% needs, 30% wants, 20% savings. Adjust based on your goals.",
+    "Review and cut one unnecessary subscription or expense each month. Redirect those savings to your goals.",
+    "Track your spending for 30 days to identify hidden money leaks. Awareness alone often reduces spending by 15-20%."
+  );
+  
+  // Investing Guidance (Beginner-Friendly)
+  recommendations.investingGuidance = {
+    overview: inputs.financialKnowledge === 'beginner'
+      ? "As a beginner, start with simple, low-risk investment options and focus on learning the basics before taking on more complex strategies."
+      : inputs.financialKnowledge === 'intermediate'
+      ? "With your intermediate knowledge, you can explore diversified portfolios and consider a mix of equity and debt instruments."
+      : "With advanced knowledge, you can optimize your portfolio with tax-efficient strategies and explore alternative investments.",
+    tips: []
+  };
+  
   if (inputs.financialKnowledge === 'beginner') {
-    actions.push(
-      'Start tracking your daily expenses using a simple app or spreadsheet. Focus on the top 3 categories: food, transport, and entertainment.'
-    );
-  } else {
-    actions.push(
-      'Conduct a detailed expense audit this month. Identify one category where you can reduce spending by 10% without impacting your lifestyle.'
+    recommendations.investingGuidance.tips.push(
+      "Start with Systematic Investment Plans (SIPs) in diversified mutual funds. SIPs allow you to invest small amounts regularly, reducing market timing risk.",
+      "Learn the basics: understand the difference between equity (stocks), debt (bonds), and hybrid funds before investing.",
+      "Begin with low-cost index funds or ETFs that track broad market indices. These offer instant diversification and lower fees."
     );
   }
   
-  // Action 3: Emergency fund or goal-specific
-  if ((inputs.emergencyFund || 0) < plan.summary.totalExpenses * 3) {
-    actions.push(
-      `Prioritize building your emergency fund. Aim to add ${Math.round(plan.summary.suggestedSavings * 0.5)} extra this month by cutting one non-essential expense.`
+  if (inputs.riskTolerance === 'low') {
+    recommendations.investingGuidance.tips.push(
+      "Focus on debt funds, fixed deposits, and government bonds for stable, predictable returns with lower risk.",
+      "Allocate 70-80% to debt instruments and 20-30% to equity for balanced growth with capital protection."
     );
-  } else if (inputs.targetAmount > 0) {
-    const monthlyRequired = inputs.targetAmount / (inputs.timeline || 12);
-    actions.push(
-      `To reach your goal of ${Math.round(inputs.targetAmount)} in ${inputs.timeline || 12} months, ensure you're saving ${Math.round(monthlyRequired)} monthly. Review progress weekly.`
+  } else if (inputs.riskTolerance === 'medium') {
+    recommendations.investingGuidance.tips.push(
+      "A balanced 60/40 portfolio (60% equity, 40% debt) suits your moderate risk tolerance and offers growth with stability.",
+      "Consider diversified equity mutual funds for long-term wealth creation, paired with debt funds for stability."
     );
   } else {
-    actions.push(
-      'Define one specific financial goal for the next 6 months (e.g., vacation fund, course enrollment, or investment). Write it down and calculate the monthly savings needed.'
+    recommendations.investingGuidance.tips.push(
+      "With high risk tolerance, you can allocate 70-80% to equity for maximum long-term growth potential.",
+      "Explore direct equity investments, sector funds, and small-cap funds for higher returns (with higher volatility)."
     );
   }
   
-  return actions.slice(0, 3);
+  if (inputs.goalType === 'long-term') {
+    recommendations.investingGuidance.tips.push(
+      "For long-term goals (3+ years), equity investments historically outperform other asset classes. Stay invested and avoid panic selling during market dips.",
+      "Take advantage of compounding: the longer you stay invested, the more your returns multiply. Time in the market beats timing the market."
+    );
+  } else {
+    recommendations.investingGuidance.tips.push(
+      "For short-term goals (1-3 years), prioritize capital preservation. Use liquid funds, short-term debt funds, or fixed deposits.",
+      "Avoid high-risk equity investments for short-term goals. Market volatility can erode capital when you need it soon."
+    );
+  }
+  
+  recommendations.investingGuidance.tips.push(
+    "Diversify across asset classes (equity, debt, gold) to reduce risk. Don't put all your eggs in one basket.",
+    "Reinvest dividends and returns to maximize compounding. Small reinvestments grow significantly over time."
+  );
+  
+  // Financial Improvement
+  recommendations.financialImprovement = {
+    overview: "Improving your finances is a gradual process. Focus on building good habits, reducing unnecessary expenses, and increasing your financial literacy.",
+    tips: []
+  };
+  
+  if (hasDebt) {
+    recommendations.financialImprovement.tips.push(
+      "Prioritize high-interest debt repayment (credit cards, personal loans). Use the debt avalanche method: pay off highest-interest debt first while maintaining minimums on others.",
+      `Your current loan EMIs are ${Math.round(inputs.loanEMIs)}. Try to pay extra toward principal when possible to reduce interest costs and shorten loan tenure.`
+    );
+  }
+  
+  if (inputs.spendingBehavior === 'spender') {
+    recommendations.financialImprovement.tips.push(
+      "Practice the 24-hour rule: wait 24 hours before making non-essential purchases. This reduces impulsive spending.",
+      "Identify your spending triggers (stress, boredom, social pressure) and develop healthier coping mechanisms."
+    );
+  }
+  
+  if (inputs.secondaryIncome === 0 && inputs.passiveIncome === 0) {
+    recommendations.financialImprovement.tips.push(
+      "Consider developing a secondary income stream (freelancing, online tutoring, digital products). Multiple income sources reduce financial stress and accelerate goal achievement.",
+      "Explore passive income opportunities: rental income, dividend-paying stocks, or creating digital assets that generate recurring revenue."
+    );
+  }
+  
+  recommendations.financialImprovement.tips.push(
+    "Increase your financial literacy: read personal finance books, follow reputable finance blogs, and take free online courses.",
+    "Review your budget monthly and adjust as needed. Life changes, and your budget should adapt to your evolving circumstances.",
+    "Set specific, measurable financial goals with deadlines. Vague goals like 'save more' are less effective than 'save 50,000 in 12 months for vacation.'",
+    "Negotiate bills and subscriptions annually. Many service providers offer discounts to retain customers—just ask.",
+    "Invest in yourself: skills development, certifications, and education often yield the highest returns by increasing your earning potential."
+  );
+  
+  return recommendations;
+}
+
+export function generateActionPlan(inputs: BudgetInputs, plan: any): string[] {
+  const actionPlan: string[] = [];
+  
+  // Step 1: Immediate action
+  if (inputs.savingStyle === 'manual') {
+    actionPlan.push(
+      `Set up automatic transfers: Schedule ${Math.round(plan.allocations.savings)} to move from your checking account to a savings account on payday. Automation ensures consistency.`
+    );
+  } else {
+    actionPlan.push(
+      `Review your current automatic savings: Ensure ${Math.round(plan.allocations.savings)} is being saved monthly. Adjust if needed to match your new budget plan.`
+    );
+  }
+  
+  // Step 2: Expense optimization
+  const hasHighDiscretionary = plan.allocations.wants > plan.allocations.needs * 0.6;
+  if (hasHighDiscretionary) {
+    actionPlan.push(
+      `Audit discretionary spending: Review your 'wants' category (${Math.round(plan.allocations.wants)}/month). Identify 2-3 expenses you can reduce or eliminate without significantly impacting your lifestyle. Redirect savings to your financial goals.`
+    );
+  } else {
+    actionPlan.push(
+      `Track all expenses for 30 days: Use a simple app or spreadsheet to record every purchase. This awareness exercise often reveals 15-20% in unnecessary spending that can be redirected to savings or debt repayment.`
+    );
+  }
+  
+  // Step 3: Long-term planning
+  if (inputs.loanEMIs > 0) {
+    actionPlan.push(
+      `Create a debt repayment strategy: List all debts by interest rate. Focus extra payments on the highest-interest debt while maintaining minimums on others. Even small extra payments significantly reduce total interest paid.`
+    );
+  } else if (!inputs.emergencyFund || inputs.emergencyFund < plan.allocations.totalExpenses * 3) {
+    actionPlan.push(
+      `Build your emergency fund: Aim for 3-6 months of expenses (${Math.round(plan.allocations.totalExpenses * 6)}). Start with a smaller goal of ${Math.round(plan.allocations.totalExpenses)} and increase gradually. Keep it in a liquid, easily accessible account.`
+    );
+  } else {
+    actionPlan.push(
+      `Start investing for long-term goals: Open a SIP in a diversified mutual fund or index fund. Begin with a small amount (even ${Math.round(plan.allocations.savings * 0.3)}) and increase as you get comfortable. Consistency matters more than amount.`
+    );
+  }
+  
+  return actionPlan;
 }

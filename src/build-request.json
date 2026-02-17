@@ -1,124 +1,116 @@
 {
   "kind": "build_request",
-  "title": "Fix Analytics transaction saving, enable AI chat unlimited scrolling, remove Challenges, and add working display preferences",
+  "title": "Fix Internet Identity sign-up route, per-user account isolation, goals deletion, and data-aware AI assistant",
+  "projectName": "FinanceWise AI",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Update the AI assistant chat UI (frontend/src/components/AIChatbot.tsx) so long conversations are fully scrollable without cutting off messages, with reliable auto-scroll-to-latest behavior after new messages are appended.",
+      "text": "Fix the broken Sign Up navigation so clicking “Sign Up Free” does not go to a Not Found route and instead takes the user to a working Internet Identity authentication screen.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-1"
+          "recent-messages"
         ],
         "quotes": [
-          "add a scrolling in ai assistant which can chat at infinite",
-          "simply allow long conversation without cutting off messages"
+          "ok but in computer showing sign up system when I clicked it's showing not found so resolve it"
         ]
       },
       "acceptanceCriteria": [
-        "User can send 200+ messages in one session and all messages remain visible via scrolling (none disappear or get clipped).",
-        "After sending/receiving a message, the chat view scrolls to the latest message reliably.",
-        "No console errors related to scroll container refs."
+        "From the public header (desktop and mobile), clicking “Sign Up Free” navigates to an existing route (no Not Found).",
+        "The destination page provides a working Internet Identity sign-in/sign-up experience (same II flow is acceptable).",
+        "After successful Internet Identity authentication, the user is redirected to /dashboard."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Fix Analytics page add-income and add-expense flows so clicking “Add Expense” and “Add Income” persists the new transaction and refreshes analytics data correctly.",
-      "target": "frontend",
+      "text": "Resolve account isolation so different Internet Identity users (different principals) always see different profiles, goals, transactions, and dashboard data; switching identities must not show the previous user’s data.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "recent-1"
+          "recent-messages"
         ],
         "quotes": [
-          "in analytics page not adding income or expense check and resolve",
-          "values are not being saved i mean adding income and expense button is not working"
+          "Every login and sign up email id should be different different account whenever I login different different eMail id it's showing same account  check and resolve"
         ]
       },
       "acceptanceCriteria": [
-        "Submitting the Add Expense form creates a new expense transaction that persists (still present after page refresh) and appears in analytics charts/derived data.",
-        "Submitting the Add Income form creates a new income transaction that persists (still present after page refresh) and appears in analytics charts/derived data.",
-        "No runtime error occurs during transaction persistence (including JSON serialization issues).",
-        "After a successful add, the form fields reset as they currently attempt to do."
+        "Logging in with Internet Identity A and creating any data (profile/goals/transactions) does not appear when logging out and logging in with Internet Identity B.",
+        "After switching identities, the UI does not briefly display the previous user’s cached data; React Query caches are reset/segmented so queries refetch for the new identity.",
+        "Backend read/write operations for user data are keyed by the authenticated caller principal (not a shared/global record)."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Ensure the Analytics “Remaining Balance” display never renders as a bare dash/minus due to missing/invalid data; when there are no transactions, show a zero balance and consistent currency formatting.",
-      "target": "frontend",
+      "text": "Fix the Goals page delete flow so goals are actually removed from storage and the UI, and replace the browser confirm() with an in-app confirmation popup shown only for goal deletion.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "recent-1"
+          "recent-messages"
         ],
         "quotes": [
-          "and balance should not be -"
+          "in goals page added goals are not deleting resolve",
+          "confirmation popup",
+          "only goals"
         ]
       },
       "acceptanceCriteria": [
-        "With zero saved transactions, Remaining Balance renders as a formatted 0 value (not '-' and not NaN).",
-        "With valid income/expense transactions, Remaining Balance renders correctly and updates after adding a transaction."
+        "Clicking the delete icon on a goal opens an in-app confirmation dialog (not window.confirm).",
+        "Confirming deletion removes the goal from backend storage and it disappears from the goals list without requiring a manual refresh.",
+        "Canceling the dialog does not delete the goal.",
+        "Only goal deletion uses this confirmation dialog (no new confirmations are introduced for other deletes)."
       ]
     },
     {
       "id": "REQ-4",
-      "text": "Remove the Challenges feature from the app UI and routing: eliminate the Challenges navigation entry and disable/remove the /challenges route so users cannot navigate to the Challenges page.",
+      "text": "Ensure cross-page data consistency: when the user adds/updates/deletes transactions or goals, all relevant pages (Dashboard, Transactions, Goals, Analytics, and the AI assistant context) reflect the changes correctly via shared queries and proper invalidation/refetch.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-1"
+          "recent-messages"
         ],
         "quotes": [
-          "remove challenge page"
+          "every page should be connected with each other and connect also with ai assistant"
         ]
       },
       "acceptanceCriteria": [
-        "The sidebar/navigation no longer shows “Challenges”.",
-        "Visiting /challenges does not render the Challenges page (route removed or replaced with a not-found/redirect behavior consistent with the app).",
-        "No build errors remain from stale imports/references to the Challenges page."
+        "After adding or deleting a transaction, Dashboard aggregates and any other pages that use transaction data update to reflect the change.",
+        "After adding/updating/deleting a goal, any goal summaries/goal-related widgets across the app update to reflect the change.",
+        "No page requires a full reload to see data created on another page after the mutation completes."
       ]
     },
     {
       "id": "REQ-5",
-      "text": "Make Settings display preferences functional: (1) theme selection (light/dark/system) must actually change the app theme, and (2) the “Show Analytics” toggle must control visibility/access to Analytics in the app navigation and/or page access.",
-      "target": "frontend",
+      "text": "Upgrade the AI assistant so its answers are based on the authenticated user’s actual app data (at minimum: transactions, balance, and savings goals) and it can answer saving, investing, and expense-control questions using those numbers from the dashboard.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "recent-1"
+          "recent-messages"
         ],
         "quotes": [
-          "in settings display preference like theme and show analytics should work",
-          "Yes like on or off"
+          "ai assistant need to answer for saving invest Expense how to control save etc through the data of pages which in dashboard",
+          "yes update the ai assistant and connect all pages with each other"
         ]
       },
       "acceptanceCriteria": [
-        "Changing Theme in Settings immediately updates the app theme and the selection persists across reloads.",
-        "If “Show Analytics” is turned off, the Analytics navigation item is hidden and the user is prevented from accessing the Analytics experience (either via route guard message or redirect).",
-        "If “Show Analytics” is turned on, Analytics is accessible and appears in navigation again.",
-        "All user-facing text for these controls remains in English."
+        "When the user asks about saving/expense control/investing, the assistant response references the user’s real data (e.g., current balance, recent spending totals, goal targets/progress) when available, rather than generic advice.",
+        "The assistant continues to include an educational/not-financial-advice disclaimer in responses.",
+        "If the user has no transactions/goals yet, the assistant responds with a data-aware fallback (e.g., asks them to add data and provides general next steps)."
       ]
     }
   ],
   "constraints": [
-    "Do not edit files under frontend/immutablePaths (e.g., frontend/src/hooks/useInternetIdentity.ts(x), frontend/src/hooks/useActor.ts, frontend/src/main.tsx, and anything in frontend/src/components/ui).",
-    "Keep the backend as a single Motoko actor; add migration.mo only if existing persisted backend state must be upgraded (not required for purely frontend localStorage fixes)."
+    "Backend must remain a single Motoko actor in backend/main.mo (no additional backend services).",
+    "Do not edit files under frontend/src/components/ui or other immutable paths listed in SYSTEM_CONTEXT.",
+    "Do not implement email/password authentication; use Internet Identity only for authentication and account identity."
   ],
   "nonGoals": [
-    "Implementing true infinite-scroll history loading for chat (loading older messages from storage/server) beyond allowing long conversations in the current UI.",
-    "Adding new Challenge replacements or gamification features.",
-    "Introducing third-party auth providers or external databases."
+    "Adding third-party authentication providers (Google/Facebook/GitHub/Auth0).",
+    "Adding real LLM integrations (OpenAI/Anthropic/etc.) or external AI APIs.",
+    "Implementing new unrelated product features outside auth/sign-up routing, goals deletion, data consistency, and AI assistant improvements."
   ],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

@@ -1,136 +1,146 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix Analytics transaction persistence, improve AI chat scrolling, remove Challenges, and enable working display preferences",
+  "title": "FinanceWise AI: Fix II sign-up routing, per-user isolation, goals delete dialog, data consistency, and data-aware assistant",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Make AI assistant chat conversation fully scrollable for long sessions and ensure reliable auto-scroll to the latest message.",
+      "summary": "Fix “Sign Up Free” navigation to a valid route that shows Internet Identity auth and redirects to /dashboard after auth.",
       "acceptanceCriteria": [
-        "User can send 200+ messages in one session and all messages remain visible via scrolling (none disappear or get clipped).",
-        "After sending/receiving a message, the chat view scrolls to the latest message reliably.",
-        "No console errors related to scroll container refs."
+        "From the public header (desktop and mobile), clicking “Sign Up Free” navigates to an existing route (no Not Found).",
+        "The destination page provides a working Internet Identity sign-in/sign-up experience (same II flow is acceptable).",
+        "After successful Internet Identity authentication, the user is redirected to /dashboard."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/AIChatbot.tsx",
+          "path": "frontend/src/components/Header.tsx",
           "operation": "modify",
-          "description": "Replace the current ScrollArea ref approach with a reliable scroll container (e.g., an overflow-y-auto div with a bottom sentinel ref) and adjust the flex layout (min-h-0 where needed) so long message lists never get clipped; implement robust auto-scroll (only when user is near bottom, and after new messages append) without null-ref errors. Verify the component's usage instructions before implementing."
+          "description": "Update “Sign Up Free” navigation (desktop + mobile) to point to the working Internet Identity login route (or the new /signup alias), ensuring it never navigates to a Not Found route. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/App.tsx",
+          "operation": "modify",
+          "description": "Add a /signup route alias that renders the existing Login page (Internet Identity flow) so any legacy /signup links are always valid; keep post-auth redirect behavior to /dashboard. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/Login.tsx",
+          "operation": "modify",
+          "description": "Ensure the Login page continues to provide a working Internet Identity sign-in/sign-up experience and reliably redirects authenticated users to /dashboard. Use the authorization component guidance for Internet Identity-based authentication flows. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Fix Analytics add-income/add-expense so transactions persist and analytics refresh correctly after creation.",
+      "summary": "Ensure per-Internet Identity principal isolation by segmenting UI caches and local storage so switching identities never shows another user’s data.",
       "acceptanceCriteria": [
-        "Submitting the Add Expense form creates a new expense transaction that persists (still present after page refresh) and appears in analytics charts/derived data.",
-        "Submitting the Add Income form creates a new income transaction that persists (still present after page refresh) and appears in analytics charts/derived data.",
-        "No runtime error occurs during transaction persistence (including JSON serialization issues).",
-        "After a successful add, the form fields reset as they currently attempt to do."
+        "Logging in with Internet Identity A and creating any data (profile/goals/transactions) does not appear when logging out and logging in with Internet Identity B.",
+        "After switching identities, the UI does not briefly display the previous user’s cached data; React Query caches are reset/segmented so queries refetch for the new identity.",
+        "Backend read/write operations for user data are keyed by the authenticated caller principal (not a shared/global record)."
       ],
       "file_operations": [
         {
+          "path": "frontend/src/hooks/useActor.ts",
+          "operation": "modify",
+          "description": "On identity (principal) changes, aggressively reset/remove non-actor React Query caches to prevent stale data flashes, while keeping actor recreation keyed by principal. Use the authorization component guidance to clear cached application data on logout/identity change. Verify the component's usage instructions before implementing."
+        },
+        {
           "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Make useAddTransaction and useGetUserTransactions persist to and read from localStorage (or the app’s existing client-side storage mechanism), ensuring analytics queries invalidate/refetch after a successful add; use safe (de)serialization for BigInt fields to avoid JSON errors and ensure data survives reloads."
+          "description": "Namespace all user-specific queryKeys (transactions, balance, categoryData, trends, savingsGoals, etc.) with the authenticated principal, and namespace localStorage keys per principal so each Internet Identity user reads/writes isolated data. Ensure anonymous/guest usage does not read prior authenticated user storage. Use the authorization component guidance for “clear cached application data on logout.” Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/lib/serialization.ts",
+          "path": "frontend/src/hooks/useInternetIdentity.ts",
           "operation": "modify",
-          "description": "Add/adjust reusable helpers for safely serializing and deserializing transaction-like objects containing BigInt fields so localStorage persistence does not throw and restores correct types."
+          "description": "When logging out (clear), add a lightweight mechanism to notify the app of identity removal (e.g., storage flag/event) so UI data caches and any per-user local state can be reset immediately. Use the authorization component guidance for logout cache clearing. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/pages/Analytics.tsx",
+          "path": "frontend/src/components/AppLayout.tsx",
           "operation": "modify",
-          "description": "Ensure the add-income/add-expense submit handlers use the corrected mutation flow (await/handle success and errors explicitly), and trigger appropriate query invalidations (via the hook’s onSuccess) so charts/derived data refresh immediately after adds while preserving the current form reset behavior."
+          "description": "Ensure logout UI (wherever present) triggers Internet Identity clear and immediately resets any user-visible state (e.g., closes menus/modals) to avoid showing the previous user’s name/data after identity changes. Use the authorization component guidance for authenticated data access and cache clearing. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Prevent Remaining Balance from rendering as a bare dash/minus and ensure consistent zero/currency formatting when no transactions exist.",
+      "summary": "Replace Goals delete window.confirm with an in-app confirmation dialog and ensure deletion updates storage and UI immediately.",
       "acceptanceCriteria": [
-        "With zero saved transactions, Remaining Balance renders as a formatted 0 value (not '-' and not NaN).",
-        "With valid income/expense transactions, Remaining Balance renders correctly and updates after adding a transaction."
+        "Clicking the delete icon on a goal opens an in-app confirmation dialog (not window.confirm).",
+        "Confirming deletion removes the goal from backend storage and it disappears from the goals list without requiring a manual refresh.",
+        "Canceling the dialog does not delete the goal.",
+        "Only goal deletion uses this confirmation dialog (no new confirmations are introduced for other deletes)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/Analytics.tsx",
+          "path": "frontend/src/pages/Goals.tsx",
           "operation": "modify",
-          "description": "Harden Remaining Balance rendering by coercing invalid/NaN values to 0 and using a single consistent currency formatting approach for totals/balance; ensure the display updates immediately after adding a transaction."
+          "description": "Remove window.confirm-based deletion and implement a goal-only in-app confirmation flow: clicking delete opens a dialog; confirm triggers the delete mutation; cancel closes without changes; ensure the list updates immediately after success via query invalidation/refetch. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/GoalDeleteConfirmDialog.tsx",
+          "operation": "create",
+          "description": "Create a dedicated, reusable confirmation dialog component used only by the Goals page for goal deletion (built with the existing dialog UI primitives) to avoid introducing confirmations elsewhere. Verify the component's usage instructions before implementing."
         },
         {
           "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "When hydrating transactions from storage, validate/coerce numeric fields (e.g., amount) and timestamps so downstream computations (Remaining Balance) never produce NaN or malformed values."
+          "description": "Ensure the savings goal delete mutation invalidates/refetches the correct per-user savingsGoals queries (and any dependent summaries) so the deleted goal disappears immediately without manual refresh. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Remove Challenges from navigation and routing so users cannot access the Challenges page.",
+      "summary": "Ensure cross-page consistency by consolidating shared query keys and invalidating/refetching all dependent data after goal/transaction mutations (including AI assistant context).",
       "acceptanceCriteria": [
-        "The sidebar/navigation no longer shows “Challenges”.",
-        "Visiting /challenges does not render the Challenges page (route removed or replaced with a not-found/redirect behavior consistent with the app).",
-        "No build errors remain from stale imports/references to the Challenges page."
+        "After adding or deleting a transaction, Dashboard aggregates and any other pages that use transaction data update to reflect the change.",
+        "After adding/updating/deleting a goal, any goal summaries/goal-related widgets across the app update to reflect the change.",
+        "No page requires a full reload to see data created on another page after the mutation completes."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/AppLayout.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Remove the Challenges item from the navigation list so it no longer appears in desktop/mobile menus."
+          "description": "Standardize shared query keys (now principal-scoped) for transactions, balance, aggregates/trends, and savingsGoals; ensure add/update/delete mutations invalidate all dependent queries used by Dashboard, Transactions, Goals, Analytics, and AI chat context so updates propagate without reload. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/src/components/AIChatbot.tsx",
           "operation": "modify",
-          "description": "Remove the Challenges page import and remove the /challenges route from the router tree; ensure route registration no longer references Challenges anywhere."
+          "description": "Update the chatbot to rely on the shared (principal-scoped) queries for its context and to refresh context after relevant mutations (through query invalidation already in hooks), avoiding stale cross-page information. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/src/pages/Challenges.tsx",
-          "operation": "delete",
-          "description": "Delete the Challenges page implementation to prevent stale references and ensure the feature is fully removed from the shipped UI."
+          "path": "frontend/src/pages/Dashboard.tsx",
+          "operation": "modify",
+          "description": "Ensure Dashboard reads all transaction/goal-derived values via the shared React Query hooks (not ad-hoc local state), so it updates immediately after mutations performed on other pages. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/Transactions.tsx",
+          "operation": "modify",
+          "description": "Ensure Transactions page mutations use the shared hooks and rely on hook-level invalidation so Dashboard/Analytics/AI context stay consistent after add/update/delete. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-5",
-      "summary": "Make Settings display preferences functional: theme selection (light/dark/system) applies app-wide and persists; Show Analytics toggle controls Analytics visibility/access.",
+      "summary": "Make the AI assistant data-aware by grounding responses in the authenticated user’s real app data (transactions, balance, and savings goals) with disclaimers and no-data fallbacks.",
       "acceptanceCriteria": [
-        "Changing Theme in Settings immediately updates the app theme and the selection persists across reloads.",
-        "If “Show Analytics” is turned off, the Analytics navigation item is hidden and the user is prevented from accessing the Analytics experience (either via route guard message or redirect).",
-        "If “Show Analytics” is turned on, Analytics is accessible and appears in navigation again.",
-        "All user-facing text for these controls remains in English."
+        "When the user asks about saving/expense control/investing, the assistant response references the user’s real data (e.g., current balance, recent spending totals, goal targets/progress) when available, rather than generic advice.",
+        "The assistant continues to include an educational/not-financial-advice disclaimer in responses.",
+        "If the user has no transactions/goals yet, the assistant responds with a data-aware fallback (e.g., asks them to add data and provides general next steps)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Fix ThemeProvider configuration so next-themes can actually switch between light/dark/system and persist across reloads (remove forced dark-only behavior; enable system where required)."
-        },
-        {
-          "path": "frontend/src/pages/Settings.tsx",
-          "operation": "modify",
-          "description": "Wire the Theme select to persist correctly (align displayed selection with saved preferences) and ensure the Show Analytics toggle updates preferences in storage so it survives reloads; keep all control text in English. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/AppLayout.tsx",
-          "operation": "modify",
-          "description": "Read the saved display preferences (via existing preferences hook/storage) and conditionally hide/show the Analytics navigation item based on the Show Analytics toggle."
-        },
-        {
-          "path": "frontend/src/components/AnalyticsGuard.tsx",
-          "operation": "create",
-          "description": "Create a small route-guard component that checks the saved Show Analytics preference and either renders Analytics or redirects/shows an in-app access message consistent with the app when analytics is disabled."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Wrap the /analytics route component with the AnalyticsGuard so direct navigation to /analytics is blocked when Show Analytics is turned off (redirect or guard message)."
-        },
-        {
           "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Ensure userPreferences storage/update logic supports the themeMode and analyticsVisible fields reliably (including persistence and reactivity via React Query invalidation) so AppLayout and route guards respond to changes."
+          "description": "Upgrade the chat processing hook to include principal-scoped transactions, computed balance/spend summaries, and savings goals/progress in the assistant context; provide explicit no-data detection for transactions/goals to drive appropriate fallback responses. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/lib/deterministicAssistant.ts",
+          "operation": "modify",
+          "description": "Enhance deterministic assistant logic to incorporate numeric context (balance, spending totals, goal targets/progress) into saving/investing/expense-control answers, preserve the educational/not-financial-advice disclaimer, and implement a clear fallback when the user has no transactions/goals. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/AIChatbot.tsx",
+          "operation": "modify",
+          "description": "Update UI messaging to reflect data-grounded answers (e.g., optionally showing which data sources were used in plain language) and ensure the disclaimer remains visible/attached to assistant responses. Verify the component's usage instructions before implementing."
         }
       ]
     }
