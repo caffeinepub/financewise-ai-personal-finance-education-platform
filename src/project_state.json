@@ -1,54 +1,118 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Personal finance web app (financewiseai-acv.caffeine.xyz) to be updated with working Internet Identity sign-up/login, correct per-user account isolation, fixed goals deletion with confirmation, unified cross-page data flow, and an AI assistant that uses all user financial data to answer saving/investing/expense-control questions.",
+  "summary": "Financial management app with unified backend, AI-powered budgeting system, intelligent insights hub, and AdSense integration",
   "architectural_notes": [
-    "Auth platform constraint: Internet Computer supports Internet Identity (not traditional email/password auth); implement Sign Up/Login via Internet Identity."
+    "Motoko backend serves as single source of truth for all financial data",
+    "Real-time data sharing between all modules (dashboard, transactions, goals, analytics, AI budget planner)",
+    "Global AI assistant reads all backend data to provide data-driven insights",
+    "Advanced AI budget planner fully integrated with all other modules",
+    "Google AdSense code integrated in head section across all pages"
   ],
-  "known_issues": [
-    "Sign Up button currently results in 'not found' (broken Internet Identity sign-up flow).",
-    "Different logins/emails are incorrectly showing the same account (user isolation bug).",
-    "Goals added on Goals page are not deleting (delete action broken)."
-  ],
-  "isFixRequest": true,
+  "known_issues": [],
+  "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-fix-the-broken-sign-up-navigation-so-clicking-sign-up-free-does-not-go-to-a-not-found-route-and-instead-takes-the-user-to-a-working-internet-identity-authentication-screen",
-      "title": "Fix the broken Sign Up navigation so clicking “Sign Up Free” does not go to a Not Found route and instead takes the user to a working Internet Identity authentication screen.",
+      "id": "feature-verify-that-the-google-adsense-script-with-publisher-id-pub-5050836253831761-is-correctly-integrated-in-the-head-section-of-frontend-index-html-and-confirm-it-loads-on-all-application-pages",
+      "title": "Verify that the Google AdSense script with publisher ID 'pub-5050836253831761' is correctly integrated in the <head> section of frontend/index.html and confirm it loads on all application pages",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-resolve-account-isolation-so-different-internet-identity-users-different-principals-always-see-different-profiles-goals-transactions-and-dashboard-data-switching-identities-must-not-show-the-previous-user-s-data",
-      "title": "Resolve account isolation so different Internet Identity users (different principals) always see different profiles, goals, transactions, and dashboard data; switching identities must not show the previous user’s data.",
+      "id": "feature-create-a-dedicated-ai-insights-hub-page-accessible-from-the-main-navigation-where-users-can-ask-natural-language-questions-about-their-financial-data",
+      "title": "Create a dedicated AI Insights Hub page accessible from the main navigation where users can ask natural language questions about their financial data",
       "reqIds": [
         "REQ-2"
       ],
       "version": 1
     },
     {
-      "id": "feature-fix-the-goals-page-delete-flow-so-goals-are-actually-removed-from-storage-and-the-ui-and-replace-the-browser-confirm-with-an-in-app-confirmation-popup-shown-only-for-goal-deletion",
-      "title": "Fix the Goals page delete flow so goals are actually removed from storage and the UI, and replace the browser confirm() with an in-app confirmation popup shown only for goal deletion.",
+      "id": "feature-integrate-the-ai-insights-hub-with-the-unified-motoko-backend-to-read-all-user-data-including-transactions-goals-budgets-preferences-and-analytics-in-real-time",
+      "title": "Integrate the AI Insights Hub with the unified Motoko backend to read all user data including transactions, goals, budgets, preferences, and analytics in real-time",
       "reqIds": [
         "REQ-3"
       ],
       "version": 1
     },
     {
-      "id": "feature-ensure-cross-page-data-consistency-when-the-user-adds-updates-deletes-transactions-or-goals-all-relevant-pages-dashboard-transactions-goals-analytics-and-the-ai-assistant-context-reflect-the-changes-correctly-via-shared-queries-and-proper-invalidation-refetch",
-      "title": "Ensure cross-page data consistency: when the user adds/updates/deletes transactions or goals, all relevant pages (Dashboard, Transactions, Goals, Analytics, and the AI assistant context) reflect the changes correctly via shared queries and proper invalidation/refetch.",
+      "id": "feature-replace-the-existing-budget-planner-interface-with-an-advanced-ai-budget-system-that-includes-mandatory-input-fields-monthly-income-rent-emi-food-travel-utilities-and-existing-loans",
+      "title": "Replace the existing budget planner interface with an Advanced AI Budget System that includes mandatory input fields: Monthly Income, Rent/EMI, Food, Travel, Utilities, and Existing Loans",
       "reqIds": [
         "REQ-4"
       ],
       "version": 1
     },
     {
-      "id": "feature-upgrade-the-ai-assistant-so-its-answers-are-based-on-the-authenticated-user-s-actual-app-data-at-minimum-transactions-balance-and-savings-goals-and-it-can-answer-saving-investing-and-expense-control-questions-using-those-numbers-from-the-dashboard",
-      "title": "Upgrade the AI assistant so its answers are based on the authenticated user’s actual app data (at minimum: transactions, balance, and savings goals) and it can answer saving, investing, and expense-control questions using those numbers from the dashboard.",
+      "id": "feature-add-optional-input-fields-to-the-advanced-ai-budget-system-entertainment-subscriptions-shopping-insurance-and-investments",
+      "title": "Add optional input fields to the Advanced AI Budget System: Entertainment, Subscriptions, Shopping, Insurance, and Investments",
       "reqIds": [
         "REQ-5"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-ai-powered-smart-category-allocation-suggestion-that-analyzes-user-input-and-recommends-optimal-expense-distribution-across-categories",
+      "title": "Implement AI-powered smart category allocation suggestion that analyzes user input and recommends optimal expense distribution across categories",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-automatic-savings-percentage-calculation-that-determines-optimal-savings-based-on-income-mandatory-expenses-and-optional-spending",
+      "title": "Implement automatic savings percentage calculation that determines optimal savings based on income, mandatory expenses, and optional spending",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-emergency-fund-calculation-that-recommends-emergency-fund-target-based-on-monthly-expenses-and-displays-current-progress",
+      "title": "Implement emergency fund calculation that recommends emergency fund target based on monthly expenses and displays current progress",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-overspending-alert-system-that-detects-when-expenses-exceed-budget-allocations-and-notifies-users",
+      "title": "Implement overspending alert system that detects when expenses exceed budget allocations and notifies users",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-dynamic-budget-adjustment-capability-that-adapts-budget-recommendations-based-on-actual-spending-patterns-and-income-changes",
+      "title": "Implement dynamic budget adjustment capability that adapts budget recommendations based on actual spending patterns and income changes",
+      "reqIds": [
+        "REQ-10"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-end-of-month-balance-prediction-that-forecasts-remaining-balance-based-on-current-spending-trends-and-upcoming-expenses",
+      "title": "Implement end-of-month balance prediction that forecasts remaining balance based on current spending trends and upcoming expenses",
+      "reqIds": [
+        "REQ-11"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-student-professional-adaptive-mode-that-tailors-budget-recommendations-and-financial-advice-based-on-user-s-life-stage-selection",
+      "title": "Implement Student/Professional adaptive mode that tailors budget recommendations and financial advice based on user's life stage selection",
+      "reqIds": [
+        "REQ-12"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-advanced-ai-budget-system-stores-all-budget-data-in-the-unified-motoko-backend-and-integrates-with-existing-transactions-goals-and-analytics-modules-for-real-time-data-synchronization",
+      "title": "Ensure the Advanced AI Budget System stores all budget data in the unified Motoko backend and integrates with existing transactions, goals, and analytics modules for real-time data synchronization",
+      "reqIds": [
+        "REQ-13"
       ],
       "version": 1
     }
@@ -56,31 +120,33 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Fix broken Sign Up flow (Internet Identity): Sign Up button currently leads to 'not found'; ensure sign-up/login works end-to-end",
+      "summary": "Verify AdSense code is properly added in head section across all pages",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-2",
-      "summary": "Fix account isolation: different Internet Identity / login emails should map to different user accounts (currently showing same account)",
+      "summary": "Create dedicated AI insights hub where users can ask natural language questions using all backend data",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-3",
-      "summary": "Goals page: fix delete-goal functionality and add confirmation popup for goal deletion only",
+      "summary": "Replace basic budget planner with Advanced AI Budget System with mandatory inputs (Monthly Income, Rent/EMI, Food, Travel, Utilities, Existing Loans) and optional inputs (Entertainment, Subscriptions, Shopping, Insurance, Investments)",
       "reqIds": [],
       "status": "pending"
     },
     {
       "id": "AR-4",
-      "summary": "Connect data across all pages so user financial data is consistent and shared throughout the app",
-      "reqIds": [],
+      "summary": "Implement AI budget features: smart category allocation, auto savings percentage, emergency fund calculation, overspending alerts, dynamic budget adjustment, end-of-month balance prediction, Student/Professional adaptive modes",
+      "reqIds": [
+        "AR-3"
+      ],
       "status": "pending"
     },
     {
       "id": "AR-5",
-      "summary": "Upgrade AI assistant to use aggregated user data from all pages (dashboard/expenses/goals/savings) to provide personalized analysis and guidance (saving, investing, expense control)",
+      "summary": "Ensure unified backend data architecture with complete real-time integration across dashboard, transactions, goals, analytics, and AI budget system",
       "reqIds": [],
       "status": "pending"
     }

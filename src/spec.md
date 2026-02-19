@@ -1,14 +1,20 @@
 # Specification
 
 ## Summary
-**Goal:** Fix Internet Identity sign-up navigation, ensure per-user data isolation, make goal deletion work with an in-app confirmation dialog, keep data consistent across pages, and make the AI assistant respond using the authenticated user’s real FinanceWise data.
+**Goal:** Verify AdSense integration, create a dedicated AI Insights Hub with backend connectivity, and replace the existing budget planner with an Advanced AI Budget System that includes smart allocation, savings calculation, emergency fund tracking, overspending alerts, dynamic adjustments, balance prediction, and student/professional modes—all integrated with the unified Motoko backend.
 
 **Planned changes:**
-- Fix “Sign Up Free” (desktop/mobile) to navigate to a valid Internet Identity auth route and redirect authenticated users to `/dashboard`.
-- Enforce account isolation so data (profile, goals, transactions, dashboard) is keyed by the authenticated Internet Identity principal and never shared across principals.
-- Reset/segment frontend cached queries on identity change so the UI does not briefly show the previous user’s data after switching accounts.
-- Repair Goals deletion end-to-end: show an in-app confirmation popup only for goal deletion, and on confirm delete from backend storage and update the goals list immediately.
-- Ensure cross-page consistency by using shared queries and proper invalidation/refetch so Dashboard, Transactions, Goals, Analytics, and AI context reflect goal/transaction changes without full reloads.
-- Upgrade the AI assistant to reference the authenticated user’s actual data (at minimum transactions, balance, savings goals) in responses, include an educational/not-financial-advice disclaimer, and provide a data-aware fallback when no data exists.
+- Verify Google AdSense script with publisher ID 'pub-5050836253831761' is present in frontend/index.html <head> and loads on all pages
+- Create a dedicated AI Insights Hub page accessible from main navigation with a chat interface for natural language questions
+- Connect AI Insights Hub to unified Motoko backend to read transactions, goals, budgets, preferences, and analytics in real-time
+- Replace current budget planner with Advanced AI Budget System featuring mandatory fields (Monthly Income, Rent/EMI, Food, Travel, Utilities, Existing Loans) and optional fields (Entertainment, Subscriptions, Shopping, Insurance, Investments)
+- Implement smart category allocation suggestion that recommends optimal expense distribution
+- Add automatic savings percentage calculation based on income and expenses
+- Implement emergency fund calculation with target amount and progress tracking
+- Add overspending alert system that notifies users when expenses exceed budget allocations
+- Implement dynamic budget adjustment that adapts recommendations based on spending patterns and income changes
+- Add end-of-month balance prediction based on current spending trends
+- Implement Student/Professional adaptive mode that tailors budget recommendations to user's life stage
+- Store all Advanced AI Budget System data in unified Motoko backend and integrate with existing transactions, goals, and analytics modules for real-time synchronization
 
-**User-visible outcome:** Clicking “Sign Up Free” opens a working Internet Identity auth flow and lands users on the dashboard after login; each Internet Identity account sees only its own data; goals can be deleted via an in-app confirmation dialog; updates to goals/transactions reflect across all relevant pages automatically; and the AI assistant answers saving/investing/expense-control questions using the user’s real dashboard numbers when available.
+**User-visible outcome:** Users can verify AdSense ads are displayed across all pages, access a dedicated AI Insights Hub to ask natural language questions about their financial data, and use an Advanced AI Budget System with intelligent recommendations including smart allocations, automatic savings calculations, emergency fund tracking, overspending alerts, dynamic adjustments, balance predictions, and life-stage-specific guidance (Student/Professional modes)—all seamlessly connected to their real financial data stored in the backend.

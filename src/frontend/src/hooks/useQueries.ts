@@ -1,8 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
 import { useInternetIdentity } from './useInternetIdentity';
-import { generateDeterministicResponse } from '../lib/deterministicAssistant';
 import { convertBigIntsToNumbers } from '../lib/serialization';
+import { generateResponse, type AssistantContext } from '../lib/deterministicAssistant';
+import { toast } from 'sonner';
 
 // Mock blog posts for frontend-only rendering
 const mockBlogPosts = [
@@ -467,11 +468,13 @@ export function useAddSavingsGoal() {
       const key = getPrincipalKey('savingsGoals', principal);
       const stored = localStorage.getItem(key);
       const goals = stored ? JSON.parse(stored) : [];
-      const newGoal = {
+      
+      const newGoal = convertBigIntsToNumbers({
         ...goal,
         id: Date.now().toString(),
-        createdAt: Date.now(),
-      };
+        createdAt: Date.now() * 1000000,
+      });
+      
       goals.push(newGoal);
       localStorage.setItem(key, JSON.stringify(goals));
       return newGoal;
@@ -494,7 +497,7 @@ export function useUpdateSavingsGoal() {
       const goals = stored ? JSON.parse(stored) : [];
       const index = goals.findIndex((g: any) => g.id === id);
       if (index !== -1) {
-        goals[index] = { ...goals[index], ...updates };
+        goals[index] = convertBigIntsToNumbers({ ...goals[index], ...updates });
         localStorage.setItem(key, JSON.stringify(goals));
       }
       return goals[index];
@@ -525,80 +528,90 @@ export function useDeleteSavingsGoal() {
   });
 }
 
-// Contact form hook (mock implementation)
-export function useSubmitContactForm() {
-  return useMutation({
-    mutationFn: async (formData: any) => {
-      console.log('Contact form submitted:', formData);
-      return { success: true, message: 'Thank you for your message!' };
-    },
-  });
-}
-
-// AI/Chat hooks with deterministic assistant and data-aware context
-export function useProcessChatMessage() {
-  const { data: transactions } = useGetUserTransactions();
-  const { data: balance } = useGetBalance();
-  const { data: goals } = useGetSavingsGoals();
-
-  return useMutation({
-    mutationFn: async (message: string) => {
-      // Compute aggregates for context
-      const totalIncome = transactions?.filter(t => t.transactionType === 'income').reduce((sum, t) => sum + t.amount, 0) || 0;
-      const totalExpenses = transactions?.filter(t => t.transactionType === 'expense').reduce((sum, t) => sum + t.amount, 0) || 0;
-      
-      const context = {
-        balance: balance || 0,
-        recentTransactions: transactions || [],
-        totalTransactions: transactions?.length || 0,
-        totalIncome,
-        totalExpenses,
-        savingsGoals: goals || [],
-        hasData: (transactions && transactions.length > 0) || (goals && goals.length > 0),
-      };
-
-      const response = generateDeterministicResponse(message, context);
-
-      return {
-        id: Date.now().toString(),
-        role: 'assistant' as const,
-        content: response.content,
-        timestamp: Date.now(),
-        disclaimer: response.disclaimer || 'Educational purposes only. Not financial advice.',
-      };
-    },
-  });
-}
-
-export function useTrainAIModel() {
-  return useMutation({
-    mutationFn: async () => {
-      return { success: true, message: 'Model training simulated' };
-    },
-  });
-}
-
-export function useGetAIPrediction() {
-  return useQuery({
-    queryKey: ['aiPrediction'],
-    queryFn: async () => {
-      return null;
-    },
-  });
-}
-
+// Quiz statistics hook
 export function useGetQuizStatistics() {
+  const { actor, isFetching } = useActor();
+
   return useQuery({
     queryKey: ['quizStatistics'],
     queryFn: async () => {
-      return {
-        totalQuestions: 100,
-        questionsCompleted: 0,
-        correctAnswers: 0,
-        incorrectAnswers: 0,
-        currentDifficulty: 'easy',
-        progressPercentage: 0,
+      if (!actor) throw new Error('Actor not available');
+      return actor.getQuizStatistics();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+// Chat message processing hook
+export function useProcessChatMessage() {
+  const { identity } = useInternetIdentity();
+  const principal = identity?.getPrincipal().toString();
+
+  return useMutation({
+    mutationFn: async (message: string) => {
+      // Get user data for context
+      const transactionsKey = getPrincipalKey('transactions', principal);
+      const goalsKey = getPrincipalKey('savingsGoals', principal);
+      
+      const storedTransactions = localStorage.getItem(transactionsKey);
+      const storedGoals = localStorage.getItem(goalsKey);
+      
+      const transactions = storedTransactions ? JSON.parse(storedTransactions) : [];
+      const goals = storedGoals ? JSON.parse(storedGoals) : [];
+      
+      // Calculate context
+      const totalIncome = transactions
+        .filter((t: any) => t.transactionType === 'income')
+        .reduce((sum: number, t: any) => sum + (Number(t.amount) || 0), 0);
+      const totalExpenses = transactions
+        .filter((t: any) => t.transactionType === 'expense')
+        .reduce((sum: number, t: any) => sum + (Number(t.amount) || 0), 0);
+      const balance = totalIncome - totalExpenses;
+
+      const context: AssistantContext = {
+        balance,
+        recentTransactions: transactions.slice(-10).map((t: any) => ({
+          amount: Number(t.amount) || 0,
+          category: t.category,
+          transactionType: t.transactionType,
+        })),
+        totalTransactions: transactions.length,
+        totalIncome,
+        totalExpenses,
+        savingsGoals: goals.map((g: any) => ({
+          name: g.name,
+          targetAmount: Number(g.targetAmount) || 0,
+          currentAmount: Number(g.currentAmount) || 0,
+        })),
+        hasData: transactions.length > 0 || goals.length > 0,
       };
+
+      // Generate response
+      const response = generateResponse(message, context);
+
+      return {
+        id: Date.now().toString(),
+        content: response.content,
+        timestamp: Date.now(),
+        disclaimer: response.disclaimer,
+      };
+    },
+  });
+}
+
+// Contact form submission hook
+export function useSubmitContactForm() {
+  return useMutation({
+    mutationFn: async (submission: any) => {
+      // Store in localStorage for now (in production, this would go to backend)
+      const key = 'contactSubmissions';
+      const stored = localStorage.getItem(key);
+      const submissions = stored ? JSON.parse(stored) : [];
+      submissions.push(submission);
+      localStorage.setItem(key, JSON.stringify(submissions));
+      
+      toast.success('Message sent successfully! We\'ll get back to you soon.');
+      return submission;
     },
   });
 }

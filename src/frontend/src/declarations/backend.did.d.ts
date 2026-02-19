@@ -10,6 +10,259 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export interface AIModelPrediction {
+  'futureSavings' : number,
+  'lastUpdated' : bigint,
+  'confidenceScore' : number,
+  'balancePrediction' : number,
+  'riskLevel' : string,
+}
+export interface AIModelTrainingData {
+  'quizNumQuestions' : bigint,
+  'numTransactions' : bigint,
+  'expenseCategoryDist' : Array<[string, bigint]>,
+  'transactionAmountSum' : number,
+  'savingsProgressSum' : number,
+  'savingsGoalCount' : bigint,
+  'quizCorrectAnswers' : bigint,
+}
+export interface AIPrediction {
+  'futureSavings' : number,
+  'remainingGoalAmount' : number,
+  'user' : Principal,
+  'lastUpdated' : bigint,
+  'expenseCategoryAnalysis' : Array<[string, number, number]>,
+  'confidenceScore' : number,
+  'savingsConsistency' : number,
+  'balancePrediction' : number,
+  'disclaimer' : string,
+  'spendingGrowthRate' : number,
+  'riskLevel' : string,
+}
+export interface BlogPost {
+  'id' : string,
+  'title' : string,
+  'content' : string,
+  'seoMeta' : string,
+  'featuredImage' : string,
+  'slug' : string,
+  'publicationDate' : bigint,
+  'excerpt' : string,
+}
+export interface Budget {
+  'type' : BudgetType,
+  'category' : string,
+  'amount' : number,
+}
+export interface BudgetData {
+  'savingsPercentage' : number,
+  'status' : BudgetStatus,
+  'totalMandatoryExpenses' : number,
+  'monthlySavingsGoal' : number,
+  'remainingBudget' : number,
+  'emergencyFundTargetMonths' : bigint,
+  'totalMonthlyIncome' : number,
+  'emergencyFundTargetAmount' : number,
+  'user' : Principal,
+  'lastUpdated' : bigint,
+  'budgets' : Array<Budget>,
+  'currentEmergencyFundBalance' : number,
+  'totalOptionalExpenses' : number,
+  'totalMonthlySavings' : number,
+}
+export type BudgetRecommendation = { 'evilBudget' : null } |
+  { 'custom' : null } |
+  { 'professional' : null } |
+  { 'student' : null } |
+  { 'retired' : null };
+export type BudgetStatus = { 'warning' : null } |
+  { 'good' : null } |
+  { 'critical' : null };
+export type BudgetType = { 'primaryNecessity' : null } |
+  { 'seasonal' : null } |
+  { 'discretionary' : null };
+export interface CASection {
+  'title' : string,
+  'icon' : string,
+  'color' : string,
+  'description' : string,
+  'points' : Array<string>,
+}
+export interface CharteredAccountantFeaturesContent {
+  'metaDescription' : string,
+  'metaKeywords' : string,
+  'lastUpdated' : bigint,
+  'metaTitle' : string,
+  'disclaimer' : string,
+  'sections' : Array<CASection>,
+}
+export interface ChatMessage {
+  'id' : string,
+  'content' : string,
+  'role' : ChatRole,
+  'timestamp' : bigint,
+}
+export type ChatRole = { 'user' : null } |
+  { 'assistant' : null };
+export interface ChatSession {
+  'id' : string,
+  'status' : ChatSessionStatus,
+  'lastMessageAt' : bigint,
+  'messages' : Array<ChatMessage>,
+  'createdAt' : bigint,
+  'user' : Principal,
+}
+export type ChatSessionStatus = { 'closed' : null } |
+  { 'active' : null } |
+  { 'expired' : null };
+export interface ContactSubmission {
+  'id' : string,
+  'name' : string,
+  'submittedAt' : bigint,
+  'email' : string,
+  'message' : string,
+}
+export interface CookieConsent {
+  'expiresAt' : bigint,
+  'advertising' : boolean,
+  'analytics' : boolean,
+  'essential' : boolean,
+  'timestamp' : bigint,
+  'functional' : boolean,
+}
+export type Currency = { 'eur' : null } |
+  { 'inr' : null } |
+  { 'usd' : null };
+export interface ExpenseItem {
+  'id' : string,
+  'expenseType' : ExpenseType,
+  'date' : bigint,
+  'item' : string,
+  'createdAt' : bigint,
+  'createdBy' : string,
+  'recurring' : boolean,
+  'tags' : Array<string>,
+  'time' : { 'hours' : bigint, 'minutes' : bigint },
+  'user' : Principal,
+  'merchant' : [] | [string],
+  'notes' : string,
+  'paymentId' : [] | [string],
+  'category' : string,
+  'paymentType' : PaymentType,
+  'priority' : PriorityLevel,
+  'spendingGoalId' : [] | [string],
+  'recurringFrequencyDays' : [] | [bigint],
+  'amount' : number,
+  'location' : [] | [{ 'latitude' : number, 'longitude' : number }],
+}
+export type ExpenseType = { 'optional' : null } |
+  { 'mandatory' : null };
+export interface FinanceBlogContent {
+  'metaDescription' : string,
+  'title' : string,
+  'content' : string,
+  'featuredImage' : string,
+  'tags' : Array<string>,
+  'author' : string,
+  'publicationDate' : bigint,
+  'excerpt' : string,
+}
+export interface LegalPage { 'title' : string, 'content' : string }
+export type PaymentType = { 'upi' : null } |
+  { 'creditCard' : null } |
+  { 'cash' : null } |
+  { 'debitCard' : null } |
+  { 'netBanking' : null };
+export type PriorityLevel = { 'low' : null } |
+  { 'high' : null } |
+  { 'critical' : null } |
+  { 'medium' : null };
+export interface QuizAnswer {
+  'userAnswer' : string,
+  'timestamp' : bigint,
+  'questionId' : string,
+}
+export type QuizDifficulty = { 'easy' : null } |
+  { 'hard' : null } |
+  { 'medium' : null };
+export interface QuizFeedback {
+  'encouragement' : string,
+  'explanation' : string,
+  'correctAnswer' : string,
+  'isCorrect' : boolean,
+  'realLifeTip' : string,
+}
+export interface QuizInitResponse {
+  'currentDifficulty' : QuizDifficulty,
+  'progressPercentage' : number,
+  'incorrectAnswers' : bigint,
+  'questionsCompleted' : bigint,
+  'correctAnswers' : bigint,
+  'currentQuestion' : [] | [QuizQuestion],
+}
+export interface QuizQuestion {
+  'id' : string,
+  'topic' : QuizTopic,
+  'question' : string,
+  'difficulty' : QuizDifficulty,
+  'explanation' : string,
+  'correctAnswer' : string,
+  'realLifeTip' : string,
+  'options' : Array<string>,
+}
+export interface QuizStatistics {
+  'currentDifficulty' : QuizDifficulty,
+  'progressPercentage' : number,
+  'incorrectAnswers' : bigint,
+  'questionsCompleted' : bigint,
+  'totalQuestions' : bigint,
+  'correctAnswers' : bigint,
+}
+export type QuizTopic = { 'emergencyFunds' : null } |
+  { 'saving' : null } |
+  { 'investing' : null } |
+  { 'digitalPayments' : null } |
+  { 'salaryManagement' : null } |
+  { 'mistakes' : null } |
+  { 'loans' : null } |
+  { 'credit' : null } |
+  { 'budgeting' : null } |
+  { 'debts' : null } |
+  { 'spending' : null };
+export interface SavingsGoal {
+  'id' : string,
+  'name' : string,
+  'createdAt' : bigint,
+  'user' : Principal,
+  'targetAmount' : number,
+  'currentAmount' : number,
+}
+export interface Subscription {
+  'endDate' : [] | [bigint],
+  'name' : string,
+  'recurring' : boolean,
+  'category' : string,
+  'price' : number,
+  'startDate' : bigint,
+}
+export interface TransactionData {
+  'id' : string,
+  'transactionType' : string,
+  'date' : bigint,
+  'createdAt' : bigint,
+  'user' : Principal,
+  'notes' : string,
+  'category' : string,
+  'paymentType' : string,
+  'amount' : number,
+}
+export interface UserPreferences {
+  'notificationsEnabled' : boolean,
+  'themeMode' : string,
+  'updatedAt' : bigint,
+  'currency' : Currency,
+  'analyticsVisible' : boolean,
+}
 export interface UserProfile {
   'id' : string,
   'name' : string,
@@ -46,14 +299,72 @@ export interface _SERVICE {
     _CaffeineStorageRefillResult
   >,
   '_caffeineStorageUpdateGatewayPrincipals' : ActorMethod<[], undefined>,
+  'addChatMessage' : ActorMethod<[string, ChatMessage], undefined>,
+  'addExpense' : ActorMethod<[ExpenseItem], undefined>,
+  'addQuizQuestion' : ActorMethod<[QuizQuestion], undefined>,
+  'addSavingsGoal' : ActorMethod<[SavingsGoal], undefined>,
+  'addSubscription' : ActorMethod<[Subscription], undefined>,
+  'addTransaction' : ActorMethod<[TransactionData], undefined>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'createBlogPost' : ActorMethod<[BlogPost], undefined>,
+  'createChatSession' : ActorMethod<[string], undefined>,
+  'deleteBlogPost' : ActorMethod<[string], undefined>,
+  'deleteContactSubmission' : ActorMethod<[string], undefined>,
+  'deleteExpense' : ActorMethod<[string], undefined>,
+  'deleteQuizQuestion' : ActorMethod<[string], undefined>,
+  'deleteSavingsGoal' : ActorMethod<[string], undefined>,
+  'deleteSubscription' : ActorMethod<[string], undefined>,
+  'deleteTransaction' : ActorMethod<[string], undefined>,
+  'getAIModelPrediction' : ActorMethod<[], [] | [AIModelPrediction]>,
+  'getAIModelTrainingData' : ActorMethod<[], [] | [AIModelTrainingData]>,
+  'getAIPrediction' : ActorMethod<[], [] | [AIPrediction]>,
+  'getAllBlogPosts' : ActorMethod<[], Array<[string, BlogPost]>>,
   'getBackendVersion' : ActorMethod<[], string>,
+  'getBlogContent' : ActorMethod<[string], [] | [FinanceBlogContent]>,
+  'getBlogPost' : ActorMethod<[string], [] | [BlogPost]>,
+  'getBudgetData' : ActorMethod<[], [] | [BudgetData]>,
+  'getCAFeaturesContent' : ActorMethod<
+    [string],
+    [] | [CharteredAccountantFeaturesContent]
+  >,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
   'getCallerUserRole' : ActorMethod<[], UserRole>,
+  'getChatSession' : ActorMethod<[string], [] | [ChatSession]>,
+  'getContactSubmissions' : ActorMethod<[], Array<[string, ContactSubmission]>>,
+  'getCookieConsent' : ActorMethod<[], [] | [CookieConsent]>,
+  'getDefaultBudgetSuggestions' : ActorMethod<
+    [BudgetRecommendation],
+    Array<[string, number]>
+  >,
+  'getExpenses' : ActorMethod<[], Array<ExpenseItem>>,
+  'getLegalPage' : ActorMethod<[string], [] | [LegalPage]>,
+  'getQuizStatistics' : ActorMethod<[], QuizStatistics>,
+  'getSavingsGoals' : ActorMethod<[], Array<SavingsGoal>>,
+  'getSubscriptions' : ActorMethod<[], Array<Subscription>>,
+  'getTransactions' : ActorMethod<[], Array<TransactionData>>,
+  'getUserPreferences' : ActorMethod<[], [] | [UserPreferences]>,
   'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
   'initializeAccessControl' : ActorMethod<[], undefined>,
+  'initializeQuiz' : ActorMethod<[], QuizInitResponse>,
   'isCallerAdmin' : ActorMethod<[], boolean>,
+  'saveAIModelPrediction' : ActorMethod<[AIModelPrediction], undefined>,
+  'saveAIModelTrainingData' : ActorMethod<[AIModelTrainingData], undefined>,
+  'saveAIPrediction' : ActorMethod<[AIPrediction], undefined>,
+  'saveBlogContent' : ActorMethod<[string, FinanceBlogContent], undefined>,
+  'saveBudgetData' : ActorMethod<[BudgetData], undefined>,
+  'saveCAFeaturesContent' : ActorMethod<
+    [string, CharteredAccountantFeaturesContent],
+    undefined
+  >,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
+  'saveCookieConsent' : ActorMethod<[CookieConsent], undefined>,
+  'saveLegalPage' : ActorMethod<[string, LegalPage], undefined>,
+  'saveUserPreferences' : ActorMethod<[UserPreferences], undefined>,
+  'submitContactForm' : ActorMethod<[ContactSubmission], undefined>,
+  'submitQuizAnswer' : ActorMethod<[QuizAnswer], QuizFeedback>,
+  'updateBlogPost' : ActorMethod<[string, BlogPost], undefined>,
+  'updateQuizQuestion' : ActorMethod<[string, QuizQuestion], undefined>,
+  'updateSavingsGoal' : ActorMethod<[string, SavingsGoal], undefined>,
 }
 export declare const idlService: IDL.ServiceClass;
 export declare const idlInitArgs: IDL.Type[];

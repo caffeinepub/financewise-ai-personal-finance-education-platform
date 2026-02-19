@@ -36,6 +36,8 @@ export interface SavingsGoal {
   currentAmount: number;
   user: Principal;
   createdAt: number;
+  targetDate?: number;
+  targetMonths?: number;
 }
 
 export interface ContactSubmission {

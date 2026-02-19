@@ -1,1145 +1,532 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
-import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { 
-  ChevronDown, 
-  ChevronUp, 
-  Shield, 
-  TrendingUp, 
-  PieChart as PieChartIcon, 
-  Target,
-  Download,
-  AlertCircle,
-  CheckCircle2,
-  Info,
-  LineChart as LineChartIcon,
-  Lightbulb,
-  TrendingDown
-} from 'lucide-react';
-import { useCurrency } from '../hooks/useCurrency';
-import { 
-  PieChart as RechartsPie, 
-  Pie, 
-  Cell, 
-  ResponsiveContainer, 
-  Legend, 
-  Tooltip,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid
-} from 'recharts';
-import { calculateProgress } from '../lib/budget-planner/progress';
-import { generateBudgetPlan, type BudgetInputs } from '../lib/budget-planner/budgetLogic';
-import { calculateHealthScore } from '../lib/budget-planner/healthScore';
-import { generateRecommendations, generateActionPlan } from '../lib/budget-planner/recommendations';
-import { generateICSFile } from '../lib/budget-planner/reminderIcs';
-import { generateProjection } from '../lib/budget-planner/projections';
+import { Separator } from '@/components/ui/separator';
+import { DollarSign, TrendingUp, AlertTriangle, Target, Sparkles, Brain, Calendar } from 'lucide-react';
+import { useGetUserTransactions, useGetSavingsGoals } from '../hooks/useQueries';
+import { useInternetIdentity } from '../hooks/useInternetIdentity';
+import { BudgetType, BudgetStatus } from '../backend';
 
-const EXPENSE_COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+type UserMode = 'student' | 'professional';
+
+interface BudgetInputs {
+  userMode: UserMode;
+  monthlyIncome: number;
+  rentOrEmi: number;
+  food: number;
+  travel: number;
+  utilities: number;
+  existingLoans: number;
+  entertainment?: number;
+  subscriptions?: number;
+  shopping?: number;
+  insurance?: number;
+  investments?: number;
+  emergencyFund: number;
+}
+
+interface SmartAllocation {
+  category: string;
+  recommended: number;
+  explanation: string;
+}
+
+interface OverspendingAlert {
+  category: string;
+  budgeted: number;
+  actual: number;
+  excess: number;
+  severity: 'warning' | 'critical';
+}
 
 export default function BudgetPlanner() {
-  const { format, currency } = useCurrency();
-  
-  // Required inputs
-  const [monthlyIncome, setMonthlyIncome] = useState('');
-  const [rent, setRent] = useState('');
-  const [rentNotApplicable, setRentNotApplicable] = useState(false);
-  const [foodGroceries, setFoodGroceries] = useState('');
-  const [transport, setTransport] = useState('');
-  const [savingsAmount, setSavingsAmount] = useState('');
-  const [savingsType, setSavingsType] = useState<'amount' | 'percentage'>('amount');
-  const [goalType, setGoalType] = useState<'short-term' | 'long-term'>('short-term');
-  
-  // Optional inputs
-  const [showAdvanced, setShowAdvanced] = useState(false);
-  const [secondaryIncome, setSecondaryIncome] = useState('');
-  const [passiveIncome, setPassiveIncome] = useState('');
-  const [incomeFrequency, setIncomeFrequency] = useState('monthly');
-  const [utilities, setUtilities] = useState('');
-  const [internetMobile, setInternetMobile] = useState('');
-  const [insurance, setInsurance] = useState('');
-  const [educationFees, setEducationFees] = useState('');
-  const [loanEMIs, setLoanEMIs] = useState('');
-  const [shopping, setShopping] = useState('');
-  const [entertainment, setEntertainment] = useState('');
-  const [travel, setTravel] = useState('');
-  const [medical, setMedical] = useState('');
-  const [emergencyFund, setEmergencyFund] = useState('');
-  const [retirementPlanning, setRetirementPlanning] = useState('');
-  const [targetAmount, setTargetAmount] = useState('');
-  const [timeline, setTimeline] = useState('');
-  const [riskTolerance, setRiskTolerance] = useState<'low' | 'medium' | 'high'>('medium');
-  const [spendingBehavior, setSpendingBehavior] = useState<'saver' | 'spender'>('saver');
-  const [savingStyle, setSavingStyle] = useState<'auto' | 'manual'>('auto');
-  const [financialKnowledge, setFinancialKnowledge] = useState<'beginner' | 'intermediate' | 'advanced'>('beginner');
-  
-  // Results state
-  const [budgetPlan, setBudgetPlan] = useState<any>(null);
-  
+  const { identity } = useInternetIdentity();
+  const { data: transactions = [] } = useGetUserTransactions();
+  const { data: goals = [] } = useGetSavingsGoals();
+
+  const [inputs, setInputs] = useState<BudgetInputs>({
+    userMode: 'professional',
+    monthlyIncome: 0,
+    rentOrEmi: 0,
+    food: 0,
+    travel: 0,
+    utilities: 0,
+    existingLoans: 0,
+    emergencyFund: 0,
+  });
+
+  const [showResults, setShowResults] = useState(false);
+  const [smartAllocations, setSmartAllocations] = useState<SmartAllocation[]>([]);
+  const [savingsPercentage, setSavingsPercentage] = useState(0);
+  const [emergencyFundTarget, setEmergencyFundTarget] = useState(0);
+  const [endOfMonthBalance, setEndOfMonthBalance] = useState(0);
+  const [overspendingAlerts, setOverspendingAlerts] = useState<OverspendingAlert[]>([]);
+
   // Calculate progress
-  const progress = useMemo(() => {
-    const requiredFields = {
-      monthlyIncome: !!monthlyIncome,
-      foodGroceries: !!foodGroceries,
-      transport: !!transport,
-      savingsAmount: !!savingsAmount,
-      goalType: !!goalType,
-      rent: rentNotApplicable || !!rent,
-    };
-    
-    const optionalFields = {
-      secondaryIncome: !!secondaryIncome,
-      passiveIncome: !!passiveIncome,
-      utilities: !!utilities,
-      internetMobile: !!internetMobile,
-      insurance: !!insurance,
-      educationFees: !!educationFees,
-      loanEMIs: !!loanEMIs,
-      shopping: !!shopping,
-      entertainment: !!entertainment,
-      travel: !!travel,
-      medical: !!medical,
-      emergencyFund: !!emergencyFund,
-      retirementPlanning: !!retirementPlanning,
-      targetAmount: !!targetAmount,
-      timeline: !!timeline,
-    };
-    
-    return calculateProgress(requiredFields, optionalFields);
-  }, [
-    monthlyIncome, rent, rentNotApplicable, foodGroceries, transport, savingsAmount, goalType,
-    secondaryIncome, passiveIncome, utilities, internetMobile, insurance, educationFees,
-    loanEMIs, shopping, entertainment, travel, medical, emergencyFund, retirementPlanning,
-    targetAmount, timeline
-  ]);
+  const mandatoryFields: (keyof BudgetInputs)[] = ['monthlyIncome', 'rentOrEmi', 'food', 'travel', 'utilities', 'existingLoans'];
+  const optionalFields: (keyof BudgetInputs)[] = ['entertainment', 'subscriptions', 'shopping', 'insurance', 'investments'];
   
-  const handleSkipAdvanced = () => {
-    setShowAdvanced(false);
-    // Clear all optional fields
-    setSecondaryIncome('');
-    setPassiveIncome('');
-    setIncomeFrequency('monthly');
-    setUtilities('');
-    setInternetMobile('');
-    setInsurance('');
-    setEducationFees('');
-    setLoanEMIs('');
-    setShopping('');
-    setEntertainment('');
-    setTravel('');
-    setMedical('');
-    setEmergencyFund('');
-    setRetirementPlanning('');
-    setTargetAmount('');
-    setTimeline('');
-    setRiskTolerance('medium');
-    setSpendingBehavior('saver');
-    setSavingStyle('auto');
-    setFinancialKnowledge('beginner');
+  const mandatoryFilled = mandatoryFields.filter(field => {
+    const value = inputs[field];
+    return typeof value === 'number' && value > 0;
+  }).length;
+  
+  const optionalFilled = optionalFields.filter(field => {
+    const value = inputs[field];
+    return typeof value === 'number' && value > 0;
+  }).length;
+  
+  const progress = (mandatoryFilled / mandatoryFields.length) * 70 + (optionalFilled / optionalFields.length) * 30;
+
+  const handleInputChange = (field: keyof BudgetInputs, value: number | string) => {
+    setInputs(prev => ({ ...prev, [field]: typeof value === 'string' ? value : value }));
   };
-  
-  const handleGeneratePlan = () => {
-    const inputs: BudgetInputs = {
-      monthlyIncome: parseFloat(monthlyIncome) || 0,
-      rent: rentNotApplicable ? 0 : (parseFloat(rent) || 0),
-      foodGroceries: parseFloat(foodGroceries) || 0,
-      transport: parseFloat(transport) || 0,
-      savingsAmount: parseFloat(savingsAmount) || 0,
-      savingsType,
-      goalType,
-      secondaryIncome: parseFloat(secondaryIncome) || 0,
-      passiveIncome: parseFloat(passiveIncome) || 0,
-      utilities: parseFloat(utilities) || 0,
-      internetMobile: parseFloat(internetMobile) || 0,
-      insurance: parseFloat(insurance) || 0,
-      educationFees: parseFloat(educationFees) || 0,
-      loanEMIs: parseFloat(loanEMIs) || 0,
-      shopping: parseFloat(shopping) || 0,
-      entertainment: parseFloat(entertainment) || 0,
-      travel: parseFloat(travel) || 0,
-      medical: parseFloat(medical) || 0,
-      emergencyFund: parseFloat(emergencyFund) || 0,
-      retirementPlanning: parseFloat(retirementPlanning) || 0,
-      targetAmount: parseFloat(targetAmount) || 0,
-      timeline: parseFloat(timeline) || 0,
-      riskTolerance,
-      spendingBehavior,
-      savingStyle,
-      financialKnowledge,
-    };
+
+  const calculateBudget = () => {
+    const totalMandatory = inputs.rentOrEmi + inputs.food + inputs.travel + inputs.utilities + inputs.existingLoans;
+    const totalOptional = (inputs.entertainment || 0) + (inputs.subscriptions || 0) + (inputs.shopping || 0) + (inputs.insurance || 0) + (inputs.investments || 0);
+    const totalExpenses = totalMandatory + totalOptional;
+    const remainingAmount = inputs.monthlyIncome - totalExpenses;
+    const savingsRate = inputs.monthlyIncome > 0 ? (remainingAmount / inputs.monthlyIncome) * 100 : 0;
+
+    // Smart category allocations
+    const allocations: SmartAllocation[] = [];
+    const incomeLevel = inputs.monthlyIncome;
+
+    if (inputs.userMode === 'student') {
+      allocations.push(
+        { category: 'Food', recommended: incomeLevel * 0.15, explanation: 'Students should allocate 15% for food and groceries' },
+        { category: 'Transportation', recommended: incomeLevel * 0.10, explanation: 'Keep transport costs around 10% with student discounts' },
+        { category: 'Books & Education', recommended: incomeLevel * 0.08, explanation: 'Invest 8% in educational materials' },
+        { category: 'Savings', recommended: incomeLevel * 0.15, explanation: 'Try to save 15% even on a student budget' }
+      );
+    } else {
+      allocations.push(
+        { category: 'Housing', recommended: incomeLevel * 0.30, explanation: 'Housing should not exceed 30% of income' },
+        { category: 'Food', recommended: incomeLevel * 0.15, explanation: 'Allocate 15% for groceries and dining' },
+        { category: 'Transportation', recommended: incomeLevel * 0.10, explanation: 'Keep transport costs around 10%' },
+        { category: 'Savings', recommended: incomeLevel * 0.20, explanation: 'Aim for 20% savings rate for financial health' },
+        { category: 'Investments', recommended: incomeLevel * 0.10, explanation: 'Invest 10% for long-term wealth building' }
+      );
+    }
+
+    setSmartAllocations(allocations);
+    setSavingsPercentage(savingsRate);
+
+    // Emergency fund calculation
+    const monthlyExpenses = totalExpenses;
+    const targetMonths = inputs.userMode === 'student' ? 3 : 6;
+    const emergencyTarget = monthlyExpenses * targetMonths;
+    setEmergencyFundTarget(emergencyTarget);
+
+    // End of month balance prediction
+    const currentDate = new Date();
+    const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+    const daysRemaining = daysInMonth - currentDate.getDate();
+    const dailySpendingRate = totalExpenses / daysInMonth;
+    const projectedSpending = dailySpendingRate * daysRemaining;
+    const predictedBalance = remainingAmount - projectedSpending;
+    setEndOfMonthBalance(predictedBalance);
+
+    // Overspending detection
+    const alerts: OverspendingAlert[] = [];
+    const expenseTransactions = transactions.filter(t => t.transactionType === 'expense');
     
-    const plan = generateBudgetPlan(inputs);
-    const healthScore = calculateHealthScore(inputs, plan);
-    const recommendations = generateRecommendations(inputs, plan);
-    const actionPlan = generateActionPlan(inputs, plan);
-    const projection = generateProjection(inputs, plan);
-    
-    setBudgetPlan({
-      ...plan,
-      healthScore,
-      recommendations,
-      actionPlan,
-      projection,
+    const categorySpending: Record<string, number> = {};
+    expenseTransactions.forEach(t => {
+      categorySpending[t.category] = (categorySpending[t.category] || 0) + t.amount;
     });
-    
-    // Scroll to results
-    setTimeout(() => {
-      document.getElementById('budget-results')?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+
+    Object.entries(categorySpending).forEach(([category, actual]) => {
+      const categoryLower = category.toLowerCase();
+      let budgeted = 0;
+      
+      if (categoryLower.includes('food')) budgeted = inputs.food;
+      else if (categoryLower.includes('travel') || categoryLower.includes('transport')) budgeted = inputs.travel;
+      else if (categoryLower.includes('entertainment')) budgeted = inputs.entertainment || 0;
+      else if (categoryLower.includes('shopping')) budgeted = inputs.shopping || 0;
+      
+      if (budgeted > 0 && actual > budgeted) {
+        const excess = actual - budgeted;
+        const excessPercent = (excess / budgeted) * 100;
+        alerts.push({
+          category,
+          budgeted,
+          actual,
+          excess,
+          severity: excessPercent > 50 ? 'critical' : 'warning',
+        });
+      }
+    });
+
+    setOverspendingAlerts(alerts);
+    setShowResults(true);
   };
-  
-  const canGenerate = monthlyIncome && foodGroceries && transport && savingsAmount && (rentNotApplicable || rent);
-  
-  const downloadReminder = (step: string, index: number) => {
-    const icsContent = generateICSFile(step, index);
-    const blob = new Blob([icsContent], { type: 'text/calendar' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `budget-action-step-${index + 1}.ics`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+
+  const applySmartAllocations = () => {
+    const allocations = smartAllocations.reduce((acc, alloc) => {
+      const category = alloc.category.toLowerCase();
+      if (category.includes('food')) acc.food = alloc.recommended;
+      if (category.includes('transport')) acc.travel = alloc.recommended;
+      if (category.includes('housing')) acc.rentOrEmi = alloc.recommended;
+      if (category.includes('savings')) acc.investments = alloc.recommended;
+      return acc;
+    }, {} as Partial<BudgetInputs>);
+
+    setInputs(prev => ({ ...prev, ...allocations }));
   };
-  
+
   return (
-    <div className="min-h-screen p-4 md:p-6 lg:p-8 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-primary to-chart-1 bg-clip-text text-transparent">
-          Advanced Budget Planner
-        </h1>
-        <p className="text-muted-foreground text-lg">
-          Create a personalized budget plan with insights on saving, investing, and improving your finances
-        </p>
+      <div className="flex items-center gap-3">
+        <div className="p-3 bg-gradient-to-br from-primary/20 to-chart-1/20 rounded-xl">
+          <Brain className="h-8 w-8 text-primary" />
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-primary via-chart-1 to-chart-2 bg-clip-text text-transparent">
+            Advanced AI Budget Planner
+          </h1>
+          <p className="text-muted-foreground">Smart budgeting with AI-powered insights and predictions</p>
+        </div>
       </div>
-      
-      {/* Privacy Notice */}
-      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-chart-1/5">
-        <CardContent className="pt-6">
-          <div className="flex items-start gap-3">
-            <Shield className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-            <div className="space-y-1">
-              <p className="font-semibold text-foreground">Privacy-First & Minimal Data</p>
-              <p className="text-sm text-muted-foreground">
-                Your financial data stays private. We only need basic information to create your budget plan. 
-                All calculations happen locally in your browser.
-              </p>
+
+      {/* Overspending Alerts */}
+      {overspendingAlerts.length > 0 && (
+        <Alert variant={overspendingAlerts.some(a => a.severity === 'critical') ? 'destructive' : 'default'}>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            <div className="space-y-2">
+              <p className="font-semibold">Overspending Detected in {overspendingAlerts.length} Categories</p>
+              {overspendingAlerts.map(alert => (
+                <div key={alert.category} className="text-sm">
+                  <span className="font-medium">{alert.category}:</span> Budgeted ${alert.budgeted.toFixed(2)}, Spent ${alert.actual.toFixed(2)} 
+                  <Badge variant={alert.severity === 'critical' ? 'destructive' : 'secondary'} className="ml-2">
+                    +${alert.excess.toFixed(2)} over
+                  </Badge>
+                </div>
+              ))}
             </div>
-          </div>
-        </CardContent>
-      </Card>
-      
-      {/* Progress Indicator */}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Progress */}
       <Card>
-        <CardContent className="pt-6">
+        <CardHeader>
+          <CardTitle>Budget Setup Progress</CardTitle>
+          <CardDescription>Complete all mandatory fields to generate your AI budget plan</CardDescription>
+        </CardHeader>
+        <CardContent>
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <p className="text-sm font-medium">Completion Progress</p>
-              <p className="text-sm text-muted-foreground">You're {progress}% done</p>
+            <div className="flex justify-between text-sm">
+              <span>Progress</span>
+              <span className="font-semibold">{Math.round(progress)}%</span>
             </div>
             <Progress value={progress} className="h-2" />
+            <p className="text-xs text-muted-foreground">
+              {mandatoryFilled}/{mandatoryFields.length} mandatory fields • {optionalFilled}/{optionalFields.length} optional fields
+            </p>
           </div>
         </CardContent>
       </Card>
-      
-      {/* Required Section */}
+
+      {/* User Mode Selection */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Select Your Profile</CardTitle>
+          <CardDescription>Choose your financial profile for personalized recommendations</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-4">
+            <Button
+              variant={inputs.userMode === 'student' ? 'default' : 'outline'}
+              className="h-20"
+              onClick={() => handleInputChange('userMode', 'student')}
+            >
+              <div className="text-center">
+                <div className="font-semibold">Student</div>
+                <div className="text-xs opacity-70">Part-time income, education focus</div>
+              </div>
+            </Button>
+            <Button
+              variant={inputs.userMode === 'professional' ? 'default' : 'outline'}
+              className="h-20"
+              onClick={() => handleInputChange('userMode', 'professional')}
+            >
+              <div className="text-center">
+                <div className="font-semibold">Professional</div>
+                <div className="text-xs opacity-70">Full-time career, retirement planning</div>
+              </div>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Mandatory Inputs */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 text-primary" />
-            Required Information
+            <DollarSign className="h-5 w-5" />
+            Mandatory Inputs
           </CardTitle>
-          <CardDescription>
-            These fields are essential to generate your budget plan
-          </CardDescription>
+          <CardDescription>Required fields to calculate your budget</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {/* Basic Income */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Basic Income</h3>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="monthlyIncome">Monthly Income (Primary) *</Label>
-                <Input
-                  id="monthlyIncome"
-                  type="number"
-                  placeholder="Enter your monthly income"
-                  value={monthlyIncome}
-                  onChange={(e) => setMonthlyIncome(e.target.value)}
-                  min="0"
-                  step="100"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Currency</Label>
-                <div className="flex items-center h-10 px-3 border rounded-md bg-muted">
-                  <span className="font-medium">{currency.toUpperCase()}</span>
-                </div>
-              </div>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="monthlyIncome">Monthly Income *</Label>
+              <Input
+                id="monthlyIncome"
+                type="number"
+                placeholder="0.00"
+                value={inputs.monthlyIncome || ''}
+                onChange={(e) => handleInputChange('monthlyIncome', parseFloat(e.target.value) || 0)}
+              />
             </div>
-          </div>
-          
-          <Separator />
-          
-          {/* Core Expenses */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Core Expenses</h3>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="rent">Rent / Home EMI</Label>
-                <Input
-                  id="rent"
-                  type="number"
-                  placeholder="Enter rent or EMI"
-                  value={rent}
-                  onChange={(e) => setRent(e.target.value)}
-                  disabled={rentNotApplicable}
-                  min="0"
-                  step="100"
-                />
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="rentNA"
-                    checked={rentNotApplicable}
-                    onChange={(e) => {
-                      setRentNotApplicable(e.target.checked);
-                      if (e.target.checked) setRent('');
-                    }}
-                    className="rounded"
-                  />
-                  <Label htmlFor="rentNA" className="text-sm font-normal cursor-pointer">
-                    Not applicable
-                  </Label>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="foodGroceries">Food & Groceries *</Label>
-                <Input
-                  id="foodGroceries"
-                  type="number"
-                  placeholder="Monthly food expenses"
-                  value={foodGroceries}
-                  onChange={(e) => setFoodGroceries(e.target.value)}
-                  min="0"
-                  step="100"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="transport">Transport *</Label>
-                <Input
-                  id="transport"
-                  type="number"
-                  placeholder="Monthly transport costs"
-                  value={transport}
-                  onChange={(e) => setTransport(e.target.value)}
-                  min="0"
-                  step="100"
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="rentOrEmi">Rent/EMI *</Label>
+              <Input
+                id="rentOrEmi"
+                type="number"
+                placeholder="0.00"
+                value={inputs.rentOrEmi || ''}
+                onChange={(e) => handleInputChange('rentOrEmi', parseFloat(e.target.value) || 0)}
+              />
             </div>
-          </div>
-          
-          <Separator />
-          
-          {/* Savings Preference */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-lg">Savings Preference</h3>
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="savingsAmount">Desired Monthly Savings *</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="savingsAmount"
-                    type="number"
-                    placeholder={savingsType === 'amount' ? 'Amount' : 'Percentage'}
-                    value={savingsAmount}
-                    onChange={(e) => setSavingsAmount(e.target.value)}
-                    min="0"
-                    step={savingsType === 'amount' ? '100' : '1'}
-                  />
-                  <Select value={savingsType} onValueChange={(v: any) => setSavingsType(v)}>
-                    <SelectTrigger className="w-32">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="amount">Amount</SelectItem>
-                      <SelectItem value="percentage">%</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="goalType">Financial Goal Type *</Label>
-                <Select value={goalType} onValueChange={(v: any) => setGoalType(v)}>
-                  <SelectTrigger id="goalType">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="short-term">Short-term (1-3 years)</SelectItem>
-                    <SelectItem value="long-term">Long-term (3+ years)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="food">Food *</Label>
+              <Input
+                id="food"
+                type="number"
+                placeholder="0.00"
+                value={inputs.food || ''}
+                onChange={(e) => handleInputChange('food', parseFloat(e.target.value) || 0)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="travel">Travel *</Label>
+              <Input
+                id="travel"
+                type="number"
+                placeholder="0.00"
+                value={inputs.travel || ''}
+                onChange={(e) => handleInputChange('travel', parseFloat(e.target.value) || 0)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="utilities">Utilities *</Label>
+              <Input
+                id="utilities"
+                type="number"
+                placeholder="0.00"
+                value={inputs.utilities || ''}
+                onChange={(e) => handleInputChange('utilities', parseFloat(e.target.value) || 0)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="existingLoans">Existing Loans *</Label>
+              <Input
+                id="existingLoans"
+                type="number"
+                placeholder="0.00"
+                value={inputs.existingLoans || ''}
+                onChange={(e) => handleInputChange('existingLoans', parseFloat(e.target.value) || 0)}
+              />
             </div>
           </div>
         </CardContent>
       </Card>
-      
-      {/* Optional Section */}
+
+      {/* Optional Inputs */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Info className="w-5 h-5 text-muted-foreground" />
-                Optional Details (Recommended)
-              </CardTitle>
-              <CardDescription>
-                Add more details for a more accurate and personalized budget plan
-              </CardDescription>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowAdvanced(!showAdvanced)}
-            >
-              {showAdvanced ? (
-                <>
-                  <ChevronUp className="w-4 h-4 mr-2" />
-                  Hide
-                </>
-              ) : (
-                <>
-                  <ChevronDown className="w-4 h-4 mr-2" />
-                  Show
-                </>
-              )}
-            </Button>
-          </div>
+          <CardTitle className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5" />
+            Optional Inputs
+          </CardTitle>
+          <CardDescription>Add these for more accurate budget planning</CardDescription>
         </CardHeader>
-        
-        {showAdvanced && (
-          <CardContent className="space-y-6">
-            {/* Additional Income */}
-            <div className="space-y-4">
-              <h3 className="font-semibold text-lg">Additional Income Sources</h3>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="secondaryIncome">Secondary Income</Label>
-                  <Input
-                    id="secondaryIncome"
-                    type="number"
-                    placeholder="Freelance, part-time, etc."
-                    value={secondaryIncome}
-                    onChange={(e) => setSecondaryIncome(e.target.value)}
-                    min="0"
-                    step="100"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="passiveIncome">Passive Income</Label>
-                  <Input
-                    id="passiveIncome"
-                    type="number"
-                    placeholder="Rental, dividends, etc."
-                    value={passiveIncome}
-                    onChange={(e) => setPassiveIncome(e.target.value)}
-                    min="0"
-                    step="100"
-                  />
-                </div>
-              </div>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="entertainment">Entertainment (Optional)</Label>
+              <Input
+                id="entertainment"
+                type="number"
+                placeholder="0.00"
+                value={inputs.entertainment || ''}
+                onChange={(e) => handleInputChange('entertainment', parseFloat(e.target.value) || 0)}
+              />
             </div>
-            
-            <Separator />
-            
-            {/* Additional Expenses */}
-            <div className="space-y-4">
-              <h3 className="font-semibold text-lg">Additional Expenses</h3>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="utilities">Utilities (Electricity, Water, Gas)</Label>
-                  <Input
-                    id="utilities"
-                    type="number"
-                    placeholder="Monthly utilities"
-                    value={utilities}
-                    onChange={(e) => setUtilities(e.target.value)}
-                    min="0"
-                    step="50"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="internetMobile">Internet & Mobile</Label>
-                  <Input
-                    id="internetMobile"
-                    type="number"
-                    placeholder="Monthly bills"
-                    value={internetMobile}
-                    onChange={(e) => setInternetMobile(e.target.value)}
-                    min="0"
-                    step="50"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="insurance">Insurance Premiums</Label>
-                  <Input
-                    id="insurance"
-                    type="number"
-                    placeholder="Health, life, etc."
-                    value={insurance}
-                    onChange={(e) => setInsurance(e.target.value)}
-                    min="0"
-                    step="100"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="educationFees">Education / Tuition Fees</Label>
-                  <Input
-                    id="educationFees"
-                    type="number"
-                    placeholder="Monthly education costs"
-                    value={educationFees}
-                    onChange={(e) => setEducationFees(e.target.value)}
-                    min="0"
-                    step="100"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="loanEMIs">Loan EMIs</Label>
-                  <Input
-                    id="loanEMIs"
-                    type="number"
-                    placeholder="Total monthly EMIs"
-                    value={loanEMIs}
-                    onChange={(e) => setLoanEMIs(e.target.value)}
-                    min="0"
-                    step="100"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="shopping">Shopping & Personal Care</Label>
-                  <Input
-                    id="shopping"
-                    type="number"
-                    placeholder="Clothing, grooming, etc."
-                    value={shopping}
-                    onChange={(e) => setShopping(e.target.value)}
-                    min="0"
-                    step="50"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="entertainment">Entertainment</Label>
-                  <Input
-                    id="entertainment"
-                    type="number"
-                    placeholder="Movies, dining, hobbies"
-                    value={entertainment}
-                    onChange={(e) => setEntertainment(e.target.value)}
-                    min="0"
-                    step="50"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="travel">Travel & Vacation</Label>
-                  <Input
-                    id="travel"
-                    type="number"
-                    placeholder="Monthly travel budget"
-                    value={travel}
-                    onChange={(e) => setTravel(e.target.value)}
-                    min="0"
-                    step="100"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="medical">Medical & Healthcare</Label>
-                  <Input
-                    id="medical"
-                    type="number"
-                    placeholder="Monthly medical costs"
-                    value={medical}
-                    onChange={(e) => setMedical(e.target.value)}
-                    min="0"
-                    step="50"
-                  />
-                </div>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="subscriptions">Subscriptions (Optional)</Label>
+              <Input
+                id="subscriptions"
+                type="number"
+                placeholder="0.00"
+                value={inputs.subscriptions || ''}
+                onChange={(e) => handleInputChange('subscriptions', parseFloat(e.target.value) || 0)}
+              />
             </div>
-            
-            <Separator />
-            
-            {/* Financial Goals */}
-            <div className="space-y-4">
-              <h3 className="font-semibold text-lg">Financial Goals & Planning</h3>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="emergencyFund">Emergency Fund (Current)</Label>
-                  <Input
-                    id="emergencyFund"
-                    type="number"
-                    placeholder="Current emergency savings"
-                    value={emergencyFund}
-                    onChange={(e) => setEmergencyFund(e.target.value)}
-                    min="0"
-                    step="1000"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="retirementPlanning">Retirement Savings (Current)</Label>
-                  <Input
-                    id="retirementPlanning"
-                    type="number"
-                    placeholder="Current retirement fund"
-                    value={retirementPlanning}
-                    onChange={(e) => setRetirementPlanning(e.target.value)}
-                    min="0"
-                    step="1000"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="targetAmount">Target Savings Amount</Label>
-                  <Input
-                    id="targetAmount"
-                    type="number"
-                    placeholder="Your financial goal"
-                    value={targetAmount}
-                    onChange={(e) => setTargetAmount(e.target.value)}
-                    min="0"
-                    step="1000"
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="timeline">Timeline (Months)</Label>
-                  <Input
-                    id="timeline"
-                    type="number"
-                    placeholder="Months to reach goal"
-                    value={timeline}
-                    onChange={(e) => setTimeline(e.target.value)}
-                    min="1"
-                    step="1"
-                  />
-                </div>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="shopping">Shopping (Optional)</Label>
+              <Input
+                id="shopping"
+                type="number"
+                placeholder="0.00"
+                value={inputs.shopping || ''}
+                onChange={(e) => handleInputChange('shopping', parseFloat(e.target.value) || 0)}
+              />
             </div>
-            
-            <Separator />
-            
-            {/* Behavioral Preferences */}
-            <div className="space-y-4">
-              <h3 className="font-semibold text-lg">Behavioral Preferences</h3>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="riskTolerance">Risk Tolerance</Label>
-                  <Select value={riskTolerance} onValueChange={(v: any) => setRiskTolerance(v)}>
-                    <SelectTrigger id="riskTolerance">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="low">Low (Conservative)</SelectItem>
-                      <SelectItem value="medium">Medium (Balanced)</SelectItem>
-                      <SelectItem value="high">High (Aggressive)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="spendingBehavior">Spending Behavior</Label>
-                  <Select value={spendingBehavior} onValueChange={(v: any) => setSpendingBehavior(v)}>
-                    <SelectTrigger id="spendingBehavior">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="saver">Saver (Cautious)</SelectItem>
-                      <SelectItem value="spender">Spender (Flexible)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="savingStyle">Saving Style</Label>
-                  <Select value={savingStyle} onValueChange={(v: any) => setSavingStyle(v)}>
-                    <SelectTrigger id="savingStyle">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="auto">Automatic (Set & Forget)</SelectItem>
-                      <SelectItem value="manual">Manual (Active Control)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="financialKnowledge">Financial Knowledge</Label>
-                  <Select value={financialKnowledge} onValueChange={(v: any) => setFinancialKnowledge(v)}>
-                    <SelectTrigger id="financialKnowledge">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="beginner">Beginner</SelectItem>
-                      <SelectItem value="intermediate">Intermediate</SelectItem>
-                      <SelectItem value="advanced">Advanced</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="insurance">Insurance (Optional)</Label>
+              <Input
+                id="insurance"
+                type="number"
+                placeholder="0.00"
+                value={inputs.insurance || ''}
+                onChange={(e) => handleInputChange('insurance', parseFloat(e.target.value) || 0)}
+              />
             </div>
-            
-            <div className="flex justify-end">
-              <Button variant="outline" onClick={handleSkipAdvanced}>
-                Skip Optional Fields
-              </Button>
+            <div className="space-y-2">
+              <Label htmlFor="investments">Investments (Optional)</Label>
+              <Input
+                id="investments"
+                type="number"
+                placeholder="0.00"
+                value={inputs.investments || ''}
+                onChange={(e) => handleInputChange('investments', parseFloat(e.target.value) || 0)}
+              />
             </div>
-          </CardContent>
-        )}
-      </Card>
-      
-      {/* Generate Button */}
-      <div className="flex justify-center">
-        <Button
-          size="lg"
-          onClick={handleGeneratePlan}
-          disabled={!canGenerate}
-          className="min-w-[200px]"
-        >
-          <Target className="w-5 h-5 mr-2" />
-          Generate Budget Plan
-        </Button>
-      </div>
-      
-      {/* Results Section */}
-      {budgetPlan && (
-        <div id="budget-results" className="space-y-6 pt-8">
-          <Separator className="my-8" />
-          
-          {/* Header */}
-          <div className="space-y-2">
-            <h2 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
-              <CheckCircle2 className="w-7 h-7 text-green-500" />
-              Your Personalized Budget Plan
-            </h2>
-            <p className="text-muted-foreground">
-              Based on your inputs, here's a comprehensive financial plan with actionable insights
-            </p>
+            <div className="space-y-2">
+              <Label htmlFor="emergencyFund">Current Emergency Fund</Label>
+              <Input
+                id="emergencyFund"
+                type="number"
+                placeholder="0.00"
+                value={inputs.emergencyFund || ''}
+                onChange={(e) => handleInputChange('emergencyFund', parseFloat(e.target.value) || 0)}
+              />
+            </div>
           </div>
-          
-          {/* Health Score */}
-          <Card className="border-2 border-primary/20">
+        </CardContent>
+      </Card>
+
+      {/* Calculate Button */}
+      <Button
+        onClick={calculateBudget}
+        disabled={mandatoryFilled < mandatoryFields.length}
+        size="lg"
+        className="w-full"
+      >
+        <Brain className="mr-2 h-5 w-5" />
+        Generate AI Budget Plan
+      </Button>
+
+      {/* Results */}
+      {showResults && (
+        <>
+          {/* Smart Allocations */}
+          <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Shield className="w-5 h-5 text-primary" />
-                Financial Health Score
+                <Sparkles className="h-5 w-5" />
+                Smart Category Allocations
               </CardTitle>
+              <CardDescription>AI-recommended spending limits based on your income</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                  <p className="text-4xl font-bold text-primary">{budgetPlan.healthScore.score}/100</p>
-                  <p className="text-sm text-muted-foreground">Overall Financial Health</p>
-                </div>
-                <Badge 
-                  variant={budgetPlan.healthScore.score >= 70 ? 'default' : budgetPlan.healthScore.score >= 40 ? 'secondary' : 'destructive'}
-                  className="text-lg px-4 py-2"
-                >
-                  {budgetPlan.healthScore.score >= 70 ? 'Excellent' : budgetPlan.healthScore.score >= 40 ? 'Good' : 'Needs Improvement'}
-                </Badge>
-              </div>
-              <Progress value={budgetPlan.healthScore.score} className="h-3" />
-              <p className="text-sm text-muted-foreground">{budgetPlan.healthScore.explanation}</p>
-            </CardContent>
-          </Card>
-          
-          {/* Budget Allocation */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="w-5 h-5 text-chart-1" />
-                Budget Allocation Summary
-              </CardTitle>
-              <CardDescription>
-                Recommended distribution based on {budgetPlan.rule} rule
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid gap-4 md:grid-cols-3">
-                <div className="space-y-2 p-4 rounded-lg bg-green-500/10 border border-green-500/20">
-                  <p className="text-sm text-muted-foreground">Needs (Essential)</p>
-                  <p className="text-2xl font-bold text-green-600">{format(budgetPlan.allocations.needs)}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {((budgetPlan.allocations.needs / budgetPlan.allocations.totalIncome) * 100).toFixed(0)}% of income
-                  </p>
-                </div>
-                
-                <div className="space-y-2 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                  <p className="text-sm text-muted-foreground">Wants (Lifestyle)</p>
-                  <p className="text-2xl font-bold text-blue-600">{format(budgetPlan.allocations.wants)}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {((budgetPlan.allocations.wants / budgetPlan.allocations.totalIncome) * 100).toFixed(0)}% of income
-                  </p>
-                </div>
-                
-                <div className="space-y-2 p-4 rounded-lg bg-purple-500/10 border border-purple-500/20">
-                  <p className="text-sm text-muted-foreground">Savings & Investments</p>
-                  <p className="text-2xl font-bold text-purple-600">{format(budgetPlan.allocations.savings)}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {((budgetPlan.allocations.savings / budgetPlan.allocations.totalIncome) * 100).toFixed(0)}% of income
-                  </p>
-                </div>
-              </div>
-              
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2 p-4 rounded-lg bg-muted">
-                  <p className="text-sm text-muted-foreground">Total Monthly Income</p>
-                  <p className="text-xl font-bold">{format(budgetPlan.allocations.totalIncome)}</p>
-                </div>
-                
-                <div className="space-y-2 p-4 rounded-lg bg-muted">
-                  <p className="text-sm text-muted-foreground">Total Monthly Expenses</p>
-                  <p className="text-xl font-bold">{format(budgetPlan.allocations.totalExpenses)}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Expense Breakdown Pie Chart */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <PieChartIcon className="w-5 h-5 text-chart-2" />
-                Expense Category Breakdown
-              </CardTitle>
-              <CardDescription>
-                Visual breakdown of your monthly expenses by category
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[400px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RechartsPie>
-                    <Pie
-                      data={budgetPlan.expenseBreakdown.map((item: any, index: number) => ({
-                        name: item.category,
-                        value: item.amount,
-                        percentage: item.percentage,
-                      }))}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, percentage }: any) => `${name}: ${percentage.toFixed(1)}%`}
-                      outerRadius={120}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {budgetPlan.expenseBreakdown.map((_: any, index: number) => (
-                        <Cell key={`cell-${index}`} fill={EXPENSE_COLORS[index % EXPENSE_COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      formatter={(value: any) => format(value)}
-                      contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
-                    />
-                    <Legend />
-                  </RechartsPie>
-                </ResponsiveContainer>
-              </div>
-              
-              {/* Category Details */}
-              <div className="mt-6 space-y-3">
-                {budgetPlan.expenseBreakdown.map((item: any, index: number) => (
-                  <div key={item.category} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-                    <div className="flex items-center gap-3">
-                      <div 
-                        className="w-4 h-4 rounded-full" 
-                        style={{ backgroundColor: EXPENSE_COLORS[index % EXPENSE_COLORS.length] }}
-                      />
-                      <span className="font-medium">{item.category}</span>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-semibold">{format(item.amount)}</p>
-                      <p className="text-xs text-muted-foreground">{item.percentage.toFixed(1)}%</p>
-                    </div>
+              {smartAllocations.map((alloc, idx) => (
+                <div key={idx} className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium">{alloc.category}</span>
+                    <Badge variant="secondary">${alloc.recommended.toFixed(2)}</Badge>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* 12-Month Projection Line Chart */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <LineChartIcon className="w-5 h-5 text-chart-3" />
-                12-Month Savings Projection
-              </CardTitle>
-              <CardDescription>
-                Realistic projection of your savings growth over the next year
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[400px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={budgetPlan.projection}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis 
-                      dataKey="month" 
-                      stroke="hsl(var(--muted-foreground))"
-                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                    />
-                    <YAxis 
-                      stroke="hsl(var(--muted-foreground))"
-                      tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                      tickFormatter={(value) => format(value)}
-                    />
-                    <Tooltip 
-                      formatter={(value: any) => format(value)}
-                      contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
-                      labelStyle={{ color: 'hsl(var(--foreground))' }}
-                    />
-                    <Legend />
-                    <Line 
-                      type="monotone" 
-                      dataKey="monthlySavings" 
-                      stroke="#10b981" 
-                      strokeWidth={2}
-                      name="Monthly Savings"
-                      dot={{ fill: '#10b981', r: 4 }}
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="cumulativeSavings" 
-                      stroke="#3b82f6" 
-                      strokeWidth={2}
-                      name="Cumulative Savings"
-                      dot={{ fill: '#3b82f6', r: 4 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-              
-              {/* Projection Summary */}
-              <div className="mt-6 grid gap-4 md:grid-cols-3">
-                <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
-                  <p className="text-sm text-muted-foreground mb-1">Monthly Savings</p>
-                  <p className="text-xl font-bold text-green-600">
-                    {format(budgetPlan.projection[0]?.monthlySavings || 0)}
-                  </p>
-                </div>
-                <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                  <p className="text-sm text-muted-foreground mb-1">Year-End Total</p>
-                  <p className="text-xl font-bold text-blue-600">
-                    {format(budgetPlan.projection[11]?.cumulativeSavings || 0)}
-                  </p>
-                </div>
-                <div className="p-4 rounded-lg bg-purple-500/10 border border-purple-500/20">
-                  <p className="text-sm text-muted-foreground mb-1">Savings Rate</p>
-                  <p className="text-xl font-bold text-purple-600">
-                    {((budgetPlan.allocations.savings / budgetPlan.allocations.totalIncome) * 100).toFixed(1)}%
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          {/* Financial Improvement Recommendations */}
-          <Card className="border-2 border-chart-1/20">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Lightbulb className="w-5 h-5 text-yellow-500" />
-                Personalized Financial Recommendations
-              </CardTitle>
-              <CardDescription>
-                Expert guidance on saving, investing, and improving your finances
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Saving Strategy */}
-              {budgetPlan.recommendations.savingStrategy && (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                      <TrendingUp className="w-4 h-4 text-green-600" />
-                    </div>
-                    <h3 className="font-semibold text-lg">Saving Strategy</h3>
-                  </div>
-                  <div className="pl-10 space-y-2">
-                    <p className="text-muted-foreground">{budgetPlan.recommendations.savingStrategy.overview}</p>
-                    <ul className="space-y-2 mt-3">
-                      {budgetPlan.recommendations.savingStrategy.tips.map((tip: string, index: number) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 shrink-0" />
-                          <span className="text-sm">{tip}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              )}
-              
-              <Separator />
-              
-              {/* Investing Guidance */}
-              {budgetPlan.recommendations.investingGuidance && (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
-                      <TrendingUp className="w-4 h-4 text-blue-600" />
-                    </div>
-                    <h3 className="font-semibold text-lg">Beginner-Friendly Investing Guidance</h3>
-                  </div>
-                  <div className="pl-10 space-y-2">
-                    <p className="text-muted-foreground">{budgetPlan.recommendations.investingGuidance.overview}</p>
-                    <ul className="space-y-2 mt-3">
-                      {budgetPlan.recommendations.investingGuidance.tips.map((tip: string, index: number) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-blue-500 mt-0.5 shrink-0" />
-                          <span className="text-sm">{tip}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="mt-4 p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
-                      <p className="text-xs text-muted-foreground flex items-start gap-2">
-                        <AlertCircle className="w-4 h-4 text-yellow-600 shrink-0 mt-0.5" />
-                        <span>
-                          <strong>Educational Disclaimer:</strong> This is general educational guidance only, not personalized investment advice. 
-                          All investments carry risk. Consult a qualified financial advisor before making investment decisions.
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              <Separator />
-              
-              {/* Financial Improvement Steps */}
-              {budgetPlan.recommendations.financialImprovement && (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
-                      <Target className="w-4 h-4 text-purple-600" />
-                    </div>
-                    <h3 className="font-semibold text-lg">Overall Financial Improvement</h3>
-                  </div>
-                  <div className="pl-10 space-y-2">
-                    <p className="text-muted-foreground">{budgetPlan.recommendations.financialImprovement.overview}</p>
-                    <ul className="space-y-2 mt-3">
-                      {budgetPlan.recommendations.financialImprovement.tips.map((tip: string, index: number) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <CheckCircle2 className="w-4 h-4 text-purple-500 mt-0.5 shrink-0" />
-                          <span className="text-sm">{tip}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-          
-          {/* 3-Step Action Plan */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="w-5 h-5 text-primary" />
-                Your 3-Step Action Plan
-              </CardTitle>
-              <CardDescription>
-                Practical steps to implement your budget plan immediately
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {budgetPlan.actionPlan.map((step: string, index: number) => (
-                <div key={index} className="flex items-start gap-4 p-4 rounded-lg bg-muted/50 border border-border">
-                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold shrink-0">
-                    {index + 1}
-                  </div>
-                  <div className="flex-1 space-y-2">
-                    <p className="text-sm">{step}</p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => downloadReminder(step, index)}
-                      className="mt-2"
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      Add to Calendar
-                    </Button>
-                  </div>
+                  <p className="text-sm text-muted-foreground">{alloc.explanation}</p>
+                  {idx < smartAllocations.length - 1 && <Separator />}
                 </div>
               ))}
+              <Button onClick={applySmartAllocations} variant="outline" className="w-full mt-4">
+                Apply Suggestions
+              </Button>
             </CardContent>
           </Card>
-          
-          {/* Assumptions */}
-          {budgetPlan.assumptions && budgetPlan.assumptions.length > 0 && (
-            <Card className="border-amber-500/20 bg-amber-500/5">
+
+          {/* Savings & Emergency Fund */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-amber-600">
-                  <Info className="w-5 h-5" />
-                  Assumptions Made
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Auto Savings Percentage
                 </CardTitle>
-                <CardDescription>
-                  These estimates were used where specific data wasn't provided
-                </CardDescription>
               </CardHeader>
               <CardContent>
-                <ul className="space-y-2">
-                  {budgetPlan.assumptions.map((assumption: string, index: number) => (
-                    <li key={index} className="flex items-start gap-2 text-sm text-muted-foreground">
-                      <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
-                      <span>{assumption}</span>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          )}
-          
-          {/* Educational Disclaimer */}
-          <Card className="border-muted">
-            <CardContent className="pt-6">
-              <div className="flex items-start gap-3">
-                <Info className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  <p className="font-semibold text-sm">Educational Purpose Only</p>
-                  <p className="text-xs text-muted-foreground">
-                    This budget plan is for educational purposes and general guidance only. It is not personalized financial advice. 
-                    Your actual financial situation may require professional consultation. Always consider your unique circumstances 
-                    and consult qualified financial advisors before making significant financial decisions.
+                <div className="text-center space-y-2">
+                  <div className="text-4xl font-bold text-primary">{savingsPercentage.toFixed(1)}%</div>
+                  <p className="text-sm text-muted-foreground">
+                    {savingsPercentage >= 20 ? 'Excellent savings rate!' : savingsPercentage >= 10 ? 'Good savings rate' : 'Consider increasing savings'}
                   </p>
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="h-5 w-5" />
+                  Emergency Fund Target
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="text-2xl font-bold">${emergencyFundTarget.toFixed(2)}</div>
+                  <p className="text-sm text-muted-foreground">
+                    {inputs.userMode === 'student' ? '3 months' : '6 months'} of expenses
+                  </p>
+                  {inputs.emergencyFund > 0 && (
+                    <div className="space-y-2">
+                      <Progress value={(inputs.emergencyFund / emergencyFundTarget) * 100} />
+                      <p className="text-xs text-muted-foreground">
+                        ${inputs.emergencyFund.toFixed(2)} of ${emergencyFundTarget.toFixed(2)} saved
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* End of Month Prediction */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="h-5 w-5" />
+                End-of-Month Balance Prediction
+              </CardTitle>
+              <CardDescription>Based on your current spending trends</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center space-y-2">
+                <div className={`text-4xl font-bold ${endOfMonthBalance >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  ${endOfMonthBalance.toFixed(2)}
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  {endOfMonthBalance >= 0 
+                    ? 'You\'re on track to have a positive balance!' 
+                    : 'Warning: You may overspend this month. Consider reducing expenses.'}
+                </p>
               </div>
             </CardContent>
           </Card>
-        </div>
+        </>
       )}
     </div>
   );

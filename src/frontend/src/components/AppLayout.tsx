@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Menu, LayoutDashboard, TrendingUp, Target, BarChart3, Calculator, Brain, BookOpen, Settings, LogOut, DollarSign } from 'lucide-react';
+import { Menu, LayoutDashboard, TrendingUp, Target, BarChart3, Calculator, Brain, BookOpen, Settings, LogOut, DollarSign, MessageSquare } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useGetCallerUserProfile, useGetCallerUserPreferences } from '../hooks/useQueries';
 import AccessDenied from './AccessDenied';
@@ -13,6 +13,7 @@ import AIChatbot from './AIChatbot';
 import Dashboard from '../pages/Dashboard';
 import Transactions from '../pages/Transactions';
 import AIInsights from '../pages/AIInsights';
+import AIInsightsHub from '../pages/AIInsightsHub';
 import Goals from '../pages/Goals';
 import Analytics from '../pages/Analytics';
 import Calculators from '../pages/Calculators';
@@ -49,6 +50,7 @@ export default function AppLayout() {
     { name: 'Budget Planner', href: '/budget-planner', icon: DollarSign },
     { name: 'Calculators', href: '/calculators', icon: Calculator },
     { name: 'AI Insights', href: '/ai-insights', icon: Brain },
+    { name: 'AI Insights Hub', href: '/ai-insights-hub', icon: MessageSquare },
     { name: 'Quiz', href: '/quiz', icon: BookOpen },
   ];
 
@@ -95,6 +97,7 @@ export default function AppLayout() {
     if (pathname === '/dashboard') return <Dashboard />;
     if (pathname === '/transactions') return <Transactions />;
     if (pathname === '/ai-insights') return <AIInsights />;
+    if (pathname === '/ai-insights-hub') return <AIInsightsHub />;
     if (pathname === '/goals') return <Goals />;
     if (pathname === '/analytics') return <AnalyticsGuard><Analytics /></AnalyticsGuard>;
     if (pathname === '/calculators') return <Calculators />;

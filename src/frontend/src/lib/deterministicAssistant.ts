@@ -1,7 +1,7 @@
 // Deterministic AI assistant engine for finance queries
 // Generates structured responses without external LLM/API calls
 
-interface AssistantContext {
+export interface AssistantContext {
   balance?: number;
   recentTransactions?: Array<{ amount: number; category: string; transactionType: string }>;
   totalTransactions?: number;
@@ -11,7 +11,7 @@ interface AssistantContext {
   hasData?: boolean;
 }
 
-interface AssistantResponse {
+export interface AssistantResponse {
   content: string;
   needsClarification: boolean;
   disclaimer?: string;
@@ -20,7 +20,7 @@ interface AssistantResponse {
 type QueryCategory = 'stocks' | 'investing' | 'budgeting' | 'saving' | 'expenses' | 'general';
 
 // Classify query into categories
-function classifyQuery(query: string): QueryCategory {
+export function classifyQuery(query: string): QueryCategory {
   const lowerQuery = query.toLowerCase();
   
   if (lowerQuery.match(/\b(stock|share|equity|market|trading|ticker|portfolio|diversif)/)) {
@@ -195,35 +195,6 @@ This simple budgeting framework divides your after-tax income into three categor
 **Quick Win:** Start with just tracking your expenses for 2 weeks—you'll be surprised where your money goes!`;
   }
   
-  if (lowerQuery.includes('track')) {
-    return `${dataPrefix}**Best Ways to Track Your Expenses**
-
-**Digital Tools:**
-• **Mobile Apps:** Use expense tracking apps (many are free)
-• **Spreadsheets:** Create a simple Google Sheet or Excel file
-• **Banking Apps:** Most banks now categorize transactions automatically
-
-**Manual Methods:**
-• **Notebook:** Write down every expense daily
-• **Receipt Jar:** Keep all receipts and review weekly
-• **Envelope System:** Allocate cash to categories
-
-**Tracking Tips:**
-1. **Record immediately** - Don't wait until end of day
-2. **Categorize consistently** - Use the same categories each time
-3. **Review weekly** - Spot patterns and adjust
-4. **Be honest** - Track everything, even small purchases
-5. **Set alerts** - Use app notifications for overspending
-
-**What to Track:**
-• Date and amount
-• Category (food, transport, entertainment, etc.)
-• Payment method (cash, card, UPI)
-• Notes (why you bought it)
-
-**Pro Tip:** The first month is just data collection—don't judge yourself. After 30 days, you'll have a clear picture of your spending habits and can make informed changes.`;
-  }
-  
   return `${dataPrefix}**Budgeting Basics**
 
 Budgeting is simply planning how you'll spend your money each month. Here's why it matters:
@@ -243,16 +214,7 @@ Income - Savings - Fixed Expenses - Variable Expenses = Leftover
 3. Set spending limits for each category
 4. Review and adjust monthly
 
-**Common Budget Categories:**
-• Housing & Utilities
-• Food & Groceries
-• Transportation
-• Insurance
-• Debt Payments
-• Entertainment
-• Savings
-
-Would you like to know about specific budgeting methods like the 50/30/20 rule or zero-based budgeting?`;
+Would you like to know about specific budgeting methods like the 50/30/20 rule?`;
 }
 
 // Generate response for saving queries
@@ -275,37 +237,24 @@ An emergency fund is money set aside for unexpected expenses like medical bills,
 **Step 1: Calculate Your Target**
 • List monthly essentials (rent, food, utilities, insurance)
 • Multiply by 3-6 months
-• Example: ₹30,000/month × 6 = ₹1,80,000 target
+• Example: $30,000/month × 6 = $180,000 target
 
 **Step 2: Start Small**
-• Begin with ₹500-1,000 per month
+• Begin with $500-1,000 per month
 • Increase as you adjust your budget
-• Even ₹10,000 is better than nothing!
+• Even $10,000 is better than nothing!
 
 **Step 3: Automate Savings**
 • Set up automatic transfer on payday
 • Use a separate savings account
 • Make it "out of sight, out of mind"
 
-**Step 4: Boost Your Fund**
-• Save windfalls (bonuses, tax refunds, gifts)
-• Cut one unnecessary expense
-• Sell items you don't use
-
 **Where to Keep It:**
 • High-yield savings account (easy access, earns interest)
 • Liquid mutual funds (slightly higher returns)
 • NOT in stocks or locked deposits
 
-**When to Use It:**
-✅ Medical emergencies
-✅ Urgent home/car repairs
-✅ Job loss
-❌ Vacations
-❌ Shopping
-❌ Planned expenses
-
-**Pro Tip:** Start with a mini-goal of ₹10,000. Once you hit it, you'll feel motivated to keep going!`;
+**Pro Tip:** Start with a mini-goal of $10,000. Once you hit it, you'll feel motivated to keep going!`;
   }
   
   if (lowerQuery.includes('how much') || lowerQuery.includes('percentage')) {
@@ -315,7 +264,7 @@ An emergency fund is money set aside for unexpected expenses like medical bills,
 
 **The 50/30/20 Rule:**
 • Save 20% of your after-tax income
-• Example: ₹50,000 income → ₹10,000 savings
+• Example: $50,000 income → $10,000 savings
 
 **By Life Stage:**
 • **20s:** 10-15% (building emergency fund)
@@ -323,92 +272,12 @@ An emergency fund is money set aside for unexpected expenses like medical bills,
 • **40s:** 20-25% (peak earning years)
 • **50s+:** 25-30% (retirement approaching)
 
-**By Financial Goal:**
-• **Emergency Fund:** Save aggressively until you have 6 months of expenses
-• **Short-term goals (1-3 years):** 10-20% of income
-• **Long-term goals (retirement):** 15-20% of income
-
 **Realistic Starting Points:**
 • **Tight budget:** Start with 5% and increase by 1% every 3 months
 • **Comfortable:** Aim for 15-20%
 • **High income:** Push for 30%+
 
-**How to Increase Savings:**
-1. **Pay yourself first** - Save before spending
-2. **Automate** - Set up automatic transfers
-3. **Round up** - Save spare change
-4. **Save windfalls** - Bonuses, tax refunds, gifts
-5. **Cut one expense** - Cancel unused subscriptions
-
-**Example Savings Plan (₹50,000 monthly income):**
-• Emergency fund: ₹5,000/month (10%)
-• Retirement: ₹3,000/month (6%)
-• Short-term goals: ₹2,000/month (4%)
-• **Total: ₹10,000/month (20%)**
-
 **Remember:** Saving something is better than saving nothing. Start where you can and increase gradually!`;
-  }
-  
-  if (lowerQuery.includes('tight budget') || lowerQuery.includes('low income')) {
-    return `${dataPrefix}**Saving Money on a Tight Budget**
-
-Even with limited income, you can build savings with these strategies:
-
-**1. Start Micro-Small**
-• Save ₹50-100 per week (₹200-400/month)
-• Use a piggy bank or separate account
-• Small amounts add up over time
-
-**2. Cut the "Invisible" Expenses**
-• Cancel unused subscriptions (streaming, gym, apps)
-• Reduce eating out by 50%
-• Switch to cheaper phone/internet plans
-• Buy generic brands instead of premium
-
-**3. The 24-Hour Rule**
-• Wait 24 hours before any non-essential purchase
-• Most impulse buys lose appeal after a day
-• Saves hundreds per month
-
-**4. Free Entertainment**
-• Use library instead of buying books
-• Free YouTube workouts instead of gym
-• Picnics instead of restaurants
-• Free community events
-
-**5. Reduce Big Three Expenses**
-• **Housing:** Get a roommate or move to cheaper area
-• **Transportation:** Use public transport, carpool, bike
-• **Food:** Meal prep, buy in bulk, cook at home
-
-**6. Earn Extra Income**
-• Freelance your skills online
-• Sell unused items
-• Part-time gig work
-• Tutoring or consulting
-
-**7. Use Cash-Back & Rewards**
-• Credit card rewards (if you pay in full)
-• Cashback apps for groceries
-• Loyalty programs
-
-**8. The Spare Change Method**
-• Round up purchases to nearest ₹10
-• Save the difference
-• Example: ₹47 purchase → save ₹3
-
-**9. Challenge Yourself**
-• No-spend weekends
-• 30-day spending freeze on one category
-• Cook all meals at home for a week
-
-**10. Track Everything**
-• Write down every expense
-• You'll naturally spend less when aware
-
-**Realistic Goal:** Save ₹1,000-2,000/month even on a tight budget. In one year, that's ₹12,000-24,000 emergency fund!
-
-**Remember:** Every rupee saved is a rupee earned. Start small, stay consistent, and celebrate small wins!`;
   }
   
   return `${dataPrefix}**Smart Saving Strategies**
@@ -416,7 +285,7 @@ Even with limited income, you can build savings with these strategies:
 **Core Principles:**
 • **Pay yourself first** - Save before spending
 • **Automate** - Set up automatic transfers
-• **Start small** - Even ₹500/month builds up
+• **Start small** - Even $500/month builds up
 • **Increase gradually** - Add 1% more every few months
 
 **Saving Goals Priority:**
@@ -425,18 +294,6 @@ Even with limited income, you can build savings with these strategies:
 3. **Retirement savings**
 4. **Short-term goals** (vacation, gadgets)
 5. **Long-term goals** (home, education)
-
-**Quick Wins:**
-• Cancel unused subscriptions
-• Pack lunch instead of eating out
-• Use cashback and rewards programs
-• Buy generic brands
-• Wait 24 hours before non-essential purchases
-
-**Savings Accounts:**
-• High-yield savings (emergency fund)
-• Fixed deposits (short-term goals)
-• Mutual funds (long-term growth)
 
 Would you like specific advice on building an emergency fund or saving on a tight budget?`;
 }
@@ -469,32 +326,13 @@ function generateExpenseControlResponse(query: string, context: AssistantContext
 • Most impulse buys lose appeal
 • Saves hundreds monthly
 
-**5. Use Cash for Discretionary Spending**
-• Withdraw weekly allowance
-• When cash is gone, stop spending
-• Makes spending more "real"
-
 **Smart Shopping:**
 • Make shopping lists and stick to them
 • Buy generic brands
 • Use coupons and cashback apps
 • Shop sales and clearance
-• Avoid shopping when emotional
 
-**Lifestyle Adjustments:**
-• Cook at home (saves 50-70% vs eating out)
-• Free entertainment (library, parks, YouTube)
-• DIY repairs and maintenance
-• Buy used or refurbished items
-• Share subscriptions with family
-
-**Monthly Review:**
-• Compare spending to budget
-• Celebrate wins
-• Adjust categories as needed
-• Set new reduction goals
-
-**Pro Tip:** Focus on reducing one category at a time. Once you master that, move to the next. Small wins build momentum!`;
+**Pro Tip:** Focus on reducing one category at a time. Once you master that, move to the next!`;
 }
 
 // Generate response for investing queries
@@ -510,7 +348,7 @@ function generateInvestingResponse(query: string, context: AssistantContext): st
 SIP is a method of investing a fixed amount regularly in mutual funds.
 
 **How It Works:**
-• Invest a fixed amount monthly (e.g., ₹1,000, ₹5,000, ₹10,000)
+• Invest a fixed amount monthly (e.g., $1,000, $5,000, $10,000)
 • Money automatically deducted from your bank account
 • Units purchased at current market price
 • Continues every month for your chosen duration
@@ -525,22 +363,11 @@ SIP is a method of investing a fixed amount regularly in mutual funds.
 **2. Power of Compounding**
 • Returns generate more returns
 • Long-term wealth creation
-• Example: ₹5,000/month for 20 years at 12% = ₹50 lakhs+
 
 **3. Disciplined Investing**
 • Automatic, no need to remember
 • Removes emotion from investing
 • Builds wealth habit
-
-**4. Flexibility**
-• Start with as little as ₹500/month
-• Increase, decrease, or pause anytime
-• No penalty for stopping
-
-**5. No Market Timing Needed**
-• Don't need to predict market highs/lows
-• Invest in all market conditions
-• Reduces risk of bad timing
 
 **How to Start:**
 1. Choose a mutual fund (equity, debt, or hybrid)
@@ -548,213 +375,32 @@ SIP is a method of investing a fixed amount regularly in mutual funds.
 3. Set up auto-debit from bank
 4. Stay invested for 5+ years
 
-**Example:**
-• Monthly SIP: ₹5,000
-• Duration: 15 years
-• Expected return: 12% per year
-• **Total invested:** ₹9,00,000
-• **Estimated value:** ₹25,00,000+
-
-**Best For:**
-• Long-term goals (5+ years)
-• First-time investors
-• Regular income earners
-• Building retirement corpus
-
-**Pro Tip:** Start small (₹1,000-2,000) and increase by 10% every year as your income grows!${disclaimer}`;
-  }
-  
-  if (lowerQuery.includes('mutual fund')) {
-    return `${dataPrefix}**Mutual Funds Explained Simply**
-
-A mutual fund pools money from many investors to invest in stocks, bonds, or other assets.
-
-**How It Works:**
-• You and thousands of others invest money
-• Professional fund manager invests the pooled money
-• Returns are distributed proportionally
-• You can buy/sell units anytime
-
-**Types of Mutual Funds:**
-
-**1. Equity Funds (Stock-based)**
-• Invest in company stocks
-• Higher risk, higher potential returns
-• Best for long-term (5+ years)
-• Expected return: 10-15% per year
-
-**2. Debt Funds (Bond-based)**
-• Invest in government/corporate bonds
-• Lower risk, stable returns
-• Best for short-term (1-3 years)
-• Expected return: 6-8% per year
-
-**3. Hybrid Funds (Mixed)**
-• Combination of stocks and bonds
-• Balanced risk and return
-• Good for moderate risk-takers
-• Expected return: 8-12% per year
-
-**Why Invest in Mutual Funds?**
-
-**Advantages:**
-• Professional management
-• Diversification (reduces risk)
-• Low minimum investment (₹500+)
-• High liquidity (easy to sell)
-• Regulated and transparent
-
-**Disadvantages:**
-• Management fees (expense ratio)
-• No guaranteed returns
-• Market risk
-• Tax on gains
-
-**How to Choose:**
-• **Goal:** Short-term → Debt funds, Long-term → Equity funds
-• **Risk appetite:** Low → Debt, High → Equity
-• **Time horizon:** <3 years → Debt, 5+ years → Equity
-
-**Costs:**
-• Expense ratio: 0.5-2.5% per year
-• Exit load: 1% if sold within 1 year (varies)
-• No entry fees
-
-**How to Invest:**
-1. Complete KYC (one-time)
-2. Choose fund based on goal and risk
-3. Invest lump sum or via SIP
-4. Monitor annually, don't check daily
-
-**Pro Tip:** For beginners, start with a diversified equity fund via SIP. Stay invested for at least 5 years to see good returns!${disclaimer}`;
+**Pro Tip:** Start small ($1,000-2,000) and increase by 10% every year as your income grows!${disclaimer}`;
   }
   
   return `${dataPrefix}**Investing Basics**
 
-Investing means putting your money to work to generate returns over time.
+Investing is putting your money to work to generate returns over time.
 
-**Why Invest?**
-• Beat inflation (savings lose value over time)
-• Build wealth for future goals
-• Achieve financial independence
-• Retirement planning
+**Key Principles:**
+• Start early (time is your biggest advantage)
+• Diversify (don't put all eggs in one basket)
+• Stay invested long-term (5+ years)
+• Invest regularly (SIP approach)
 
-**Investment Options:**
-• **Stocks:** High risk, high return (10-15%+ per year)
-• **Mutual Funds:** Diversified, managed (8-12% per year)
-• **Fixed Deposits:** Safe, low return (5-7% per year)
-• **Real Estate:** Long-term, illiquid (8-10% per year)
-• **Gold:** Hedge against inflation (6-8% per year)
+**Common Investment Options:**
+• Mutual Funds (professionally managed)
+• Stocks (direct equity)
+• Bonds (fixed income)
+• Real Estate
+• Gold
 
-**Golden Rules:**
-1. **Start early** - Time is your biggest advantage
-2. **Diversify** - Don't put all eggs in one basket
-3. **Stay invested** - Don't panic sell in downturns
-4. **Invest regularly** - SIP is better than timing market
-5. **Match risk to goals** - Long-term = equity, short-term = debt
-
-**Beginner's Path:**
-1. Build emergency fund first (3-6 months expenses)
-2. Start SIP in diversified mutual fund (₹1,000-5,000/month)
-3. Increase investment as income grows
-4. Stay invested for 5+ years
-
-Would you like to know more about SIPs, mutual funds, or stock market basics?${disclaimer}`;
+**For Beginners:**
+Start with mutual fund SIPs - they're simple, diversified, and professionally managed.${disclaimer}`;
 }
 
-// Generate response for stock market queries
-function generateStocksResponse(query: string, context: AssistantContext): string {
-  const dataPrefix = generateDataAwarePrefix(context);
-  const disclaimer = '\n\n**⚠️ Important Disclaimer:** This is educational information only, not financial advice. Stock market investing involves significant risk. Consult a certified financial advisor before making investment decisions.';
-  
-  return `${dataPrefix}**Stock Market Basics**
-
-**What Are Stocks?**
-Stocks (or shares) represent ownership in a company. When you buy a stock, you own a small piece of that company.
-
-**How Stock Markets Work:**
-• Companies list their shares on stock exchanges (BSE, NSE in India)
-• Investors buy and sell shares through brokers
-• Prices change based on supply and demand
-• You profit when you sell at a higher price than you bought
-
-**Why Stock Prices Change:**
-• Company performance (profits, growth)
-• Economic conditions
-• Industry trends
-• Investor sentiment
-• News and events
-
-**Types of Stocks:**
-• **Blue-chip:** Large, stable companies (lower risk)
-• **Growth:** Fast-growing companies (higher risk/reward)
-• **Dividend:** Pay regular income (stable returns)
-• **Small-cap:** Smaller companies (highest risk/reward)
-
-**How to Start:**
-1. Open demat and trading account
-2. Complete KYC
-3. Research companies
-4. Start with small amounts
-5. Diversify across sectors
-
-**Key Concepts:**
-• **Diversification:** Spread risk across multiple stocks
-• **Long-term investing:** Hold for 5+ years
-• **Fundamental analysis:** Study company financials
-• **Technical analysis:** Study price patterns
-
-**Risks:**
-• Market volatility
-• Company-specific risks
-• No guaranteed returns
-• Requires research and monitoring
-
-**Beginner Tips:**
-• Start with mutual funds before individual stocks
-• Invest only money you can afford to lose
-• Don't follow tips blindly
-• Learn continuously
-• Stay patient and disciplined
-
-**Pro Tip:** For beginners, index funds or diversified equity mutual funds are safer than picking individual stocks!${disclaimer}`;
-}
-
-export function generateDeterministicResponse(query: string, context: AssistantContext): AssistantResponse {
-  // Check for no data fallback
-  if (!context.hasData) {
-    const category = classifyQuery(query);
-    let response = '';
-    
-    if (category === 'saving' || category === 'expenses' || category === 'budgeting') {
-      response = `**I'd love to give you personalized advice!**
-
-However, I don't see any financial data in your account yet. To provide recommendations based on your actual spending patterns and goals:
-
-**Add Your Data:**
-1. **Transactions:** Go to the Transactions page and add your income and expenses
-2. **Goals:** Visit the Goals page to set your savings targets
-3. **Come back here:** Once you have some data, I can give you specific advice!
-
-**In the meantime, here's general advice:**\n\n`;
-      
-      // Add general advice based on category
-      if (category === 'saving') {
-        response += generateSavingResponse(query, context);
-      } else if (category === 'expenses') {
-        response += generateExpenseControlResponse(query, context);
-      } else {
-        response += generateBudgetingResponse(query, context);
-      }
-      
-      return {
-        content: response,
-        needsClarification: false,
-        disclaimer: 'Educational purposes only. Not financial advice.',
-      };
-    }
-  }
-  
+// Main response generator
+export function generateResponse(query: string, context: AssistantContext): AssistantResponse {
   // Check for vague queries
   if (isVagueQuery(query)) {
     return {
@@ -763,42 +409,38 @@ However, I don't see any financial data in your account yet. To provide recommen
     };
   }
 
+  // Classify and route to appropriate handler
   const category = classifyQuery(query);
-  let response = '';
-
+  
+  let content: string;
+  
   switch (category) {
     case 'budgeting':
-      response = generateBudgetingResponse(query, context);
+      content = generateBudgetingResponse(query, context);
       break;
     case 'saving':
-      response = generateSavingResponse(query, context);
+      content = generateSavingResponse(query, context);
       break;
     case 'expenses':
-      response = generateExpenseControlResponse(query, context);
+      content = generateExpenseControlResponse(query, context);
       break;
     case 'investing':
-      response = generateInvestingResponse(query, context);
-      break;
     case 'stocks':
-      response = generateStocksResponse(query, context);
+      content = generateInvestingResponse(query, context);
       break;
     default:
-      response = `I can help you with:
+      content = `I can help you with:
 
-• **Budgeting** - Creating budgets, tracking expenses, 50/30/20 rule
-• **Saving** - Emergency funds, saving strategies, tips for tight budgets
-• **Investing** - SIPs, mutual funds, investment basics
-• **Stocks** - Stock market basics, how to start investing
-• **Expense Control** - Reducing spending, cutting costs
+• **Budgeting** - Creating budgets, tracking expenses
+• **Saving** - Building emergency funds, saving strategies
+• **Investing** - SIPs, mutual funds, stocks
+• **Expense Control** - Reducing costs, optimizing spending
 
-What would you like to know more about?`;
+Please ask a specific question about any of these topics!`;
   }
 
   return {
-    content: response,
+    content,
     needsClarification: false,
-    disclaimer: category === 'investing' || category === 'stocks' 
-      ? 'Educational purposes only. Not financial advice. Consult a certified financial advisor before investing.'
-      : 'Educational purposes only. Not financial advice.',
   };
 }

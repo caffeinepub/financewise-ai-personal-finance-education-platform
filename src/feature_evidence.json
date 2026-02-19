@@ -2,12 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-fix-the-broken-sign-up-navigation-so-clicking-sign-up-free-does-not-go-to-a-not-found-route-and-instead-takes-the-user-to-a-working-internet-identity-authentication-screen",
-      "featureTitle": "Fix the broken Sign Up navigation so clicking “Sign Up Free” does not go to a Not Found route and instead takes the user to a working Internet Identity authentication screen.",
+      "featureId": "feature-verify-that-the-google-adsense-script-with-publisher-id-pub-5050836253831761-is-correctly-integrated-in-the-head-section-of-frontend-index-html-and-confirm-it-loads-on-all-application-pages",
+      "featureTitle": "Verify that the Google AdSense script with publisher ID 'pub-5050836253831761' is correctly integrated in the <head> section of frontend/index.html and confirm it loads on all application pages",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/components/Header.tsx",
-        "frontend/src/pages/Login.tsx"
+        "frontend/index.html"
       ],
       "components": [
         "authorization@3.0.0",
@@ -25,11 +23,12 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-resolve-account-isolation-so-different-internet-identity-users-different-principals-always-see-different-profiles-goals-transactions-and-dashboard-data-switching-identities-must-not-show-the-previous-user-s-data",
-      "featureTitle": "Resolve account isolation so different Internet Identity users (different principals) always see different profiles, goals, transactions, and dashboard data; switching identities must not show the previous user’s data.",
+      "featureId": "feature-create-a-dedicated-ai-insights-hub-page-accessible-from-the-main-navigation-where-users-can-ask-natural-language-questions-about-their-financial-data",
+      "featureTitle": "Create a dedicated AI Insights Hub page accessible from the main navigation where users can ask natural language questions about their financial data",
       "files": [
+        "frontend/src/App.tsx",
         "frontend/src/components/AppLayout.tsx",
-        "frontend/src/hooks/useQueries.ts"
+        "frontend/src/pages/AIInsightsHub.tsx"
       ],
       "components": [
         "authorization@3.0.0",
@@ -47,12 +46,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-fix-the-goals-page-delete-flow-so-goals-are-actually-removed-from-storage-and-the-ui-and-replace-the-browser-confirm-with-an-in-app-confirmation-popup-shown-only-for-goal-deletion",
-      "featureTitle": "Fix the Goals page delete flow so goals are actually removed from storage and the UI, and replace the browser confirm() with an in-app confirmation popup shown only for goal deletion.",
+      "featureId": "feature-integrate-the-ai-insights-hub-with-the-unified-motoko-backend-to-read-all-user-data-including-transactions-goals-budgets-preferences-and-analytics-in-real-time",
+      "featureTitle": "Integrate the AI Insights Hub with the unified Motoko backend to read all user data including transactions, goals, budgets, preferences, and analytics in real-time",
       "files": [
-        "frontend/src/components/GoalDeleteConfirmDialog.tsx",
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/Goals.tsx"
+        "frontend/src/lib/deterministicAssistant.ts",
+        "frontend/src/pages/AIInsightsHub.tsx"
       ],
       "components": [
         "authorization@3.0.0",
@@ -70,10 +68,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-ensure-cross-page-data-consistency-when-the-user-adds-updates-deletes-transactions-or-goals-all-relevant-pages-dashboard-transactions-goals-analytics-and-the-ai-assistant-context-reflect-the-changes-correctly-via-shared-queries-and-proper-invalidation-refetch",
-      "featureTitle": "Ensure cross-page data consistency: when the user adds/updates/deletes transactions or goals, all relevant pages (Dashboard, Transactions, Goals, Analytics, and the AI assistant context) reflect the changes correctly via shared queries and proper invalidation/refetch.",
+      "featureId": "feature-replace-the-existing-budget-planner-interface-with-an-advanced-ai-budget-system-that-includes-mandatory-input-fields-monthly-income-rent-emi-food-travel-utilities-and-existing-loans",
+      "featureTitle": "Replace the existing budget planner interface with an Advanced AI Budget System that includes mandatory input fields: Monthly Income, Rent/EMI, Food, Travel, Utilities, and Existing Loans",
       "files": [
-        "frontend/src/hooks/useQueries.ts"
+        "frontend/src/pages/BudgetPlanner.tsx"
       ],
       "components": [
         "authorization@3.0.0",
@@ -91,11 +89,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-upgrade-the-ai-assistant-so-its-answers-are-based-on-the-authenticated-user-s-actual-app-data-at-minimum-transactions-balance-and-savings-goals-and-it-can-answer-saving-investing-and-expense-control-questions-using-those-numbers-from-the-dashboard",
-      "featureTitle": "Upgrade the AI assistant so its answers are based on the authenticated user’s actual app data (at minimum: transactions, balance, and savings goals) and it can answer saving, investing, and expense-control questions using those numbers from the dashboard.",
+      "featureId": "feature-add-optional-input-fields-to-the-advanced-ai-budget-system-entertainment-subscriptions-shopping-insurance-and-investments",
+      "featureTitle": "Add optional input fields to the Advanced AI Budget System: Entertainment, Subscriptions, Shopping, Insurance, and Investments",
       "files": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/lib/deterministicAssistant.ts"
+        "frontend/src/pages/BudgetPlanner.tsx"
       ],
       "components": [
         "authorization@3.0.0",
@@ -109,6 +106,175 @@
       ],
       "testIds": [
         "REQ-5"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-ai-powered-smart-category-allocation-suggestion-that-analyzes-user-input-and-recommends-optimal-expense-distribution-across-categories",
+      "featureTitle": "Implement AI-powered smart category allocation suggestion that analyzes user input and recommends optimal expense distribution across categories",
+      "files": [
+        "frontend/src/pages/BudgetPlanner.tsx"
+      ],
+      "components": [
+        "authorization@3.0.0",
+        "blob-storage@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-6"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-automatic-savings-percentage-calculation-that-determines-optimal-savings-based-on-income-mandatory-expenses-and-optional-spending",
+      "featureTitle": "Implement automatic savings percentage calculation that determines optimal savings based on income, mandatory expenses, and optional spending",
+      "files": [
+        "frontend/src/pages/BudgetPlanner.tsx"
+      ],
+      "components": [
+        "authorization@3.0.0",
+        "blob-storage@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-7"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-emergency-fund-calculation-that-recommends-emergency-fund-target-based-on-monthly-expenses-and-displays-current-progress",
+      "featureTitle": "Implement emergency fund calculation that recommends emergency fund target based on monthly expenses and displays current progress",
+      "files": [
+        "frontend/src/pages/BudgetPlanner.tsx"
+      ],
+      "components": [
+        "authorization@3.0.0",
+        "blob-storage@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-8"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-overspending-alert-system-that-detects-when-expenses-exceed-budget-allocations-and-notifies-users",
+      "featureTitle": "Implement overspending alert system that detects when expenses exceed budget allocations and notifies users",
+      "files": [
+        "frontend/src/pages/BudgetPlanner.tsx"
+      ],
+      "components": [
+        "authorization@3.0.0",
+        "blob-storage@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-9"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-dynamic-budget-adjustment-capability-that-adapts-budget-recommendations-based-on-actual-spending-patterns-and-income-changes",
+      "featureTitle": "Implement dynamic budget adjustment capability that adapts budget recommendations based on actual spending patterns and income changes",
+      "files": [
+        "frontend/src/pages/BudgetPlanner.tsx"
+      ],
+      "components": [
+        "authorization@3.0.0",
+        "blob-storage@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-10"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-end-of-month-balance-prediction-that-forecasts-remaining-balance-based-on-current-spending-trends-and-upcoming-expenses",
+      "featureTitle": "Implement end-of-month balance prediction that forecasts remaining balance based on current spending trends and upcoming expenses",
+      "files": [
+        "frontend/src/pages/BudgetPlanner.tsx"
+      ],
+      "components": [
+        "authorization@3.0.0",
+        "blob-storage@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-11"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-student-professional-adaptive-mode-that-tailors-budget-recommendations-and-financial-advice-based-on-user-s-life-stage-selection",
+      "featureTitle": "Implement Student/Professional adaptive mode that tailors budget recommendations and financial advice based on user's life stage selection",
+      "files": [
+        "frontend/src/pages/BudgetPlanner.tsx"
+      ],
+      "components": [
+        "authorization@3.0.0",
+        "blob-storage@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-12"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-the-advanced-ai-budget-system-stores-all-budget-data-in-the-unified-motoko-backend-and-integrates-with-existing-transactions-goals-and-analytics-modules-for-real-time-data-synchronization",
+      "featureTitle": "Ensure the Advanced AI Budget System stores all budget data in the unified Motoko backend and integrates with existing transactions, goals, and analytics modules for real-time data synchronization",
+      "files": [
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/BudgetPlanner.tsx"
+      ],
+      "components": [
+        "authorization@3.0.0",
+        "blob-storage@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-13"
       ],
       "confidence": "high"
     }

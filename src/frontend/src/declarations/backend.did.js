@@ -19,16 +19,298 @@ export const _CaffeineStorageRefillResult = IDL.Record({
   'success' : IDL.Opt(IDL.Bool),
   'topped_up_amount' : IDL.Opt(IDL.Nat),
 });
+export const ChatRole = IDL.Variant({
+  'user' : IDL.Null,
+  'assistant' : IDL.Null,
+});
+export const ChatMessage = IDL.Record({
+  'id' : IDL.Text,
+  'content' : IDL.Text,
+  'role' : ChatRole,
+  'timestamp' : IDL.Int,
+});
+export const ExpenseType = IDL.Variant({
+  'optional' : IDL.Null,
+  'mandatory' : IDL.Null,
+});
+export const PaymentType = IDL.Variant({
+  'upi' : IDL.Null,
+  'creditCard' : IDL.Null,
+  'cash' : IDL.Null,
+  'debitCard' : IDL.Null,
+  'netBanking' : IDL.Null,
+});
+export const PriorityLevel = IDL.Variant({
+  'low' : IDL.Null,
+  'high' : IDL.Null,
+  'critical' : IDL.Null,
+  'medium' : IDL.Null,
+});
+export const ExpenseItem = IDL.Record({
+  'id' : IDL.Text,
+  'expenseType' : ExpenseType,
+  'date' : IDL.Int,
+  'item' : IDL.Text,
+  'createdAt' : IDL.Int,
+  'createdBy' : IDL.Text,
+  'recurring' : IDL.Bool,
+  'tags' : IDL.Vec(IDL.Text),
+  'time' : IDL.Record({ 'hours' : IDL.Nat, 'minutes' : IDL.Nat }),
+  'user' : IDL.Principal,
+  'merchant' : IDL.Opt(IDL.Text),
+  'notes' : IDL.Text,
+  'paymentId' : IDL.Opt(IDL.Text),
+  'category' : IDL.Text,
+  'paymentType' : PaymentType,
+  'priority' : PriorityLevel,
+  'spendingGoalId' : IDL.Opt(IDL.Text),
+  'recurringFrequencyDays' : IDL.Opt(IDL.Nat),
+  'amount' : IDL.Float64,
+  'location' : IDL.Opt(
+    IDL.Record({ 'latitude' : IDL.Float64, 'longitude' : IDL.Float64 })
+  ),
+});
+export const QuizTopic = IDL.Variant({
+  'emergencyFunds' : IDL.Null,
+  'saving' : IDL.Null,
+  'investing' : IDL.Null,
+  'digitalPayments' : IDL.Null,
+  'salaryManagement' : IDL.Null,
+  'mistakes' : IDL.Null,
+  'loans' : IDL.Null,
+  'credit' : IDL.Null,
+  'budgeting' : IDL.Null,
+  'debts' : IDL.Null,
+  'spending' : IDL.Null,
+});
+export const QuizDifficulty = IDL.Variant({
+  'easy' : IDL.Null,
+  'hard' : IDL.Null,
+  'medium' : IDL.Null,
+});
+export const QuizQuestion = IDL.Record({
+  'id' : IDL.Text,
+  'topic' : QuizTopic,
+  'question' : IDL.Text,
+  'difficulty' : QuizDifficulty,
+  'explanation' : IDL.Text,
+  'correctAnswer' : IDL.Text,
+  'realLifeTip' : IDL.Text,
+  'options' : IDL.Vec(IDL.Text),
+});
+export const SavingsGoal = IDL.Record({
+  'id' : IDL.Text,
+  'name' : IDL.Text,
+  'createdAt' : IDL.Int,
+  'user' : IDL.Principal,
+  'targetAmount' : IDL.Float64,
+  'currentAmount' : IDL.Float64,
+});
+export const Subscription = IDL.Record({
+  'endDate' : IDL.Opt(IDL.Int),
+  'name' : IDL.Text,
+  'recurring' : IDL.Bool,
+  'category' : IDL.Text,
+  'price' : IDL.Float64,
+  'startDate' : IDL.Int,
+});
+export const TransactionData = IDL.Record({
+  'id' : IDL.Text,
+  'transactionType' : IDL.Text,
+  'date' : IDL.Int,
+  'createdAt' : IDL.Int,
+  'user' : IDL.Principal,
+  'notes' : IDL.Text,
+  'category' : IDL.Text,
+  'paymentType' : IDL.Text,
+  'amount' : IDL.Float64,
+});
 export const UserRole = IDL.Variant({
   'admin' : IDL.Null,
   'user' : IDL.Null,
   'guest' : IDL.Null,
+});
+export const BlogPost = IDL.Record({
+  'id' : IDL.Text,
+  'title' : IDL.Text,
+  'content' : IDL.Text,
+  'seoMeta' : IDL.Text,
+  'featuredImage' : IDL.Text,
+  'slug' : IDL.Text,
+  'publicationDate' : IDL.Int,
+  'excerpt' : IDL.Text,
+});
+export const AIModelPrediction = IDL.Record({
+  'futureSavings' : IDL.Float64,
+  'lastUpdated' : IDL.Int,
+  'confidenceScore' : IDL.Float64,
+  'balancePrediction' : IDL.Float64,
+  'riskLevel' : IDL.Text,
+});
+export const AIModelTrainingData = IDL.Record({
+  'quizNumQuestions' : IDL.Int,
+  'numTransactions' : IDL.Nat,
+  'expenseCategoryDist' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Int)),
+  'transactionAmountSum' : IDL.Float64,
+  'savingsProgressSum' : IDL.Float64,
+  'savingsGoalCount' : IDL.Int,
+  'quizCorrectAnswers' : IDL.Int,
+});
+export const AIPrediction = IDL.Record({
+  'futureSavings' : IDL.Float64,
+  'remainingGoalAmount' : IDL.Float64,
+  'user' : IDL.Principal,
+  'lastUpdated' : IDL.Int,
+  'expenseCategoryAnalysis' : IDL.Vec(
+    IDL.Tuple(IDL.Text, IDL.Float64, IDL.Float64)
+  ),
+  'confidenceScore' : IDL.Float64,
+  'savingsConsistency' : IDL.Float64,
+  'balancePrediction' : IDL.Float64,
+  'disclaimer' : IDL.Text,
+  'spendingGrowthRate' : IDL.Float64,
+  'riskLevel' : IDL.Text,
+});
+export const FinanceBlogContent = IDL.Record({
+  'metaDescription' : IDL.Text,
+  'title' : IDL.Text,
+  'content' : IDL.Text,
+  'featuredImage' : IDL.Text,
+  'tags' : IDL.Vec(IDL.Text),
+  'author' : IDL.Text,
+  'publicationDate' : IDL.Int,
+  'excerpt' : IDL.Text,
+});
+export const BudgetStatus = IDL.Variant({
+  'warning' : IDL.Null,
+  'good' : IDL.Null,
+  'critical' : IDL.Null,
+});
+export const BudgetType = IDL.Variant({
+  'primaryNecessity' : IDL.Null,
+  'seasonal' : IDL.Null,
+  'discretionary' : IDL.Null,
+});
+export const Budget = IDL.Record({
+  'type' : BudgetType,
+  'category' : IDL.Text,
+  'amount' : IDL.Float64,
+});
+export const BudgetData = IDL.Record({
+  'savingsPercentage' : IDL.Float64,
+  'status' : BudgetStatus,
+  'totalMandatoryExpenses' : IDL.Float64,
+  'monthlySavingsGoal' : IDL.Float64,
+  'remainingBudget' : IDL.Float64,
+  'emergencyFundTargetMonths' : IDL.Nat,
+  'totalMonthlyIncome' : IDL.Float64,
+  'emergencyFundTargetAmount' : IDL.Float64,
+  'user' : IDL.Principal,
+  'lastUpdated' : IDL.Int,
+  'budgets' : IDL.Vec(Budget),
+  'currentEmergencyFundBalance' : IDL.Float64,
+  'totalOptionalExpenses' : IDL.Float64,
+  'totalMonthlySavings' : IDL.Float64,
+});
+export const CASection = IDL.Record({
+  'title' : IDL.Text,
+  'icon' : IDL.Text,
+  'color' : IDL.Text,
+  'description' : IDL.Text,
+  'points' : IDL.Vec(IDL.Text),
+});
+export const CharteredAccountantFeaturesContent = IDL.Record({
+  'metaDescription' : IDL.Text,
+  'metaKeywords' : IDL.Text,
+  'lastUpdated' : IDL.Int,
+  'metaTitle' : IDL.Text,
+  'disclaimer' : IDL.Text,
+  'sections' : IDL.Vec(CASection),
 });
 export const UserProfile = IDL.Record({
   'id' : IDL.Text,
   'name' : IDL.Text,
   'createdAt' : IDL.Int,
   'email' : IDL.Text,
+});
+export const ChatSessionStatus = IDL.Variant({
+  'closed' : IDL.Null,
+  'active' : IDL.Null,
+  'expired' : IDL.Null,
+});
+export const ChatSession = IDL.Record({
+  'id' : IDL.Text,
+  'status' : ChatSessionStatus,
+  'lastMessageAt' : IDL.Int,
+  'messages' : IDL.Vec(ChatMessage),
+  'createdAt' : IDL.Int,
+  'user' : IDL.Principal,
+});
+export const ContactSubmission = IDL.Record({
+  'id' : IDL.Text,
+  'name' : IDL.Text,
+  'submittedAt' : IDL.Int,
+  'email' : IDL.Text,
+  'message' : IDL.Text,
+});
+export const CookieConsent = IDL.Record({
+  'expiresAt' : IDL.Int,
+  'advertising' : IDL.Bool,
+  'analytics' : IDL.Bool,
+  'essential' : IDL.Bool,
+  'timestamp' : IDL.Int,
+  'functional' : IDL.Bool,
+});
+export const BudgetRecommendation = IDL.Variant({
+  'evilBudget' : IDL.Null,
+  'custom' : IDL.Null,
+  'professional' : IDL.Null,
+  'student' : IDL.Null,
+  'retired' : IDL.Null,
+});
+export const LegalPage = IDL.Record({
+  'title' : IDL.Text,
+  'content' : IDL.Text,
+});
+export const QuizStatistics = IDL.Record({
+  'currentDifficulty' : QuizDifficulty,
+  'progressPercentage' : IDL.Float64,
+  'incorrectAnswers' : IDL.Nat,
+  'questionsCompleted' : IDL.Nat,
+  'totalQuestions' : IDL.Nat,
+  'correctAnswers' : IDL.Nat,
+});
+export const Currency = IDL.Variant({
+  'eur' : IDL.Null,
+  'inr' : IDL.Null,
+  'usd' : IDL.Null,
+});
+export const UserPreferences = IDL.Record({
+  'notificationsEnabled' : IDL.Bool,
+  'themeMode' : IDL.Text,
+  'updatedAt' : IDL.Int,
+  'currency' : Currency,
+  'analyticsVisible' : IDL.Bool,
+});
+export const QuizInitResponse = IDL.Record({
+  'currentDifficulty' : QuizDifficulty,
+  'progressPercentage' : IDL.Float64,
+  'incorrectAnswers' : IDL.Nat,
+  'questionsCompleted' : IDL.Nat,
+  'correctAnswers' : IDL.Nat,
+  'currentQuestion' : IDL.Opt(QuizQuestion),
+});
+export const QuizAnswer = IDL.Record({
+  'userAnswer' : IDL.Text,
+  'timestamp' : IDL.Int,
+  'questionId' : IDL.Text,
+});
+export const QuizFeedback = IDL.Record({
+  'encouragement' : IDL.Text,
+  'explanation' : IDL.Text,
+  'correctAnswer' : IDL.Text,
+  'isCorrect' : IDL.Bool,
+  'realLifeTip' : IDL.Text,
 });
 
 export const idlService = IDL.Service({
@@ -58,18 +340,99 @@ export const idlService = IDL.Service({
       [],
     ),
   '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
+  'addChatMessage' : IDL.Func([IDL.Text, ChatMessage], [], []),
+  'addExpense' : IDL.Func([ExpenseItem], [], []),
+  'addQuizQuestion' : IDL.Func([QuizQuestion], [], []),
+  'addSavingsGoal' : IDL.Func([SavingsGoal], [], []),
+  'addSubscription' : IDL.Func([Subscription], [], []),
+  'addTransaction' : IDL.Func([TransactionData], [], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'createBlogPost' : IDL.Func([BlogPost], [], []),
+  'createChatSession' : IDL.Func([IDL.Text], [], []),
+  'deleteBlogPost' : IDL.Func([IDL.Text], [], []),
+  'deleteContactSubmission' : IDL.Func([IDL.Text], [], []),
+  'deleteExpense' : IDL.Func([IDL.Text], [], []),
+  'deleteQuizQuestion' : IDL.Func([IDL.Text], [], []),
+  'deleteSavingsGoal' : IDL.Func([IDL.Text], [], []),
+  'deleteSubscription' : IDL.Func([IDL.Text], [], []),
+  'deleteTransaction' : IDL.Func([IDL.Text], [], []),
+  'getAIModelPrediction' : IDL.Func(
+      [],
+      [IDL.Opt(AIModelPrediction)],
+      ['query'],
+    ),
+  'getAIModelTrainingData' : IDL.Func(
+      [],
+      [IDL.Opt(AIModelTrainingData)],
+      ['query'],
+    ),
+  'getAIPrediction' : IDL.Func([], [IDL.Opt(AIPrediction)], ['query']),
+  'getAllBlogPosts' : IDL.Func(
+      [],
+      [IDL.Vec(IDL.Tuple(IDL.Text, BlogPost))],
+      ['query'],
+    ),
   'getBackendVersion' : IDL.Func([], [IDL.Text], ['query']),
+  'getBlogContent' : IDL.Func(
+      [IDL.Text],
+      [IDL.Opt(FinanceBlogContent)],
+      ['query'],
+    ),
+  'getBlogPost' : IDL.Func([IDL.Text], [IDL.Opt(BlogPost)], ['query']),
+  'getBudgetData' : IDL.Func([], [IDL.Opt(BudgetData)], ['query']),
+  'getCAFeaturesContent' : IDL.Func(
+      [IDL.Text],
+      [IDL.Opt(CharteredAccountantFeaturesContent)],
+      ['query'],
+    ),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
   'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+  'getChatSession' : IDL.Func([IDL.Text], [IDL.Opt(ChatSession)], ['query']),
+  'getContactSubmissions' : IDL.Func(
+      [],
+      [IDL.Vec(IDL.Tuple(IDL.Text, ContactSubmission))],
+      ['query'],
+    ),
+  'getCookieConsent' : IDL.Func([], [IDL.Opt(CookieConsent)], ['query']),
+  'getDefaultBudgetSuggestions' : IDL.Func(
+      [BudgetRecommendation],
+      [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Float64))],
+      ['query'],
+    ),
+  'getExpenses' : IDL.Func([], [IDL.Vec(ExpenseItem)], ['query']),
+  'getLegalPage' : IDL.Func([IDL.Text], [IDL.Opt(LegalPage)], ['query']),
+  'getQuizStatistics' : IDL.Func([], [QuizStatistics], ['query']),
+  'getSavingsGoals' : IDL.Func([], [IDL.Vec(SavingsGoal)], ['query']),
+  'getSubscriptions' : IDL.Func([], [IDL.Vec(Subscription)], ['query']),
+  'getTransactions' : IDL.Func([], [IDL.Vec(TransactionData)], ['query']),
+  'getUserPreferences' : IDL.Func([], [IDL.Opt(UserPreferences)], ['query']),
   'getUserProfile' : IDL.Func(
       [IDL.Principal],
       [IDL.Opt(UserProfile)],
       ['query'],
     ),
   'initializeAccessControl' : IDL.Func([], [], []),
+  'initializeQuiz' : IDL.Func([], [QuizInitResponse], []),
   'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+  'saveAIModelPrediction' : IDL.Func([AIModelPrediction], [], []),
+  'saveAIModelTrainingData' : IDL.Func([AIModelTrainingData], [], []),
+  'saveAIPrediction' : IDL.Func([AIPrediction], [], []),
+  'saveBlogContent' : IDL.Func([IDL.Text, FinanceBlogContent], [], []),
+  'saveBudgetData' : IDL.Func([BudgetData], [], []),
+  'saveCAFeaturesContent' : IDL.Func(
+      [IDL.Text, CharteredAccountantFeaturesContent],
+      [],
+      [],
+    ),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+  'saveCookieConsent' : IDL.Func([CookieConsent], [], []),
+  'saveLegalPage' : IDL.Func([IDL.Text, LegalPage], [], []),
+  'saveUserPreferences' : IDL.Func([UserPreferences], [], []),
+  'submitContactForm' : IDL.Func([ContactSubmission], [], []),
+  'submitQuizAnswer' : IDL.Func([QuizAnswer], [QuizFeedback], []),
+  'updateBlogPost' : IDL.Func([IDL.Text, BlogPost], [], []),
+  'updateQuizQuestion' : IDL.Func([IDL.Text, QuizQuestion], [], []),
+  'updateSavingsGoal' : IDL.Func([IDL.Text, SavingsGoal], [], []),
 });
 
 export const idlInitArgs = [];
@@ -86,16 +449,292 @@ export const idlFactory = ({ IDL }) => {
     'success' : IDL.Opt(IDL.Bool),
     'topped_up_amount' : IDL.Opt(IDL.Nat),
   });
+  const ChatRole = IDL.Variant({ 'user' : IDL.Null, 'assistant' : IDL.Null });
+  const ChatMessage = IDL.Record({
+    'id' : IDL.Text,
+    'content' : IDL.Text,
+    'role' : ChatRole,
+    'timestamp' : IDL.Int,
+  });
+  const ExpenseType = IDL.Variant({
+    'optional' : IDL.Null,
+    'mandatory' : IDL.Null,
+  });
+  const PaymentType = IDL.Variant({
+    'upi' : IDL.Null,
+    'creditCard' : IDL.Null,
+    'cash' : IDL.Null,
+    'debitCard' : IDL.Null,
+    'netBanking' : IDL.Null,
+  });
+  const PriorityLevel = IDL.Variant({
+    'low' : IDL.Null,
+    'high' : IDL.Null,
+    'critical' : IDL.Null,
+    'medium' : IDL.Null,
+  });
+  const ExpenseItem = IDL.Record({
+    'id' : IDL.Text,
+    'expenseType' : ExpenseType,
+    'date' : IDL.Int,
+    'item' : IDL.Text,
+    'createdAt' : IDL.Int,
+    'createdBy' : IDL.Text,
+    'recurring' : IDL.Bool,
+    'tags' : IDL.Vec(IDL.Text),
+    'time' : IDL.Record({ 'hours' : IDL.Nat, 'minutes' : IDL.Nat }),
+    'user' : IDL.Principal,
+    'merchant' : IDL.Opt(IDL.Text),
+    'notes' : IDL.Text,
+    'paymentId' : IDL.Opt(IDL.Text),
+    'category' : IDL.Text,
+    'paymentType' : PaymentType,
+    'priority' : PriorityLevel,
+    'spendingGoalId' : IDL.Opt(IDL.Text),
+    'recurringFrequencyDays' : IDL.Opt(IDL.Nat),
+    'amount' : IDL.Float64,
+    'location' : IDL.Opt(
+      IDL.Record({ 'latitude' : IDL.Float64, 'longitude' : IDL.Float64 })
+    ),
+  });
+  const QuizTopic = IDL.Variant({
+    'emergencyFunds' : IDL.Null,
+    'saving' : IDL.Null,
+    'investing' : IDL.Null,
+    'digitalPayments' : IDL.Null,
+    'salaryManagement' : IDL.Null,
+    'mistakes' : IDL.Null,
+    'loans' : IDL.Null,
+    'credit' : IDL.Null,
+    'budgeting' : IDL.Null,
+    'debts' : IDL.Null,
+    'spending' : IDL.Null,
+  });
+  const QuizDifficulty = IDL.Variant({
+    'easy' : IDL.Null,
+    'hard' : IDL.Null,
+    'medium' : IDL.Null,
+  });
+  const QuizQuestion = IDL.Record({
+    'id' : IDL.Text,
+    'topic' : QuizTopic,
+    'question' : IDL.Text,
+    'difficulty' : QuizDifficulty,
+    'explanation' : IDL.Text,
+    'correctAnswer' : IDL.Text,
+    'realLifeTip' : IDL.Text,
+    'options' : IDL.Vec(IDL.Text),
+  });
+  const SavingsGoal = IDL.Record({
+    'id' : IDL.Text,
+    'name' : IDL.Text,
+    'createdAt' : IDL.Int,
+    'user' : IDL.Principal,
+    'targetAmount' : IDL.Float64,
+    'currentAmount' : IDL.Float64,
+  });
+  const Subscription = IDL.Record({
+    'endDate' : IDL.Opt(IDL.Int),
+    'name' : IDL.Text,
+    'recurring' : IDL.Bool,
+    'category' : IDL.Text,
+    'price' : IDL.Float64,
+    'startDate' : IDL.Int,
+  });
+  const TransactionData = IDL.Record({
+    'id' : IDL.Text,
+    'transactionType' : IDL.Text,
+    'date' : IDL.Int,
+    'createdAt' : IDL.Int,
+    'user' : IDL.Principal,
+    'notes' : IDL.Text,
+    'category' : IDL.Text,
+    'paymentType' : IDL.Text,
+    'amount' : IDL.Float64,
+  });
   const UserRole = IDL.Variant({
     'admin' : IDL.Null,
     'user' : IDL.Null,
     'guest' : IDL.Null,
+  });
+  const BlogPost = IDL.Record({
+    'id' : IDL.Text,
+    'title' : IDL.Text,
+    'content' : IDL.Text,
+    'seoMeta' : IDL.Text,
+    'featuredImage' : IDL.Text,
+    'slug' : IDL.Text,
+    'publicationDate' : IDL.Int,
+    'excerpt' : IDL.Text,
+  });
+  const AIModelPrediction = IDL.Record({
+    'futureSavings' : IDL.Float64,
+    'lastUpdated' : IDL.Int,
+    'confidenceScore' : IDL.Float64,
+    'balancePrediction' : IDL.Float64,
+    'riskLevel' : IDL.Text,
+  });
+  const AIModelTrainingData = IDL.Record({
+    'quizNumQuestions' : IDL.Int,
+    'numTransactions' : IDL.Nat,
+    'expenseCategoryDist' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Int)),
+    'transactionAmountSum' : IDL.Float64,
+    'savingsProgressSum' : IDL.Float64,
+    'savingsGoalCount' : IDL.Int,
+    'quizCorrectAnswers' : IDL.Int,
+  });
+  const AIPrediction = IDL.Record({
+    'futureSavings' : IDL.Float64,
+    'remainingGoalAmount' : IDL.Float64,
+    'user' : IDL.Principal,
+    'lastUpdated' : IDL.Int,
+    'expenseCategoryAnalysis' : IDL.Vec(
+      IDL.Tuple(IDL.Text, IDL.Float64, IDL.Float64)
+    ),
+    'confidenceScore' : IDL.Float64,
+    'savingsConsistency' : IDL.Float64,
+    'balancePrediction' : IDL.Float64,
+    'disclaimer' : IDL.Text,
+    'spendingGrowthRate' : IDL.Float64,
+    'riskLevel' : IDL.Text,
+  });
+  const FinanceBlogContent = IDL.Record({
+    'metaDescription' : IDL.Text,
+    'title' : IDL.Text,
+    'content' : IDL.Text,
+    'featuredImage' : IDL.Text,
+    'tags' : IDL.Vec(IDL.Text),
+    'author' : IDL.Text,
+    'publicationDate' : IDL.Int,
+    'excerpt' : IDL.Text,
+  });
+  const BudgetStatus = IDL.Variant({
+    'warning' : IDL.Null,
+    'good' : IDL.Null,
+    'critical' : IDL.Null,
+  });
+  const BudgetType = IDL.Variant({
+    'primaryNecessity' : IDL.Null,
+    'seasonal' : IDL.Null,
+    'discretionary' : IDL.Null,
+  });
+  const Budget = IDL.Record({
+    'type' : BudgetType,
+    'category' : IDL.Text,
+    'amount' : IDL.Float64,
+  });
+  const BudgetData = IDL.Record({
+    'savingsPercentage' : IDL.Float64,
+    'status' : BudgetStatus,
+    'totalMandatoryExpenses' : IDL.Float64,
+    'monthlySavingsGoal' : IDL.Float64,
+    'remainingBudget' : IDL.Float64,
+    'emergencyFundTargetMonths' : IDL.Nat,
+    'totalMonthlyIncome' : IDL.Float64,
+    'emergencyFundTargetAmount' : IDL.Float64,
+    'user' : IDL.Principal,
+    'lastUpdated' : IDL.Int,
+    'budgets' : IDL.Vec(Budget),
+    'currentEmergencyFundBalance' : IDL.Float64,
+    'totalOptionalExpenses' : IDL.Float64,
+    'totalMonthlySavings' : IDL.Float64,
+  });
+  const CASection = IDL.Record({
+    'title' : IDL.Text,
+    'icon' : IDL.Text,
+    'color' : IDL.Text,
+    'description' : IDL.Text,
+    'points' : IDL.Vec(IDL.Text),
+  });
+  const CharteredAccountantFeaturesContent = IDL.Record({
+    'metaDescription' : IDL.Text,
+    'metaKeywords' : IDL.Text,
+    'lastUpdated' : IDL.Int,
+    'metaTitle' : IDL.Text,
+    'disclaimer' : IDL.Text,
+    'sections' : IDL.Vec(CASection),
   });
   const UserProfile = IDL.Record({
     'id' : IDL.Text,
     'name' : IDL.Text,
     'createdAt' : IDL.Int,
     'email' : IDL.Text,
+  });
+  const ChatSessionStatus = IDL.Variant({
+    'closed' : IDL.Null,
+    'active' : IDL.Null,
+    'expired' : IDL.Null,
+  });
+  const ChatSession = IDL.Record({
+    'id' : IDL.Text,
+    'status' : ChatSessionStatus,
+    'lastMessageAt' : IDL.Int,
+    'messages' : IDL.Vec(ChatMessage),
+    'createdAt' : IDL.Int,
+    'user' : IDL.Principal,
+  });
+  const ContactSubmission = IDL.Record({
+    'id' : IDL.Text,
+    'name' : IDL.Text,
+    'submittedAt' : IDL.Int,
+    'email' : IDL.Text,
+    'message' : IDL.Text,
+  });
+  const CookieConsent = IDL.Record({
+    'expiresAt' : IDL.Int,
+    'advertising' : IDL.Bool,
+    'analytics' : IDL.Bool,
+    'essential' : IDL.Bool,
+    'timestamp' : IDL.Int,
+    'functional' : IDL.Bool,
+  });
+  const BudgetRecommendation = IDL.Variant({
+    'evilBudget' : IDL.Null,
+    'custom' : IDL.Null,
+    'professional' : IDL.Null,
+    'student' : IDL.Null,
+    'retired' : IDL.Null,
+  });
+  const LegalPage = IDL.Record({ 'title' : IDL.Text, 'content' : IDL.Text });
+  const QuizStatistics = IDL.Record({
+    'currentDifficulty' : QuizDifficulty,
+    'progressPercentage' : IDL.Float64,
+    'incorrectAnswers' : IDL.Nat,
+    'questionsCompleted' : IDL.Nat,
+    'totalQuestions' : IDL.Nat,
+    'correctAnswers' : IDL.Nat,
+  });
+  const Currency = IDL.Variant({
+    'eur' : IDL.Null,
+    'inr' : IDL.Null,
+    'usd' : IDL.Null,
+  });
+  const UserPreferences = IDL.Record({
+    'notificationsEnabled' : IDL.Bool,
+    'themeMode' : IDL.Text,
+    'updatedAt' : IDL.Int,
+    'currency' : Currency,
+    'analyticsVisible' : IDL.Bool,
+  });
+  const QuizInitResponse = IDL.Record({
+    'currentDifficulty' : QuizDifficulty,
+    'progressPercentage' : IDL.Float64,
+    'incorrectAnswers' : IDL.Nat,
+    'questionsCompleted' : IDL.Nat,
+    'correctAnswers' : IDL.Nat,
+    'currentQuestion' : IDL.Opt(QuizQuestion),
+  });
+  const QuizAnswer = IDL.Record({
+    'userAnswer' : IDL.Text,
+    'timestamp' : IDL.Int,
+    'questionId' : IDL.Text,
+  });
+  const QuizFeedback = IDL.Record({
+    'encouragement' : IDL.Text,
+    'explanation' : IDL.Text,
+    'correctAnswer' : IDL.Text,
+    'isCorrect' : IDL.Bool,
+    'realLifeTip' : IDL.Text,
   });
   
   return IDL.Service({
@@ -125,18 +764,99 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     '_caffeineStorageUpdateGatewayPrincipals' : IDL.Func([], [], []),
+    'addChatMessage' : IDL.Func([IDL.Text, ChatMessage], [], []),
+    'addExpense' : IDL.Func([ExpenseItem], [], []),
+    'addQuizQuestion' : IDL.Func([QuizQuestion], [], []),
+    'addSavingsGoal' : IDL.Func([SavingsGoal], [], []),
+    'addSubscription' : IDL.Func([Subscription], [], []),
+    'addTransaction' : IDL.Func([TransactionData], [], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'createBlogPost' : IDL.Func([BlogPost], [], []),
+    'createChatSession' : IDL.Func([IDL.Text], [], []),
+    'deleteBlogPost' : IDL.Func([IDL.Text], [], []),
+    'deleteContactSubmission' : IDL.Func([IDL.Text], [], []),
+    'deleteExpense' : IDL.Func([IDL.Text], [], []),
+    'deleteQuizQuestion' : IDL.Func([IDL.Text], [], []),
+    'deleteSavingsGoal' : IDL.Func([IDL.Text], [], []),
+    'deleteSubscription' : IDL.Func([IDL.Text], [], []),
+    'deleteTransaction' : IDL.Func([IDL.Text], [], []),
+    'getAIModelPrediction' : IDL.Func(
+        [],
+        [IDL.Opt(AIModelPrediction)],
+        ['query'],
+      ),
+    'getAIModelTrainingData' : IDL.Func(
+        [],
+        [IDL.Opt(AIModelTrainingData)],
+        ['query'],
+      ),
+    'getAIPrediction' : IDL.Func([], [IDL.Opt(AIPrediction)], ['query']),
+    'getAllBlogPosts' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Text, BlogPost))],
+        ['query'],
+      ),
     'getBackendVersion' : IDL.Func([], [IDL.Text], ['query']),
+    'getBlogContent' : IDL.Func(
+        [IDL.Text],
+        [IDL.Opt(FinanceBlogContent)],
+        ['query'],
+      ),
+    'getBlogPost' : IDL.Func([IDL.Text], [IDL.Opt(BlogPost)], ['query']),
+    'getBudgetData' : IDL.Func([], [IDL.Opt(BudgetData)], ['query']),
+    'getCAFeaturesContent' : IDL.Func(
+        [IDL.Text],
+        [IDL.Opt(CharteredAccountantFeaturesContent)],
+        ['query'],
+      ),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
     'getCallerUserRole' : IDL.Func([], [UserRole], ['query']),
+    'getChatSession' : IDL.Func([IDL.Text], [IDL.Opt(ChatSession)], ['query']),
+    'getContactSubmissions' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Text, ContactSubmission))],
+        ['query'],
+      ),
+    'getCookieConsent' : IDL.Func([], [IDL.Opt(CookieConsent)], ['query']),
+    'getDefaultBudgetSuggestions' : IDL.Func(
+        [BudgetRecommendation],
+        [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Float64))],
+        ['query'],
+      ),
+    'getExpenses' : IDL.Func([], [IDL.Vec(ExpenseItem)], ['query']),
+    'getLegalPage' : IDL.Func([IDL.Text], [IDL.Opt(LegalPage)], ['query']),
+    'getQuizStatistics' : IDL.Func([], [QuizStatistics], ['query']),
+    'getSavingsGoals' : IDL.Func([], [IDL.Vec(SavingsGoal)], ['query']),
+    'getSubscriptions' : IDL.Func([], [IDL.Vec(Subscription)], ['query']),
+    'getTransactions' : IDL.Func([], [IDL.Vec(TransactionData)], ['query']),
+    'getUserPreferences' : IDL.Func([], [IDL.Opt(UserPreferences)], ['query']),
     'getUserProfile' : IDL.Func(
         [IDL.Principal],
         [IDL.Opt(UserProfile)],
         ['query'],
       ),
     'initializeAccessControl' : IDL.Func([], [], []),
+    'initializeQuiz' : IDL.Func([], [QuizInitResponse], []),
     'isCallerAdmin' : IDL.Func([], [IDL.Bool], ['query']),
+    'saveAIModelPrediction' : IDL.Func([AIModelPrediction], [], []),
+    'saveAIModelTrainingData' : IDL.Func([AIModelTrainingData], [], []),
+    'saveAIPrediction' : IDL.Func([AIPrediction], [], []),
+    'saveBlogContent' : IDL.Func([IDL.Text, FinanceBlogContent], [], []),
+    'saveBudgetData' : IDL.Func([BudgetData], [], []),
+    'saveCAFeaturesContent' : IDL.Func(
+        [IDL.Text, CharteredAccountantFeaturesContent],
+        [],
+        [],
+      ),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
+    'saveCookieConsent' : IDL.Func([CookieConsent], [], []),
+    'saveLegalPage' : IDL.Func([IDL.Text, LegalPage], [], []),
+    'saveUserPreferences' : IDL.Func([UserPreferences], [], []),
+    'submitContactForm' : IDL.Func([ContactSubmission], [], []),
+    'submitQuizAnswer' : IDL.Func([QuizAnswer], [QuizFeedback], []),
+    'updateBlogPost' : IDL.Func([IDL.Text, BlogPost], [], []),
+    'updateQuizQuestion' : IDL.Func([IDL.Text, QuizQuestion], [], []),
+    'updateSavingsGoal' : IDL.Func([IDL.Text, SavingsGoal], [], []),
   });
 };
 

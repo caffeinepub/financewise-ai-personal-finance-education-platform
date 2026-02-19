@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { useInternetIdentity } from './hooks/useInternetIdentity';
 import { useGetCallerUserProfile, useSaveCallerUserProfile } from './hooks/useQueries';
 import AppLayout from './components/AppLayout';
+import AnalyticsGuard from './components/AnalyticsGuard';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,8 +26,8 @@ import MoneyPsychology from './pages/MoneyPsychology';
 import Learning from './pages/Learning';
 import Quiz from './pages/Quiz';
 import Settings from './pages/Settings';
-import Challenges from './pages/Challenges';
 import BudgetPlanner from './pages/BudgetPlanner';
+import AIInsightsHub from './pages/AIInsightsHub';
 
 // Public Pages (No Authentication Required)
 import Home from './pages/Home';
@@ -50,6 +51,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsAndConditions from './pages/TermsAndConditions';
 import CookiePolicy from './pages/CookiePolicy';
 import Disclaimer from './pages/Disclaimer';
+import DeploymentInfo from './pages/DeploymentInfo';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -261,9 +263,9 @@ const benefitsRoute = createRoute({
   component: Benefits,
 });
 
-const securityPublicRoute = createRoute({
+const securityRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/security-privacy',
+  path: '/security',
   component: SecurityPublic,
 });
 
@@ -335,17 +337,17 @@ const contactRoute = createRoute({
 
 const customerCareRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/support',
+  path: '/customer-care',
   component: CustomerCare,
 });
 
-const privacyPolicyRoute = createRoute({
+const privacyRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/privacy-policy',
   component: PrivacyPolicy,
 });
 
-const termsAndConditionsRoute = createRoute({
+const termsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/terms-and-conditions',
   component: TermsAndConditions,
@@ -363,104 +365,105 @@ const disclaimerRoute = createRoute({
   component: Disclaimer,
 });
 
-const signUpRoute = createRoute({
+const deploymentInfoRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: '/signup',
-  component: Login,
+  path: '/deployment-info',
+  component: DeploymentInfo,
 });
 
+// Login Route
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/login',
   component: Login,
 });
 
-// Private Routes (Authentication Required) - Wrapped with AppLayout
-const privateLayoutRoute = createRoute({
+// Sign Up Route (alias to Login)
+const signupRoute = createRoute({
   getParentRoute: () => rootRoute,
-  id: 'private',
-  component: AppLayout,
+  path: '/signup',
+  component: Login,
 });
 
+// Private Routes (Authentication Required) - Wrapped with AppLayout
 const dashboardRoute = createRoute({
-  getParentRoute: () => privateLayoutRoute,
+  getParentRoute: () => rootRoute,
   path: '/dashboard',
-  component: Dashboard,
+  component: () => <AppLayout />,
 });
 
 const transactionsRoute = createRoute({
-  getParentRoute: () => privateLayoutRoute,
+  getParentRoute: () => rootRoute,
   path: '/transactions',
-  component: Transactions,
+  component: () => <AppLayout />,
 });
 
 const aiInsightsRoute = createRoute({
-  getParentRoute: () => privateLayoutRoute,
+  getParentRoute: () => rootRoute,
   path: '/ai-insights',
-  component: AIInsights,
+  component: () => <AppLayout />,
+});
+
+const aiInsightsHubRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/ai-insights-hub',
+  component: () => <AppLayout />,
 });
 
 const goalsRoute = createRoute({
-  getParentRoute: () => privateLayoutRoute,
+  getParentRoute: () => rootRoute,
   path: '/goals',
-  component: Goals,
+  component: () => <AppLayout />,
 });
 
 const analyticsRoute = createRoute({
-  getParentRoute: () => privateLayoutRoute,
+  getParentRoute: () => rootRoute,
   path: '/analytics',
-  component: Analytics,
+  component: () => <AppLayout />,
 });
 
 const calculatorsRoute = createRoute({
-  getParentRoute: () => privateLayoutRoute,
+  getParentRoute: () => rootRoute,
   path: '/calculators',
-  component: Calculators,
+  component: () => <AppLayout />,
 });
 
 const moneyPsychologyRoute = createRoute({
-  getParentRoute: () => privateLayoutRoute,
+  getParentRoute: () => rootRoute,
   path: '/money-psychology',
-  component: MoneyPsychology,
+  component: () => <AppLayout />,
 });
 
 const learningRoute = createRoute({
-  getParentRoute: () => privateLayoutRoute,
+  getParentRoute: () => rootRoute,
   path: '/learning',
-  component: Learning,
+  component: () => <AppLayout />,
 });
 
 const quizRoute = createRoute({
-  getParentRoute: () => privateLayoutRoute,
+  getParentRoute: () => rootRoute,
   path: '/quiz',
-  component: Quiz,
-});
-
-const challengesRoute = createRoute({
-  getParentRoute: () => privateLayoutRoute,
-  path: '/challenges',
-  component: Challenges,
-});
-
-const budgetPlannerRoute = createRoute({
-  getParentRoute: () => privateLayoutRoute,
-  path: '/budget-planner',
-  component: BudgetPlanner,
+  component: () => <AppLayout />,
 });
 
 const settingsRoute = createRoute({
-  getParentRoute: () => privateLayoutRoute,
+  getParentRoute: () => rootRoute,
   path: '/settings',
-  component: Settings,
+  component: () => <AppLayout />,
+});
+
+const budgetPlannerRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/budget-planner',
+  component: () => <AppLayout />,
 });
 
 const routeTree = rootRoute.addChildren([
-  // Public routes
   homeRoute,
   howItWorksRoute,
   featuresRoute,
   benefitsRoute,
-  securityPublicRoute,
+  securityRoute,
   aboutRoute,
   resourcesRoute,
   useCasesRoute,
@@ -473,27 +476,25 @@ const routeTree = rootRoute.addChildren([
   blogPostRoute,
   contactRoute,
   customerCareRoute,
-  privacyPolicyRoute,
-  termsAndConditionsRoute,
+  privacyRoute,
+  termsRoute,
   cookiePolicyRoute,
   disclaimerRoute,
-  signUpRoute,
+  deploymentInfoRoute,
   loginRoute,
-  // Private routes (wrapped with AppLayout)
-  privateLayoutRoute.addChildren([
-    dashboardRoute,
-    transactionsRoute,
-    aiInsightsRoute,
-    goalsRoute,
-    analyticsRoute,
-    calculatorsRoute,
-    moneyPsychologyRoute,
-    learningRoute,
-    quizRoute,
-    challengesRoute,
-    budgetPlannerRoute,
-    settingsRoute,
-  ]),
+  signupRoute,
+  dashboardRoute,
+  transactionsRoute,
+  aiInsightsRoute,
+  aiInsightsHubRoute,
+  goalsRoute,
+  analyticsRoute,
+  calculatorsRoute,
+  moneyPsychologyRoute,
+  learningRoute,
+  quizRoute,
+  settingsRoute,
+  budgetPlannerRoute,
 ]);
 
 const router = createRouter({ routeTree });
@@ -506,10 +507,10 @@ declare module '@tanstack/react-router' {
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} forcedTheme="dark">
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
-      </ThemeProvider>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }

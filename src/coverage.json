@@ -1,108 +1,201 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-17T07:53:17.998Z",
+  "generatedAt": "2026-02-19T07:57:16.492Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 5,
-    "implemented": 5,
+    "total": 13,
+    "implemented": 13,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Fix the broken Sign Up navigation so clicking “Sign Up Free” does not go to a Not Found route and instead takes the user to a working Internet Identity authentication screen.",
+        "summary": "Verify that the Google AdSense script with publisher ID 'pub-5050836253831761' is correctly integrated in the <head> section of frontend/index.html and confirm it loads on all application pages",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/Header.tsx",
-          "frontend/src/App.tsx",
-          "frontend/src/pages/Login.tsx"
+          "frontend/index.html"
         ],
         "matchedFiles": [
-          "frontend/src/components/Header.tsx",
-          "frontend/src/App.tsx",
-          "frontend/src/pages/Login.tsx"
+          "frontend/index.html"
+        ]
+      },
+      {
+        "id": "REQ-10",
+        "summary": "Implement dynamic budget adjustment capability that adapts budget recommendations based on actual spending patterns and income changes",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/lib/budget-planner/budgetLogic.ts",
+          "frontend/src/pages/BudgetPlanner.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/BudgetPlanner.tsx"
+        ]
+      },
+      {
+        "id": "REQ-11",
+        "summary": "Implement end-of-month balance prediction that forecasts remaining balance based on current spending trends and upcoming expenses",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/lib/budget-planner/budgetLogic.ts",
+          "frontend/src/pages/BudgetPlanner.tsx",
+          "frontend/src/pages/Dashboard.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/BudgetPlanner.tsx"
+        ]
+      },
+      {
+        "id": "REQ-12",
+        "summary": "Implement Student/Professional adaptive mode that tailors budget recommendations and financial advice based on user's life stage selection",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/types/budget-planner.ts",
+          "frontend/src/pages/BudgetPlanner.tsx",
+          "frontend/src/lib/budget-planner/budgetLogic.ts",
+          "frontend/src/lib/budget-planner/recommendations.ts"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/BudgetPlanner.tsx"
+        ]
+      },
+      {
+        "id": "REQ-13",
+        "summary": "Ensure the Advanced AI Budget System stores all budget data in the unified Motoko backend and integrates with existing transactions, goals, and analytics modules for real-time data synchronization",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/BudgetPlanner.tsx",
+          "frontend/src/pages/Analytics.tsx",
+          "frontend/src/pages/Dashboard.tsx",
+          "frontend/src/pages/Goals.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/BudgetPlanner.tsx"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Resolve account isolation so different Internet Identity users (different principals) always see different profiles, goals, transactions, and dashboard data; switching identities must not show the previous user’s data.",
+        "summary": "Create a dedicated AI Insights Hub page accessible from the main navigation where users can ask natural language questions about their financial data",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useActor.ts",
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/hooks/useInternetIdentity.ts",
+          "frontend/src/pages/AIInsightsHub.tsx",
+          "frontend/src/App.tsx",
           "frontend/src/components/AppLayout.tsx"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
+          "frontend/src/pages/AIInsightsHub.tsx",
+          "frontend/src/App.tsx",
           "frontend/src/components/AppLayout.tsx"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Fix the Goals page delete flow so goals are actually removed from storage and the UI, and replace the browser confirm() with an in-app confirmation popup shown only for goal deletion.",
+        "summary": "Integrate the AI Insights Hub with the unified Motoko backend to read all user data including transactions, goals, budgets, preferences, and analytics in real-time",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pages/Goals.tsx",
-          "frontend/src/components/GoalDeleteConfirmDialog.tsx",
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/pages/AIInsightsHub.tsx",
+          "frontend/src/lib/deterministicAssistant.ts"
         ],
         "matchedFiles": [
-          "frontend/src/pages/Goals.tsx",
-          "frontend/src/components/GoalDeleteConfirmDialog.tsx",
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/pages/AIInsightsHub.tsx",
+          "frontend/src/lib/deterministicAssistant.ts"
         ]
       },
       {
         "id": "REQ-4",
-        "summary": "Ensure cross-page data consistency: when the user adds/updates/deletes transactions or goals, all relevant pages (Dashboard, Transactions, Goals, Analytics, and the AI assistant context) reflect the changes correctly via shared queries and proper invalidation/refetch.",
+        "summary": "Replace the existing budget planner interface with an Advanced AI Budget System that includes mandatory input fields: Monthly Income, Rent/EMI, Food, Travel, Utilities, and Existing Loans",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/components/AIChatbot.tsx",
-          "frontend/src/pages/Dashboard.tsx",
-          "frontend/src/pages/Transactions.tsx"
+          "frontend/src/pages/BudgetPlanner.tsx",
+          "frontend/src/types/budget-planner.ts"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts"
+          "frontend/src/pages/BudgetPlanner.tsx"
         ]
       },
       {
         "id": "REQ-5",
-        "summary": "Upgrade the AI assistant so its answers are based on the authenticated user’s actual app data (at minimum: transactions, balance, and savings goals) and it can answer saving, investing, and expense-control questions using those numbers from the dashboard.",
+        "summary": "Add optional input fields to the Advanced AI Budget System: Entertainment, Subscriptions, Shopping, Insurance, and Investments",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/lib/deterministicAssistant.ts",
-          "frontend/src/components/AIChatbot.tsx"
+          "frontend/src/pages/BudgetPlanner.tsx",
+          "frontend/src/types/budget-planner.ts"
         ],
         "matchedFiles": [
-          "frontend/src/hooks/useQueries.ts",
-          "frontend/src/lib/deterministicAssistant.ts"
+          "frontend/src/pages/BudgetPlanner.tsx"
+        ]
+      },
+      {
+        "id": "REQ-6",
+        "summary": "Implement AI-powered smart category allocation suggestion that analyzes user input and recommends optimal expense distribution across categories",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/lib/budget-planner/budgetLogic.ts",
+          "frontend/src/pages/BudgetPlanner.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/BudgetPlanner.tsx"
+        ]
+      },
+      {
+        "id": "REQ-7",
+        "summary": "Implement automatic savings percentage calculation that determines optimal savings based on income, mandatory expenses, and optional spending",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/lib/budget-planner/budgetLogic.ts",
+          "frontend/src/pages/BudgetPlanner.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/BudgetPlanner.tsx"
+        ]
+      },
+      {
+        "id": "REQ-8",
+        "summary": "Implement emergency fund calculation that recommends emergency fund target based on monthly expenses and displays current progress",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/lib/budget-planner/budgetLogic.ts",
+          "frontend/src/pages/BudgetPlanner.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/BudgetPlanner.tsx"
+        ]
+      },
+      {
+        "id": "REQ-9",
+        "summary": "Implement overspending alert system that detects when expenses exceed budget allocations and notifies users",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/lib/budget-planner/budgetLogic.ts",
+          "frontend/src/pages/BudgetPlanner.tsx",
+          "frontend/src/pages/Dashboard.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/pages/BudgetPlanner.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
     "backend/main.mo",
-    "backend/migration.mo",
     "build-request.json",
-    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
+    "frontend/index.html",
     "frontend/src/App.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.ts",
     "frontend/src/components/AppLayout.tsx",
-    "frontend/src/components/GoalDeleteConfirmDialog.tsx",
-    "frontend/src/components/Header.tsx",
-    "frontend/src/config.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
     "frontend/src/hooks/useQueries.ts",
     "frontend/src/lib/deterministicAssistant.ts",
-    "frontend/src/pages/AIInsights.tsx",
-    "frontend/src/pages/Goals.tsx",
-    "frontend/src/pages/Login.tsx",
+    "frontend/src/pages/AIInsightsHub.tsx",
+    "frontend/src/pages/BudgetPlanner.tsx",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",
