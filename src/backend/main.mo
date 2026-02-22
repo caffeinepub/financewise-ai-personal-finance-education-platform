@@ -8,19 +8,20 @@ import Array "mo:core/Array";
 import Order "mo:core/Order";
 import Iter "mo:core/Iter";
 import Float "mo:core/Float";
-import Blob "mo:core/Blob";
 import List "mo:core/List";
+import Blob "mo:core/Blob";
 import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
 import AccessControl "authorization/access-control";
 import Storage "blob-storage/Storage";
 import MixinStorage "blob-storage/Mixin";
+import Migration "migration";
 
-// Actor
+// Persist state with migration transformation
+(with migration = Migration.run)
 actor {
   let accessControlState = AccessControl.initState();
   let storage = Storage.new();
-
   include MixinStorage(storage);
 
   // State Variables
@@ -45,9 +46,9 @@ actor {
   var blogPosts = Map.empty<Text, BlogPost>();
   var blogPostContents = Map.empty<Text, FinanceBlogContent>();
   var systemInitialized : Bool = false;
-  let backendVersion = "2.4.2";
   var userBudgets = Map.empty<Principal, BudgetData>();
   var savingsGoals = Map.empty<Principal, [SavingsGoal]>();
+  let backendVersion = "2.4.2";
 
   // Type Definitions
   public type UserProfile = {
@@ -249,6 +250,7 @@ actor {
     disclaimer : Text;
     confidenceScore : Float;
     lastUpdated : Int;
+    modelVersion : Text;
   };
 
   public type CharteredAccountantFeaturesContent = {
@@ -626,7 +628,7 @@ actor {
     userProfiles.add(caller, profile);
   };
 
-  // User Preferences Management
+  // Settings Page Backend Integration
   public shared ({ caller }) func saveUserPreferences(preferences : UserPreferences) : async () {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only users can save preferences");
@@ -641,7 +643,7 @@ actor {
     userPreferences.get(caller);
   };
 
-  // Cookie Consent Management
+  // Cookie Consent
   public shared ({ caller }) func saveCookieConsent(consent : CookieConsent) : async () {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only users can save cookie consent");
@@ -656,7 +658,7 @@ actor {
     userCookieConsent.get(caller);
   };
 
-  // Transaction Management
+  // Transactions
   public shared ({ caller }) func addTransaction(transaction : TransactionData) : async () {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only users can add transactions");
@@ -693,7 +695,7 @@ actor {
     transactions.add(caller, filtered);
   };
 
-  // Expense Management
+  // Expenses
   public shared ({ caller }) func addExpense(expense : ExpenseItem) : async () {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only users can add expenses");
@@ -730,7 +732,7 @@ actor {
     expenses.add(caller, filtered);
   };
 
-  // Budget Management Functions
+  // Budget Data
   public shared ({ caller }) func saveBudgetData(budget : BudgetData) : async () {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only users can save budget data");
@@ -748,7 +750,7 @@ actor {
     budgets.get(caller);
   };
 
-  // Savings Goals Management
+  // Savings Goals
   public shared ({ caller }) func addSavingsGoal(goal : SavingsGoal) : async () {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only users can add savings goals");
@@ -784,6 +786,11 @@ actor {
       case (?existing) { existing };
       case (null) { [] };
     };
+    // Verify the goal being updated belongs to the caller
+    let goalExists = userGoals.filter(func(g) { g.id == goalId }).size() > 0;
+    if (not goalExists) {
+      Runtime.trap("Unauthorized: Goal not found or does not belong to you");
+    };
     let updated = userGoals.map(
       func(g) {
         if (g.id == goalId) { updatedGoal } else { g };
@@ -804,7 +811,7 @@ actor {
     savingsGoals.add(caller, filtered);
   };
 
-  // Subscription Management
+  // Subscriptions
   public shared ({ caller }) func addSubscription(subscription : Subscription) : async () {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only users can add subscriptions");
@@ -838,7 +845,7 @@ actor {
     subscriptions.add(caller, filtered);
   };
 
-  // AI Predictions Management
+  // AI Predictions
   public shared ({ caller }) func saveAIPrediction(prediction : AIPrediction) : async () {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only users can save AI predictions");
@@ -856,7 +863,7 @@ actor {
     aiPredictions.get(caller);
   };
 
-  // AI Model Management
+  // AI Model
   public shared ({ caller }) func saveAIModelPrediction(prediction : AIModelPrediction) : async () {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only users can save AI model predictions");
@@ -885,7 +892,7 @@ actor {
     aiModelTrainingData.get(caller);
   };
 
-  // Chat Session Management
+  // Chat Session
   public shared ({ caller }) func createChatSession(sessionId : Text) : async () {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only users can create chat sessions");
@@ -938,7 +945,7 @@ actor {
     };
   };
 
-  // Quiz Management
+  // Quiz
   public shared ({ caller }) func initializeQuiz() : async QuizInitResponse {
     if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
       Runtime.trap("Unauthorized: Only users can initialize quiz");
@@ -1009,7 +1016,7 @@ actor {
     };
   };
 
-  // Contact Form Management (Admin only to view)
+  // Contact Form (Admin only to view)
   public shared ({ caller }) func submitContactForm(submission : ContactSubmission) : async () {
     // Anyone can submit contact forms (including guests)
     contactSubmissions.add(submission.id, submission);
@@ -1029,7 +1036,7 @@ actor {
     contactSubmissions.remove(submissionId);
   };
 
-  // Blog Post Management (Admin only for write operations)
+  // Blog Post (Admin only for write operations)
   public shared ({ caller }) func createBlogPost(post : BlogPost) : async () {
     if (not AccessControl.hasPermission(accessControlState, caller, #admin)) {
       Runtime.trap("Unauthorized: Only admins can create blog posts");
@@ -1061,7 +1068,7 @@ actor {
     blogPosts.entries().toArray();
   };
 
-  // Blog Content Management (Admin only for write operations)
+  // Blog Content (Admin only for write operations)
   public shared ({ caller }) func saveBlogContent(contentId : Text, content : FinanceBlogContent) : async () {
     if (not AccessControl.hasPermission(accessControlState, caller, #admin)) {
       Runtime.trap("Unauthorized: Only admins can save blog content");
@@ -1074,7 +1081,7 @@ actor {
     blogPostContents.get(contentId);
   };
 
-  // Legal Pages Management (Admin only for write operations)
+  // Legal Pages (Admin only for write operations)
   public shared ({ caller }) func saveLegalPage(pageId : Text, page : LegalPage) : async () {
     if (not AccessControl.hasPermission(accessControlState, caller, #admin)) {
       Runtime.trap("Unauthorized: Only admins can save legal pages");
@@ -1087,7 +1094,7 @@ actor {
     legalPages.get(pageId);
   };
 
-  // CA Features Content Management (Admin only for write operations)
+  // CA Features Content (Admin only for write operations)
   public shared ({ caller }) func saveCAFeaturesContent(contentId : Text, content : CharteredAccountantFeaturesContent) : async () {
     if (not AccessControl.hasPermission(accessControlState, caller, #admin)) {
       Runtime.trap("Unauthorized: Only admins can save CA features content");
@@ -1100,7 +1107,7 @@ actor {
     caFeaturesContent.get(contentId);
   };
 
-  // Quiz Questions Management (Admin only for write operations)
+  // Quiz Questions (Admin only for write operations)
   public shared ({ caller }) func addQuizQuestion(question : QuizQuestion) : async () {
     if (not AccessControl.hasPermission(accessControlState, caller, #admin)) {
       Runtime.trap("Unauthorized: Only admins can add quiz questions");
@@ -1223,7 +1230,7 @@ actor {
     var totalExpenses = 0.0;
     var savingsAmount = 0.0;
     let categoryMap = Map.empty<Text, CategoryDistribution>();
-    let gt100 = func(x : Float) : Bool { x > 100.0 };
+    let gtor100 = func(x : Float) : Bool { x > 100.0 };
 
     for ((category, target) in budgetDistribution.values()) {
       let categoryDistribution = {
@@ -1261,7 +1268,7 @@ actor {
 
     savingsAmount := income - totalExpenses;
 
-    let categoryBreakdown = categoryMap.entries().toArray().filter(func(tuple) { not gt100(tuple.1.percentage) });
+    let categoryBreakdown = categoryMap.entries().toArray().filter(func(tuple) { not gtor100(tuple.1.percentage) });
     let finalCategoryBreakdown = categoryBreakdown.map(func(entry) { entry.1 });
     let categoryAnalysis = categoryMap.entries().toArray();
 

@@ -2,10 +2,11 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-verify-that-the-google-adsense-script-with-publisher-id-pub-5050836253831761-is-correctly-integrated-in-the-head-section-of-frontend-index-html-and-confirm-it-loads-on-all-application-pages",
-      "featureTitle": "Verify that the Google AdSense script with publisher ID 'pub-5050836253831761' is correctly integrated in the <head> section of frontend/index.html and confirm it loads on all application pages",
+      "featureId": "feature-implement-internet-identity-authentication-system-that-manages-login-logout-flow-and-persists-authentication-state-across-browser-sessions",
+      "featureTitle": "Implement Internet Identity authentication system that manages login/logout flow and persists authentication state across browser sessions",
       "files": [
-        "frontend/index.html"
+        "frontend/src/components/AppLayout.tsx",
+        "frontend/src/pages/Login.tsx"
       ],
       "components": [
         "authorization@3.0.0",
@@ -23,55 +24,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-create-a-dedicated-ai-insights-hub-page-accessible-from-the-main-navigation-where-users-can-ask-natural-language-questions-about-their-financial-data",
-      "featureTitle": "Create a dedicated AI Insights Hub page accessible from the main navigation where users can ask natural language questions about their financial data",
+      "featureId": "feature-modify-dashboard-page-to-fetch-all-data-from-backend-on-mount-and-after-any-mutation-never-relying-on-frontend-only-state-for-persistence",
+      "featureTitle": "Modify Dashboard page to fetch all data from backend on mount and after any mutation, never relying on frontend-only state for persistence",
       "files": [
-        "frontend/src/App.tsx",
-        "frontend/src/components/AppLayout.tsx",
-        "frontend/src/pages/AIInsightsHub.tsx"
-      ],
-      "components": [
-        "authorization@3.0.0",
-        "blob-storage@3.0.0",
-        "http-outcalls@3.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-2"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-integrate-the-ai-insights-hub-with-the-unified-motoko-backend-to-read-all-user-data-including-transactions-goals-budgets-preferences-and-analytics-in-real-time",
-      "featureTitle": "Integrate the AI Insights Hub with the unified Motoko backend to read all user data including transactions, goals, budgets, preferences, and analytics in real-time",
-      "files": [
-        "frontend/src/lib/deterministicAssistant.ts",
-        "frontend/src/pages/AIInsightsHub.tsx"
-      ],
-      "components": [
-        "authorization@3.0.0",
-        "blob-storage@3.0.0",
-        "http-outcalls@3.0.0",
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-3"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-replace-the-existing-budget-planner-interface-with-an-advanced-ai-budget-system-that-includes-mandatory-input-fields-monthly-income-rent-emi-food-travel-utilities-and-existing-loans",
-      "featureTitle": "Replace the existing budget planner interface with an Advanced AI Budget System that includes mandatory input fields: Monthly Income, Rent/EMI, Food, Travel, Utilities, and Existing Loans",
-      "files": [
-        "frontend/src/pages/BudgetPlanner.tsx"
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "authorization@3.0.0",
@@ -89,10 +45,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-optional-input-fields-to-the-advanced-ai-budget-system-entertainment-subscriptions-shopping-insurance-and-investments",
-      "featureTitle": "Add optional input fields to the Advanced AI Budget System: Entertainment, Subscriptions, Shopping, Insurance, and Investments",
+      "featureId": "feature-modify-transactions-page-to-fetch-transaction-history-from-backend-and-implement-add-edit-delete-operations-that-save-immediately-to-backend",
+      "featureTitle": "Modify Transactions page to fetch transaction history from backend and implement add/edit/delete operations that save immediately to backend",
       "files": [
-        "frontend/src/pages/BudgetPlanner.tsx"
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "authorization@3.0.0",
@@ -110,10 +66,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-ai-powered-smart-category-allocation-suggestion-that-analyzes-user-input-and-recommends-optimal-expense-distribution-across-categories",
-      "featureTitle": "Implement AI-powered smart category allocation suggestion that analyzes user input and recommends optimal expense distribution across categories",
+      "featureId": "feature-modify-goals-page-to-fetch-savings-goals-from-backend-and-implement-crud-operations-with-immediate-backend-persistence",
+      "featureTitle": "Modify Goals page to fetch savings goals from backend and implement CRUD operations with immediate backend persistence",
       "files": [
-        "frontend/src/pages/BudgetPlanner.tsx"
+        "frontend/src/hooks/useQueries.ts",
+        "frontend/src/pages/Goals.tsx"
       ],
       "components": [
         "authorization@3.0.0",
@@ -131,10 +88,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-automatic-savings-percentage-calculation-that-determines-optimal-savings-based-on-income-mandatory-expenses-and-optional-spending",
-      "featureTitle": "Implement automatic savings percentage calculation that determines optimal savings based on income, mandatory expenses, and optional spending",
+      "featureId": "feature-modify-analytics-page-to-fetch-transaction-data-and-user-preferences-from-backend-ensuring-all-analytics-calculations-are-based-on-backend-data",
+      "featureTitle": "Modify Analytics page to fetch transaction data and user preferences from backend, ensuring all analytics calculations are based on backend data",
       "files": [
-        "frontend/src/pages/BudgetPlanner.tsx"
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "authorization@3.0.0",
@@ -152,10 +109,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-emergency-fund-calculation-that-recommends-emergency-fund-target-based-on-monthly-expenses-and-displays-current-progress",
-      "featureTitle": "Implement emergency fund calculation that recommends emergency fund target based on monthly expenses and displays current progress",
+      "featureId": "feature-modify-budget-planner-page-to-save-budget-plans-to-backend-and-fetch-them-on-page-load",
+      "featureTitle": "Modify Budget Planner page to save budget plans to backend and fetch them on page load",
       "files": [
-        "frontend/src/pages/BudgetPlanner.tsx"
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "authorization@3.0.0",
@@ -173,10 +130,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-overspending-alert-system-that-detects-when-expenses-exceed-budget-allocations-and-notifies-users",
-      "featureTitle": "Implement overspending alert system that detects when expenses exceed budget allocations and notifies users",
+      "featureId": "feature-modify-calculators-page-to-save-calculation-history-to-backend-and-fetch-previous-calculations-on-page-load",
+      "featureTitle": "Modify Calculators page to save calculation history to backend and fetch previous calculations on page load",
       "files": [
-        "frontend/src/pages/BudgetPlanner.tsx"
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "authorization@3.0.0",
@@ -194,10 +151,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-dynamic-budget-adjustment-capability-that-adapts-budget-recommendations-based-on-actual-spending-patterns-and-income-changes",
-      "featureTitle": "Implement dynamic budget adjustment capability that adapts budget recommendations based on actual spending patterns and income changes",
+      "featureId": "feature-modify-ai-insights-page-to-fetch-ai-predictions-from-backend-and-ensure-prediction-generation-saves-results-to-backend",
+      "featureTitle": "Modify AI Insights page to fetch AI predictions from backend and ensure prediction generation saves results to backend",
       "files": [
-        "frontend/src/pages/BudgetPlanner.tsx"
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "authorization@3.0.0",
@@ -215,10 +172,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-end-of-month-balance-prediction-that-forecasts-remaining-balance-based-on-current-spending-trends-and-upcoming-expenses",
-      "featureTitle": "Implement end-of-month balance prediction that forecasts remaining balance based on current spending trends and upcoming expenses",
+      "featureId": "feature-modify-quiz-learning-pages-to-save-quiz-progress-and-scores-to-backend-keyed-by-user-principal",
+      "featureTitle": "Modify Quiz/Learning pages to save quiz progress and scores to backend keyed by user Principal",
       "files": [
-        "frontend/src/pages/BudgetPlanner.tsx"
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "authorization@3.0.0",
@@ -236,10 +193,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-implement-student-professional-adaptive-mode-that-tailors-budget-recommendations-and-financial-advice-based-on-user-s-life-stage-selection",
-      "featureTitle": "Implement Student/Professional adaptive mode that tailors budget recommendations and financial advice based on user's life stage selection",
+      "featureId": "feature-implement-settings-page-backend-integration-to-save-user-preferences-theme-notifications-analytics-visibility-currency-to-backend-and-fetch-on-page-load",
+      "featureTitle": "Implement Settings page backend integration to save user preferences (theme, notifications, analytics visibility, currency) to backend and fetch on page load",
       "files": [
-        "frontend/src/pages/BudgetPlanner.tsx"
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "authorization@3.0.0",
@@ -257,11 +214,10 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-ensure-the-advanced-ai-budget-system-stores-all-budget-data-in-the-unified-motoko-backend-and-integrates-with-existing-transactions-goals-and-analytics-modules-for-real-time-data-synchronization",
-      "featureTitle": "Ensure the Advanced AI Budget System stores all budget data in the unified Motoko backend and integrates with existing transactions, goals, and analytics modules for real-time data synchronization",
+      "featureId": "feature-update-all-react-query-hooks-to-invalidate-and-refetch-data-after-mutations-ensuring-frontend-always-displays-current-backend-state",
+      "featureTitle": "Update all React Query hooks to invalidate and refetch data after mutations, ensuring frontend always displays current backend state",
       "files": [
-        "frontend/src/hooks/useQueries.ts",
-        "frontend/src/pages/BudgetPlanner.tsx"
+        "frontend/src/hooks/useQueries.ts"
       ],
       "components": [
         "authorization@3.0.0",
@@ -275,6 +231,48 @@
       ],
       "testIds": [
         "REQ-13"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-comprehensive-data-persistence-testing-across-all-private-pages-to-verify-data-survives-browser-refresh-logout-login-cycles-and-cross-device-access",
+      "featureTitle": "Implement comprehensive data persistence testing across all private pages to verify data survives browser refresh, logout/login cycles, and cross-device access",
+      "files": [
+        "frontend/src/pages/Goals.tsx"
+      ],
+      "components": [
+        "authorization@3.0.0",
+        "blob-storage@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-14"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-update-applayout-logout-handler-to-clear-all-frontend-state-and-query-cache-while-preserving-backend-data",
+      "featureTitle": "Update AppLayout logout handler to clear all frontend state and query cache while preserving backend data",
+      "files": [
+        "frontend/src/components/AppLayout.tsx"
+      ],
+      "components": [
+        "authorization@3.0.0",
+        "blob-storage@3.0.0",
+        "http-outcalls@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-15"
       ],
       "confidence": "high"
     }

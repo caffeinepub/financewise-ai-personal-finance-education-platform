@@ -1,321 +1,327 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Verify AdSense integration and enhance AI budget system with unified backend",
+  "title": "Frontend Implementation: Backend-First Data Persistence with Internet Identity Authentication",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Verify that the Google AdSense script with publisher ID 'pub-5050836253831761' is correctly integrated in frontend/index.html and confirm it loads on all application pages",
+      "summary": "Implement Internet Identity authentication system that manages login/logout flow and persists authentication state across browser sessions",
       "acceptanceCriteria": [
-        "AdSense script tag is present in frontend/index.html <head> section",
-        "Script includes correct publisher ID 'pub-5050836253831761'",
-        "Script loads successfully across all routes (dashboard, analytics, transactions, goals, settings, AI insights)"
+        "Users can log in using Internet Identity (passkeys, Google, Apple, or Microsoft)",
+        "Authentication state persists across browser refresh",
+        "Logout clears frontend state but preserves all backend data",
+        "Login redirects to Dashboard after successful authentication"
       ],
       "file_operations": [
         {
-          "path": "frontend/index.html",
+          "path": "frontend/src/pages/Login.tsx",
           "operation": "modify",
-          "description": "Review and verify the Google AdSense script tag in the <head> section contains the correct publisher ID 'pub-5050836253831761'. Ensure the script element is properly formatted with async attribute and correct src URL. Document verification status in code comments."
-        }
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "summary": "Create a dedicated AI Insights Hub page accessible from the main navigation where users can ask natural language questions about their financial data",
-      "acceptanceCriteria": [
-        "New dedicated page or section for AI insights is created",
-        "Chat interface allows users to type and submit natural language questions",
-        "Interface displays AI responses with data-driven insights",
-        "Page is accessible from main navigation menu"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/AIInsightsHub.tsx",
-          "operation": "create",
-          "description": "Create a new AI Insights Hub page component with a chat interface for natural language financial questions. Include message input field, send button, message history display with user/assistant roles, and loading states. Use the existing deterministicAssistant library to generate responses. Display visual insights including spending charts, balance cards, and follow-up suggestions similar to existing AIChatbot component functionality but as a full dedicated page."
-        },
-        {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Add a new private route '/ai-insights-hub' that renders the AIInsightsHub component. Place the route alongside other authenticated routes like dashboard, analytics, and goals. Ensure the route requires authentication and is accessible after login."
+          "description": "Update login page to redirect authenticated users to Dashboard using TanStack Router navigation. Add error handling for failed authentication attempts and loading states during login process."
         },
         {
           "path": "frontend/src/components/AppLayout.tsx",
           "operation": "modify",
-          "description": "Add 'AI Insights Hub' navigation item to the sidebar menu with appropriate icon (Brain or MessageSquare from lucide-react). Link to '/ai-insights-hub' route. Position it logically in the navigation order, preferably near the existing AI Insights menu item."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Integrate the AI Insights Hub with the unified Motoko backend to read all user data including transactions, goals, budgets, preferences, and analytics in real-time",
-      "acceptanceCriteria": [
-        "AI insights hub queries backend for all transaction data",
-        "AI insights hub reads current savings goals and progress",
-        "AI insights hub accesses budget allocations and spending patterns",
-        "AI insights hub uses user preferences for personalized responses",
-        "Responses are data-driven based on actual user financial data"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/pages/AIInsightsHub.tsx",
-          "operation": "modify",
-          "description": "Integrate React Query hooks (useGetTransactions, useGetSavingsGoals, useGetBudgetData, useGetUserPreferences) to fetch all user financial data from the backend. Pass the fetched data to the deterministicAssistant query classifier and response generator to provide data-driven insights. Ensure responses reference actual transaction amounts, goal progress percentages, budget allocations, and user preferences like currency settings. Display loading states while data is being fetched and show error messages if data fetching fails."
-        },
-        {
-          "path": "frontend/src/lib/deterministicAssistant.ts",
-          "operation": "modify",
-          "description": "Enhance the generateResponse function to accept comprehensive user financial data as parameters including transactions array, savings goals array, budget data object, and user preferences. Update response templates to incorporate actual data values like total spending, savings progress, budget status, and personalized recommendations based on currency and notification preferences. Add data-aware context for queries about specific categories, time periods, and goal targets."
+          "description": "Verify logout handler properly clears React Query cache using queryClient.clear() and does not trigger any backend delete operations. Ensure authentication state is cleared while preserving all backend data."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Replace the existing budget planner interface with an Advanced AI Budget System that includes mandatory input fields: Monthly Income, Rent/EMI, Food, Travel, Utilities, and Existing Loans",
+      "summary": "Modify Dashboard page to fetch all data from backend on mount and after any mutation, never relying on frontend-only state for persistence",
       "acceptanceCriteria": [
-        "Budget planner UI includes all six mandatory fields with clear labels",
-        "Monthly Income field accepts numerical input",
-        "Rent/EMI, Food, Travel, Utilities, and Existing Loans fields accept numerical inputs",
-        "All mandatory fields are required before budget calculation"
+        "Dashboard fetches user data from backend on component mount",
+        "After adding/editing income or expenses, data refetches from backend",
+        "Data persists after browser refresh",
+        "Loading states display while fetching data"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/BudgetPlanner.tsx",
+          "path": "frontend/src/pages/Dashboard.tsx",
           "operation": "modify",
-          "description": "Update the budget planner form to prominently feature six mandatory input fields: Monthly Income, Rent/EMI, Food, Travel, Utilities, and Existing Loans. Use Input components with clear labels, placeholder text, and numerical validation. Mark all six fields as required with asterisks or required attributes. Add validation that prevents budget calculation submission unless all mandatory fields are filled with valid numerical values. Update the form layout to group mandatory fields in a distinct section at the top of the form."
+          "description": "Refactor Dashboard to fetch all financial data from backend using existing hooks (useGetTransactions, useGetAIPrediction, useGetUserPreferences). Remove any localStorage or frontend-only state for critical data. Add loading states during data fetches. After adding income or expenses via mutations, ensure React Query invalidates and refetches the relevant queries to display fresh backend data."
         },
         {
-          "path": "frontend/src/types/budget-planner.ts",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Update the BudgetInputs interface to include explicit required fields for monthlyIncome, rentOrEmi, food, travel, utilities, and existingLoans as number types (not optional). Ensure these fields align with the mandatory input requirements and remove any optional markers from these specific properties."
+          "description": "Review and update useAddTransaction and related mutation hooks to ensure they invalidate the ['transactions'] query key on success, triggering automatic refetch of transaction data from backend."
         }
       ]
     },
     {
       "id": "REQ-5",
-      "summary": "Add optional input fields to the Advanced AI Budget System: Entertainment, Subscriptions, Shopping, Insurance, and Investments",
+      "summary": "Modify Transactions page to fetch transaction history from backend and implement add/edit/delete operations that save immediately to backend",
       "acceptanceCriteria": [
-        "Budget planner UI includes all five optional fields with clear labels",
-        "Optional fields can be left empty without blocking budget calculation",
-        "All optional fields accept numerical inputs when provided"
+        "Transactions page fetches all transactions from backend on mount",
+        "Add transaction saves to backend and refetches data",
+        "Edit transaction updates backend and refetches data",
+        "Delete transaction removes from backend and refetches data",
+        "All transaction data persists after logout and login"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/BudgetPlanner.tsx",
+          "path": "frontend/src/pages/Transactions.tsx",
           "operation": "modify",
-          "description": "Add five optional input fields to the budget planner form: Entertainment, Subscriptions, Shopping, Insurance, and Investments. Label these fields clearly as optional (e.g., with '(Optional)' suffix). Use Input components with numerical validation when values are provided. Ensure the form can be submitted with these fields empty, and budget calculation logic handles undefined or zero values gracefully. Group optional fields in a separate section below mandatory fields or in an expandable 'Advanced Options' accordion."
+          "description": "Refactor Transactions page to use backend CRUD operations via useAddTransaction, useDeleteTransaction hooks. Remove any localStorage dependencies for transaction data. Ensure all operations (add, edit, delete) trigger query invalidation and refetch from backend. Add loading and error states for all mutation operations."
         },
         {
-          "path": "frontend/src/types/budget-planner.ts",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Update the BudgetInputs interface to include optional fields for entertainment, subscriptions, shopping, insurance, and investments as optional number types (number | undefined). Ensure the type system allows these fields to be omitted or undefined during form submission."
+          "description": "Add useUpdateTransaction mutation hook that calls backend updateTransaction (if not already present) and invalidates ['transactions'] query on success. Ensure useDeleteTransaction properly invalidates queries after deletion."
         }
       ]
     },
     {
       "id": "REQ-6",
-      "summary": "Implement AI-powered smart category allocation suggestion that analyzes user input and recommends optimal expense distribution across categories",
+      "summary": "Modify Goals page to fetch savings goals from backend and implement CRUD operations with immediate backend persistence",
       "acceptanceCriteria": [
-        "System generates category allocation recommendations based on income and existing expenses",
-        "Recommendations are displayed to the user with clear explanations",
-        "Suggestions adapt to user's financial profile"
+        "Goals page fetches all savings goals from backend on mount",
+        "Creating new goals saves to backend immediately",
+        "Updating goal progress saves to backend immediately",
+        "Deleting goals removes from backend immediately",
+        "Goal data persists across sessions"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/lib/budget-planner/budgetLogic.ts",
+          "path": "frontend/src/pages/Goals.tsx",
           "operation": "modify",
-          "description": "Add a new function generateSmartCategoryAllocations that takes monthly income, mandatory expenses, and optional expenses as inputs. Calculate optimal allocations for each category based on percentage rules (e.g., 50% needs, 30% wants, 20% savings) adapted to the user's income level. Return an object with recommended amounts per category and explanations for each recommendation. Consider income tiers (low, medium, high) to adjust allocation percentages accordingly."
+          "description": "Refactor Goals page to use backend CRUD operations via useAddSavingsGoal, useUpdateSavingsGoal, useDeleteSavingsGoal hooks. Remove any localStorage dependencies for goal data. Ensure all operations immediately save to backend and trigger query invalidation to refetch fresh data. Add loading states during mutations and display error messages for failed operations."
         },
         {
-          "path": "frontend/src/pages/BudgetPlanner.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Display smart category allocation suggestions below the budget input form or in a dedicated suggestions card. Show recommended amounts for each expense category with explanatory text (e.g., 'Based on your income, we recommend spending no more than $X on Food'). Use visual indicators like progress bars or percentage badges to show how current inputs compare to recommendations. Add an 'Apply Suggestions' button that auto-fills optional fields with recommended values."
+          "description": "Review and ensure useAddSavingsGoal, useUpdateSavingsGoal, and useDeleteSavingsGoal hooks properly invalidate ['savingsGoals'] query key on success to trigger refetch from backend."
         }
       ]
     },
     {
       "id": "REQ-7",
-      "summary": "Implement automatic savings percentage calculation that determines optimal savings based on income, mandatory expenses, and optional spending",
+      "summary": "Modify Analytics page to fetch transaction data and user preferences from backend, ensuring all analytics calculations are based on backend data",
       "acceptanceCriteria": [
-        "System calculates recommended savings percentage from total income",
-        "Calculation accounts for all mandatory and optional expenses",
-        "Savings percentage is displayed with explanation"
+        "Analytics page fetches transaction data from backend on mount",
+        "All charts and statistics calculate from backend data",
+        "Adding transactions through Analytics form saves to backend",
+        "Analytics preferences sync with backend user preferences",
+        "Data remains available after logout/login cycle"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/lib/budget-planner/budgetLogic.ts",
+          "path": "frontend/src/pages/Analytics.tsx",
           "operation": "modify",
-          "description": "Add a calculateAutoSavingsPercentage function that takes monthly income, total mandatory expenses, and total optional expenses as inputs. Calculate the remaining amount after all expenses and determine the savings percentage (remaining / income * 100). Apply minimum savings threshold logic (e.g., at least 10-20% for financial health). Return savings percentage, absolute savings amount, and a health assessment explanation."
+          "description": "Refactor Analytics page to fetch transaction data using useGetTransactions hook and user preferences using useGetUserPreferences hook. Remove any frontend-only calculations or cached data. Ensure all charts and statistics derive from backend data. When adding transactions via the Analytics form, use backend mutation hooks and trigger query invalidation to refetch updated data."
         },
         {
-          "path": "frontend/src/pages/BudgetPlanner.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Display the automatic savings percentage prominently in the budget summary section. Show the percentage as a large badge or metric card with color coding (green for healthy, yellow for moderate, red for low). Include explanatory text like 'Your savings rate is X%, which is [excellent/good/needs improvement]'. Display the absolute monthly savings amount alongside the percentage."
+          "description": "Ensure useGetUserPreferences hook is properly configured and that any preference updates invalidate the ['userPreferences'] query key to refetch from backend."
         }
       ]
     },
     {
       "id": "REQ-8",
-      "summary": "Implement emergency fund calculation that recommends emergency fund target based on monthly expenses and displays current progress",
+      "summary": "Modify Budget Planner page to save budget plans to backend and fetch them on page load",
       "acceptanceCriteria": [
-        "System calculates recommended emergency fund amount (typically 3-6 months of expenses)",
-        "Emergency fund target is displayed in budget summary",
-        "Progress toward emergency fund goal is tracked and shown"
+        "Budget plans save to backend when generated",
+        "Budget page fetches saved plans from backend on mount",
+        "Budget data persists across sessions",
+        "Users can view their previous budget plans after logout/login"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/lib/budget-planner/budgetLogic.ts",
-          "operation": "modify",
-          "description": "Add a calculateEmergencyFund function that takes total monthly expenses (mandatory + essential optional) as input. Calculate recommended emergency fund target as 3-6 months of expenses based on income stability and risk factors. Return target amount, recommended months of coverage, and rationale explanation. Accept current emergency fund balance as optional input to calculate progress percentage."
-        },
-        {
           "path": "frontend/src/pages/BudgetPlanner.tsx",
           "operation": "modify",
-          "description": "Display emergency fund target and progress in the budget summary section. Show target amount with months of coverage explanation (e.g., '$18,000 (6 months of expenses)'). If user has entered current emergency fund balance, display a progress bar showing percentage toward target with color coding. Include recommendations like 'You need $X more to reach your 6-month emergency fund goal'."
+          "description": "Refactor Budget Planner to fetch saved budget data from backend using useGetBudgetData hook on component mount. After generating or updating budget plans, save them to backend using useSaveBudgetData mutation hook and invalidate ['budgetData'] query to refetch. Remove any localStorage dependencies for budget data. Add loading states during fetch and save operations."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Add or review useGetBudgetData and useSaveBudgetData hooks to ensure they properly fetch and persist budget plans to backend, with query invalidation on successful mutations."
         }
       ]
     },
     {
       "id": "REQ-9",
-      "summary": "Implement overspending alert system that detects when expenses exceed budget allocations and notifies users",
+      "summary": "Modify Calculators page to save calculation history to backend and fetch previous calculations on page load",
       "acceptanceCriteria": [
-        "System monitors actual spending against budgeted amounts per category",
-        "Alerts are triggered when spending exceeds budget thresholds",
-        "Visual indicators show overspending status in the UI"
+        "Calculator results save to backend after computation",
+        "Calculators page shows calculation history from backend",
+        "Calculation history persists across sessions",
+        "Users can access previous calculations after logout/login"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/lib/budget-planner/budgetLogic.ts",
+          "path": "frontend/src/pages/Calculators.tsx",
           "operation": "modify",
-          "description": "Add a detectOverspending function that compares actual transaction amounts per category against budgeted amounts. Calculate overspending amount and percentage for each category where actual exceeds budget. Return an array of overspending alerts with category name, budgeted amount, actual amount, excess amount, and severity level (warning/critical based on percentage over budget)."
+          "description": "Refactor Calculators page to save calculation results to backend after each computation using a new mutation hook (e.g., useSaveCalculationHistory). Fetch previous calculation history from backend on mount using a new query hook (e.g., useGetCalculationHistory). Remove any localStorage dependencies for calculation data. Add UI to display calculation history and loading states."
         },
         {
-          "path": "frontend/src/pages/BudgetPlanner.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Display overspending alerts prominently using Alert components with warning or destructive variants. Show alerts at the top of the budget planner page or in a dedicated alerts section. For each overspending category, display the budgeted vs actual amounts, excess amount, and actionable recommendations. Use color coding (yellow for warning, red for critical) and icons (AlertTriangle) to draw attention. Include a dismiss or acknowledge button for each alert."
-        },
-        {
-          "path": "frontend/src/pages/Dashboard.tsx",
-          "operation": "modify",
-          "description": "Add overspending indicators to the dashboard page by integrating the detectOverspending function with transaction and budget data. Display a summary card or badge showing the number of categories with overspending. Use visual indicators like red borders or warning icons on spending category cards when budget limits are exceeded."
+          "description": "Add useGetCalculationHistory query hook and useSaveCalculationHistory mutation hook to fetch and persist calculator results to backend. Ensure mutation invalidates ['calculationHistory'] query key on success."
         }
       ]
     },
     {
       "id": "REQ-10",
-      "summary": "Implement dynamic budget adjustment capability that adapts budget recommendations based on actual spending patterns and income changes",
+      "summary": "Modify AI Insights page to fetch AI predictions from backend and ensure prediction generation saves results to backend",
       "acceptanceCriteria": [
-        "System adjusts budget allocations when income changes",
-        "Budget adapts to actual spending patterns over time",
-        "Adjustment recommendations are shown to user with reasoning"
+        "AI Insights page fetches predictions from backend on mount",
+        "Generating new predictions saves results to backend",
+        "Prediction data persists across sessions",
+        "Users see their previous predictions after logout/login"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/lib/budget-planner/budgetLogic.ts",
+          "path": "frontend/src/pages/AIInsights.tsx",
           "operation": "modify",
-          "description": "Add a generateDynamicAdjustments function that analyzes historical transaction data to identify spending patterns per category. Compare current budget allocations against actual 3-month average spending. When income changes, recalculate optimal allocations proportionally. Return adjustment recommendations with category, current allocation, recommended new allocation, reasoning (e.g., 'Your actual food spending is 15% higher than budgeted'), and confidence score."
+          "description": "Refactor AI Insights page to fetch AI predictions from backend using useGetAIPrediction hook on mount. After generating new predictions, save them to backend using useSaveAIPrediction mutation hook and invalidate ['aiPrediction'] query to refetch. Remove any frontend-only prediction storage. Add loading states during fetch and generation operations."
         },
         {
-          "path": "frontend/src/pages/BudgetPlanner.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Display dynamic budget adjustment recommendations in a dedicated section or modal dialog. Show each adjustment as a card with current vs recommended allocation, percentage change, and reasoning explanation. Provide 'Apply All' and individual 'Apply' buttons to accept adjustments. Include a 'Review Later' option. Use visual diff indicators (arrows, color coding) to highlight increases and decreases. Show a timestamp indicating when adjustments were last calculated."
+          "description": "Review and ensure useGetAIPrediction and useSaveAIPrediction hooks properly fetch and persist prediction data to backend with query invalidation on success."
         }
       ]
     },
     {
       "id": "REQ-11",
-      "summary": "Implement end-of-month balance prediction that forecasts remaining balance based on current spending trends and upcoming expenses",
+      "summary": "Modify Quiz/Learning pages to save quiz progress and scores to backend keyed by user Principal",
       "acceptanceCriteria": [
-        "System calculates projected end-of-month balance",
-        "Prediction is based on income, expenses, and spending velocity",
-        "Prediction updates dynamically as transactions are added",
-        "Prediction is displayed prominently in budget summary"
+        "Quiz progress saves to backend after each question",
+        "Quiz completion scores save to backend",
+        "Quiz page loads previous progress from backend",
+        "Quiz history persists across sessions and devices"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/lib/budget-planner/budgetLogic.ts",
+          "path": "frontend/src/pages/Quiz.tsx",
           "operation": "modify",
-          "description": "Add a predictEndOfMonthBalance function that calculates projected balance at month end. Use current month-to-date spending, remaining days in month, daily spending velocity, known upcoming expenses, and budgeted amounts. Apply trend analysis to project spending acceleration or deceleration. Return predicted balance, confidence interval, spending velocity metrics, and scenario analysis (best/likely/worst case). Consider recurring expenses and subscription due dates."
+          "description": "Refactor Quiz page to save quiz progress to backend after each question submission using useSubmitQuizAnswer mutation hook. Fetch quiz progress from backend on mount using useInitializeQuiz or useGetQuizStatistics hooks. Remove localStorage dependencies from frontend/src/lib/quizProgressStorage.ts usage. Ensure quiz completion scores persist to backend. Add loading states during progress saves."
         },
         {
-          "path": "frontend/src/pages/BudgetPlanner.tsx",
+          "path": "frontend/src/pages/Learning.tsx",
           "operation": "modify",
-          "description": "Display end-of-month balance prediction prominently in the budget summary section as a large metric card. Show the predicted balance amount with color coding (green for positive, red for negative projection). Include confidence level indicator and days remaining in month. Display a mini line chart showing projected balance trajectory from current date to month end. Add explanatory text like 'At your current spending rate, you will have $X remaining by month end'. Update prediction in real-time as new transactions are added using React Query refetching."
+          "description": "Update Learning page to fetch quiz statistics and progress from backend using useGetQuizStatistics hook. Remove any localStorage dependencies for displaying progress. Ensure all displayed statistics reflect backend state."
         },
         {
-          "path": "frontend/src/pages/Dashboard.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Add end-of-month balance prediction to the dashboard as a summary card or widget. Display predicted balance with visual indicator showing trend direction (up/down arrow). Include a mini projection chart and link to full budget planner for details. Ensure the prediction updates when transaction data changes."
+          "description": "Review useSubmitQuizAnswer, useInitializeQuiz, and useGetQuizStatistics hooks to ensure they properly save and fetch quiz progress to/from backend with appropriate query invalidations."
         }
       ]
     },
     {
       "id": "REQ-12",
-      "summary": "Implement Student/Professional adaptive mode that tailors budget recommendations and financial advice based on user's life stage selection",
+      "summary": "Implement Settings page backend integration to save user preferences (theme, notifications, analytics visibility, currency) to backend and fetch on page load",
       "acceptanceCriteria": [
-        "User can select between Student mode and Professional mode",
-        "Student mode provides budget recommendations appropriate for students (lower income, education expenses, part-time work)",
-        "Professional mode provides budget recommendations appropriate for working professionals (full-time income, career expenses, retirement savings)",
-        "Mode selection influences all AI budget features and recommendations"
+        "Settings changes save immediately to backend",
+        "Settings page fetches preferences from backend on mount",
+        "Theme preference persists across sessions",
+        "Currency preference applies consistently across all pages",
+        "Preferences sync across devices for the same user"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/types/budget-planner.ts",
+          "path": "frontend/src/pages/Settings.tsx",
           "operation": "modify",
-          "description": "Add a userMode field to BudgetInputs interface with type 'student' | 'professional'. Add optional studentSpecificExpenses (tuition, books, transportation) and professionalSpecificExpenses (retirement contributions, professional development) to the interface."
+          "description": "Refactor Settings page to fetch user preferences from backend using useGetUserPreferences hook on mount. When user changes preferences (theme, notifications, analytics visibility, currency), save immediately to backend using useSaveUserPreferences mutation hook and invalidate ['userPreferences'] query. Remove any localStorage dependencies for preferences. Add loading states during save operations and success/error feedback."
         },
         {
-          "path": "frontend/src/pages/BudgetPlanner.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Add a mode selector at the top of the budget planner form using RadioGroup or ToggleGroup components with Student and Professional options. Show mode-specific input fields conditionally based on selection: education expenses for students, retirement savings and career development for professionals. Update field labels and helper text to match selected mode context. Display mode-specific tips and recommendations throughout the form."
-        },
-        {
-          "path": "frontend/src/lib/budget-planner/budgetLogic.ts",
-          "operation": "modify",
-          "description": "Update all budget calculation functions (calculateBudgetPlan, generateSmartCategoryAllocations, calculateAutoSavingsPercentage) to accept userMode parameter. Implement mode-specific logic: Student mode uses lower income thresholds, includes education expenses in mandatory category, recommends lower savings percentages (10-15%), focuses on debt avoidance. Professional mode uses standard income thresholds, emphasizes retirement savings (15-20%), includes investment recommendations, suggests emergency fund of 6 months. Adjust allocation percentages and recommendation templates based on mode."
-        },
-        {
-          "path": "frontend/src/lib/budget-planner/recommendations.ts",
-          "operation": "modify",
-          "description": "Update generatePersonalizedRecommendations function to provide mode-specific financial advice. Student mode: focus on student loan management, part-time income strategies, textbook savings, budgeting on limited income, building credit. Professional mode: focus on career growth, retirement planning, tax optimization, investment diversification, wealth building. Adjust tone and complexity of recommendations based on assumed financial literacy level of each mode."
+          "description": "Review and ensure useGetUserPreferences and useSaveUserPreferences hooks properly fetch and persist preferences to backend with query invalidation on success."
         }
       ]
     },
     {
       "id": "REQ-13",
-      "summary": "Ensure the Advanced AI Budget System stores all budget data in the unified Motoko backend and integrates with existing transactions, goals, and analytics modules for real-time data synchronization",
+      "summary": "Update all React Query hooks to invalidate and refetch data after mutations, ensuring frontend always displays current backend state",
       "acceptanceCriteria": [
-        "Budget data is stored in the main Motoko backend actor",
-        "Budget planner reads transaction data from backend for spending analysis",
-        "Budget planner integrates with goals module for savings targets",
-        "Budget planner data is accessible to analytics module",
-        "All budget data changes are immediately reflected across all modules"
+        "All mutation hooks trigger query invalidation on success",
+        "Data refetches automatically after create/update/delete operations",
+        "Loading states display during refetch operations",
+        "Error states handle failed refetch attempts"
       ],
       "file_operations": [
         {
           "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Add or update useGetBudgetData and useSaveBudgetData React Query hooks to interact with the backend getBudgetData and saveBudgetData methods. Ensure the hooks properly serialize/deserialize BudgetData type including all mandatory and optional expense fields. Configure query invalidation so that saving budget data triggers refetch of budget, transaction, goal, and analytics queries to maintain synchronization."
-        },
-        {
-          "path": "frontend/src/pages/BudgetPlanner.tsx",
-          "operation": "modify",
-          "description": "Integrate useGetBudgetData hook to load existing budget data on page mount. Populate form fields with saved budget values if available. Use useSaveBudgetData mutation to persist budget changes to the backend when user submits the form. Integrate useGetTransactions hook to fetch transaction data for spending analysis and overspending detection. Integrate useGetSavingsGoals hook to display savings goals and link budget allocations to goal targets. Show real-time synchronization indicators and success messages after saving."
-        },
-        {
-          "path": "frontend/src/pages/Analytics.tsx",
-          "operation": "modify",
-          "description": "Integrate useGetBudgetData hook to access budget allocations for comparison against actual spending in charts and visualizations. Display budget vs actual spending comparisons per category using bar charts or overlay lines. Add budget threshold indicators to spending trend charts. Ensure budget data updates trigger chart re-rendering."
-        },
+          "description": "Audit all mutation hooks (useAddTransaction, useDeleteTransaction, useUpdateTransaction, useAddSavingsGoal, useUpdateSavingsGoal, useDeleteSavingsGoal, useSaveUserPreferences, useSaveBudgetData, useSaveAIPrediction, useSubmitQuizAnswer, etc.) to ensure they call queryClient.invalidateQueries with appropriate query keys on success. Ensure loading and error states are properly exposed. Add consistent error handling across all mutations."
+        }
+      ]
+    },
+    {
+      "id": "REQ-14",
+      "summary": "Implement comprehensive data persistence testing across all private pages to verify data survives browser refresh, logout/login cycles, and cross-device access",
+      "acceptanceCriteria": [
+        "All private page data persists after browser refresh",
+        "All private page data persists after logout and login",
+        "Users can access their data from different browsers/devices",
+        "No data loss occurs during authentication transitions",
+        "Each user only sees their own isolated data"
+      ],
+      "file_operations": [
         {
           "path": "frontend/src/pages/Dashboard.tsx",
           "operation": "modify",
-          "description": "Integrate useGetBudgetData hook to display budget summary metrics on the dashboard. Show key budget indicators like savings percentage, emergency fund progress, and overspending alerts in summary cards. Display budget health score with visual indicator. Link to budget planner page for detailed view and editing."
+          "description": "Add console logging or developer-mode indicators to verify data is fetched from backend on mount and after mutations. Ensure no localStorage usage for critical data."
+        },
+        {
+          "path": "frontend/src/pages/Transactions.tsx",
+          "operation": "modify",
+          "description": "Add console logging to verify transaction CRUD operations persist to backend and refetch correctly after browser refresh and logout/login cycles."
         },
         {
           "path": "frontend/src/pages/Goals.tsx",
           "operation": "modify",
-          "description": "Integrate useGetBudgetData hook to show how budget allocations support savings goal targets. Display monthly savings allocation from budget alongside goal requirements. Highlight when budget savings allocation is insufficient to meet goal timelines. Provide recommendations to adjust budget or goal parameters for better alignment."
+          "description": "Add console logging to verify goal CRUD operations persist to backend and survive browser refresh and authentication transitions."
+        },
+        {
+          "path": "frontend/src/pages/Analytics.tsx",
+          "operation": "modify",
+          "description": "Add console logging to verify analytics data is always fetched from backend and calculations reflect current backend state."
+        },
+        {
+          "path": "frontend/src/pages/BudgetPlanner.tsx",
+          "operation": "modify",
+          "description": "Add console logging to verify budget plans persist to backend and are retrieved correctly after logout/login."
+        },
+        {
+          "path": "frontend/src/pages/Calculators.tsx",
+          "operation": "modify",
+          "description": "Add console logging to verify calculation history persists to backend and loads correctly across sessions."
+        },
+        {
+          "path": "frontend/src/pages/AIInsights.tsx",
+          "operation": "modify",
+          "description": "Add console logging to verify AI predictions persist to backend and are available after authentication transitions."
+        },
+        {
+          "path": "frontend/src/pages/Quiz.tsx",
+          "operation": "modify",
+          "description": "Add console logging to verify quiz progress persists to backend and loads correctly after logout/login on different devices."
+        },
+        {
+          "path": "frontend/src/pages/Settings.tsx",
+          "operation": "modify",
+          "description": "Add console logging to verify user preferences persist to backend and sync correctly across devices after logout/login."
+        }
+      ]
+    },
+    {
+      "id": "REQ-15",
+      "summary": "Update AppLayout logout handler to clear all frontend state and query cache while preserving backend data",
+      "acceptanceCriteria": [
+        "Logout clears React Query cache",
+        "Logout clears authentication state",
+        "Logout does not trigger any backend delete operations",
+        "Backend data remains intact after logout",
+        "Next login successfully fetches all preserved data"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/AppLayout.tsx",
+          "operation": "modify",
+          "description": "Review and verify logout handler calls queryClient.clear() to clear React Query cache and useInternetIdentity clear() to clear authentication state. Ensure no backend delete operations are triggered during logout. Add comments documenting that backend data must remain intact. Test that subsequent login successfully fetches all preserved user data."
         }
       ]
     }

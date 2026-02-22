@@ -1,14 +1,15 @@
 import { useEffect } from 'react';
-import { useNavigate } from '@tanstack/react-router';
 import { useInternetIdentity } from '../hooks/useInternetIdentity';
+import { useNavigate } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, TrendingUp, Brain, Lock } from 'lucide-react';
+import { Shield, TrendingUp, Brain, Lock, Loader2 } from 'lucide-react';
 
 export default function Login() {
   const { login, loginStatus, identity } = useInternetIdentity();
   const navigate = useNavigate();
 
+  // Redirect to dashboard if already authenticated
   useEffect(() => {
     if (identity) {
       navigate({ to: '/dashboard' });
@@ -29,93 +30,111 @@ export default function Login() {
   const isLoggingIn = loginStatus === 'logging-in';
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/10 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/10 flex items-center justify-center p-4">
       <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 items-center">
-        {/* Left Side - Branding */}
-        <div className="space-y-8 text-center lg:text-left">
-          <div className="space-y-4">
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary via-chart-1 to-chart-2 bg-clip-text text-transparent">
+        {/* Branding Section */}
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-4xl lg:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-chart-1 bg-clip-text text-transparent">
               FinanceWise AI
             </h1>
             <p className="text-xl text-muted-foreground">
-              Your intelligent financial companion for smarter money management
+              Your intelligent financial companion powered by blockchain security
             </p>
           </div>
 
-          <div className="grid gap-4">
-            <div className="flex items-start gap-3 p-4 bg-card border border-border rounded-lg">
-              <Brain className="w-6 h-6 text-primary shrink-0 mt-1" />
+          <div className="space-y-4">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Brain className="w-6 h-6 text-primary" />
+              </div>
               <div>
                 <h3 className="font-semibold mb-1">AI-Powered Insights</h3>
                 <p className="text-sm text-muted-foreground">
-                  Get personalized financial advice and predictions powered by advanced AI
+                  Get personalized financial predictions and recommendations
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-3 p-4 bg-card border border-border rounded-lg">
-              <TrendingUp className="w-6 h-6 text-primary shrink-0 mt-1" />
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Shield className="w-6 h-6 text-primary" />
+              </div>
               <div>
-                <h3 className="font-semibold mb-1">Smart Analytics</h3>
+                <h3 className="font-semibold mb-1">Blockchain Security</h3>
                 <p className="text-sm text-muted-foreground">
-                  Track expenses, set goals, and visualize your financial journey
+                  Your data is encrypted and stored on the Internet Computer
                 </p>
               </div>
             </div>
 
-            <div className="flex items-start gap-3 p-4 bg-card border border-border rounded-lg">
-              <Shield className="w-6 h-6 text-primary shrink-0 mt-1" />
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <TrendingUp className="w-6 h-6 text-primary" />
+              </div>
               <div>
-                <h3 className="font-semibold mb-1">Secure & Private</h3>
+                <h3 className="font-semibold mb-1">Smart Tracking</h3>
                 <p className="text-sm text-muted-foreground">
-                  Your data is encrypted and stored securely on the blockchain
+                  Track income, expenses, and goals with intelligent analytics
                 </p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Right Side - Login Card */}
-        <Card className="w-full max-w-md mx-auto border-2 border-primary/20">
-          <CardHeader className="space-y-3">
-            <CardTitle className="text-2xl text-center">Welcome Back</CardTitle>
-            <CardDescription className="text-center">
+        {/* Login Card */}
+        <Card className="w-full">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">Welcome Back</CardTitle>
+            <CardDescription>
               Sign in with Internet Identity to access your financial dashboard
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <Button
+              size="lg"
+              className="w-full"
               onClick={handleLogin}
               disabled={isLoggingIn}
-              size="lg"
-              className="w-full bg-gradient-to-r from-primary to-chart-1 hover:from-primary/90 hover:to-chart-1/90"
             >
               {isLoggingIn ? (
                 <>
-                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent mr-2"></div>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                   Connecting...
                 </>
               ) : (
                 <>
-                  <Lock className="w-5 h-5 mr-2" />
-                  Sign In with Internet Identity
+                  <Lock className="mr-2 h-5 w-5" />
+                  Login with Internet Identity
                 </>
               )}
             </Button>
 
-            <div className="space-y-3 pt-4 border-t border-border">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Shield className="w-4 h-4 text-primary" />
-                <span>Secure authentication via Internet Computer</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Lock className="w-4 h-4 text-primary" />
-                <span>No passwords required - use biometrics or security keys</span>
-              </div>
+            <div className="space-y-3 pt-4 border-t">
+              <h4 className="font-semibold text-sm">Secure Authentication</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  No passwords to remember
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  Biometric authentication (Face ID, Touch ID)
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  Works with Google, Apple, Microsoft accounts
+                </li>
+                <li className="flex items-center gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                  Your data stays private and encrypted
+                </li>
+              </ul>
             </div>
 
             <p className="text-xs text-center text-muted-foreground">
-              New to FinanceWise AI? Signing in will automatically create your account.
+              By logging in, you agree to our Terms of Service and Privacy Policy.
+              All your financial data is stored securely on the blockchain.
             </p>
           </CardContent>
         </Card>

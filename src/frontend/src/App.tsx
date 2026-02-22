@@ -27,7 +27,6 @@ import Learning from './pages/Learning';
 import Quiz from './pages/Quiz';
 import Settings from './pages/Settings';
 import BudgetPlanner from './pages/BudgetPlanner';
-import AIInsightsHub from './pages/AIInsightsHub';
 
 // Public Pages (No Authentication Required)
 import Home from './pages/Home';
@@ -35,6 +34,7 @@ import HowItWorks from './pages/HowItWorks';
 import Features from './pages/Features';
 import Benefits from './pages/Benefits';
 import SecurityPublic from './pages/Security';
+import SecurityPrivacy from './pages/SecurityPrivacy';
 import About from './pages/About';
 import Resources from './pages/Resources';
 import UseCases from './pages/UseCases';
@@ -46,7 +46,6 @@ import FAQ from './pages/FAQ';
 import Blog from './pages/FinanceBlog';
 import BlogPost from './pages/BlogPost';
 import Contact from './pages/Contact';
-import CustomerCare from './pages/CustomerCare';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsAndConditions from './pages/TermsAndConditions';
 import CookiePolicy from './pages/CookiePolicy';
@@ -269,6 +268,12 @@ const securityRoute = createRoute({
   component: SecurityPublic,
 });
 
+const securityPrivacyRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/security-privacy',
+  component: SecurityPrivacy,
+});
+
 const aboutRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/about',
@@ -335,12 +340,6 @@ const contactRoute = createRoute({
   component: Contact,
 });
 
-const customerCareRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/customer-care',
-  component: CustomerCare,
-});
-
 const privacyRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/privacy-policy',
@@ -404,12 +403,6 @@ const aiInsightsRoute = createRoute({
   component: () => <AppLayout />,
 });
 
-const aiInsightsHubRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: '/ai-insights-hub',
-  component: () => <AppLayout />,
-});
-
 const goalsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/goals',
@@ -464,6 +457,7 @@ const routeTree = rootRoute.addChildren([
   featuresRoute,
   benefitsRoute,
   securityRoute,
+  securityPrivacyRoute,
   aboutRoute,
   resourcesRoute,
   useCasesRoute,
@@ -475,7 +469,6 @@ const routeTree = rootRoute.addChildren([
   blogRoute,
   blogPostRoute,
   contactRoute,
-  customerCareRoute,
   privacyRoute,
   termsRoute,
   cookiePolicyRoute,
@@ -486,7 +479,6 @@ const routeTree = rootRoute.addChildren([
   dashboardRoute,
   transactionsRoute,
   aiInsightsRoute,
-  aiInsightsHubRoute,
   goalsRoute,
   analyticsRoute,
   calculatorsRoute,

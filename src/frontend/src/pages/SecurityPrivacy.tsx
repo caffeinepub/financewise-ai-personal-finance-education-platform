@@ -1,258 +1,214 @@
-import { useInternetIdentity } from '../hooks/useInternetIdentity';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Shield, Lock, Eye, Smartphone, CheckCircle2 } from 'lucide-react';
-import { useState } from 'react';
-import AccessDenied from '../components/AccessDenied';
+import { Shield, Lock, Eye, Database, UserCheck, FileText, Globe, Mail } from 'lucide-react';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 export default function SecurityPrivacy() {
-  const { identity } = useInternetIdentity();
-  const [stealthMode, setStealthMode] = useState(false);
-  const [biometricEnabled, setBiometricEnabled] = useState(true);
-  const [dataSharing, setDataSharing] = useState(false);
-  const [analyticsEnabled, setAnalyticsEnabled] = useState(true);
-
-  if (!identity) {
-    return <AccessDenied />;
-  }
-
-  const connectedDevices = [
-    { name: 'Chrome on Windows', location: 'New York, US', lastActive: '2 minutes ago', current: true },
-    { name: 'Safari on iPhone', location: 'New York, US', lastActive: '1 hour ago', current: false },
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-4 lg:p-8">
-      <div className="max-w-7xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="space-y-2">
-          <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-primary to-chart-1 bg-clip-text text-transparent">
-            Security & Privacy
-          </h1>
-          <p className="text-muted-foreground">Trust Center - Your data security and privacy controls</p>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <Header />
+      
+      <main className="container mx-auto px-4 py-12">
+        <div className="max-w-4xl mx-auto space-y-8">
+          {/* Hero Section */}
+          <div className="text-center space-y-4">
+            <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-primary to-chart-1 bg-clip-text text-transparent">
+              Security & Privacy Policy
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Your data security and privacy are our top priorities. Learn how we protect your financial information.
+            </p>
+          </div>
+
+          {/* Data Collection */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <Database className="h-6 w-6 text-primary" />
+                <CardTitle>Data Collection Practices</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">
+                We collect only the information necessary to provide you with our financial management services:
+              </p>
+              <ul className="space-y-2 list-disc list-inside text-muted-foreground">
+                <li><strong>Personal Information:</strong> Name, email address, and user ID for account creation</li>
+                <li><strong>Financial Data:</strong> Income, expenses, budgets, savings goals, and transaction records</li>
+                <li><strong>Usage Data:</strong> App interactions, preferences, and feature usage for service improvement</li>
+                <li><strong>Device Information:</strong> Browser type, operating system, and IP address for security purposes</li>
+              </ul>
+              <p className="text-sm text-muted-foreground">
+                We do not collect sensitive information such as bank account numbers, credit card details, or social security numbers.
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Data Usage */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <Eye className="h-6 w-6 text-primary" />
+                <CardTitle>How We Use Your Data</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">
+                Your data is used exclusively to provide and improve our services:
+              </p>
+              <ul className="space-y-2 list-disc list-inside text-muted-foreground">
+                <li><strong>Service Delivery:</strong> Process transactions, generate budgets, and provide AI-powered insights</li>
+                <li><strong>Personalization:</strong> Customize your experience based on your financial goals and preferences</li>
+                <li><strong>Analytics:</strong> Analyze spending patterns and generate predictions to help you make better financial decisions</li>
+                <li><strong>Communication:</strong> Send important updates, notifications, and educational content</li>
+                <li><strong>Security:</strong> Detect and prevent fraudulent activities and unauthorized access</li>
+              </ul>
+              <div className="p-4 bg-primary/10 rounded-lg border border-primary/20">
+                <p className="text-sm font-semibold text-primary">We never sell your data to third parties</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Storage Security */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <Lock className="h-6 w-6 text-primary" />
+                <CardTitle>Storage & Security Measures</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">
+                We implement industry-leading security measures to protect your data:
+              </p>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="p-4 rounded-lg border bg-card">
+                  <h3 className="font-semibold mb-2">Blockchain Storage</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Your data is stored on the Internet Computer blockchain, providing immutable and tamper-proof storage
+                  </p>
+                </div>
+                <div className="p-4 rounded-lg border bg-card">
+                  <h3 className="font-semibold mb-2">End-to-End Encryption</h3>
+                  <p className="text-sm text-muted-foreground">
+                    All data is encrypted in transit and at rest using AES-256 encryption standards
+                  </p>
+                </div>
+                <div className="p-4 rounded-lg border bg-card">
+                  <h3 className="font-semibold mb-2">Zero-Knowledge Architecture</h3>
+                  <p className="text-sm text-muted-foreground">
+                    We cannot access your unencrypted data - only you have the keys to your information
+                  </p>
+                </div>
+                <div className="p-4 rounded-lg border bg-card">
+                  <h3 className="font-semibold mb-2">Regular Security Audits</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Our systems undergo regular security assessments and penetration testing
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* User Rights */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <UserCheck className="h-6 w-6 text-primary" />
+                <CardTitle>Your Rights & Control</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">
+                You have complete control over your data:
+              </p>
+              <ul className="space-y-2 list-disc list-inside text-muted-foreground">
+                <li><strong>Access:</strong> View all data we have collected about you at any time</li>
+                <li><strong>Correction:</strong> Update or correct your personal information through your account settings</li>
+                <li><strong>Deletion:</strong> Request complete deletion of your account and all associated data</li>
+                <li><strong>Export:</strong> Download your data in a portable format for your records</li>
+                <li><strong>Opt-Out:</strong> Unsubscribe from marketing communications while maintaining your account</li>
+              </ul>
+              <p className="text-sm text-muted-foreground">
+                To exercise any of these rights, contact us at <a href="mailto:fwiseai@gmail.com" className="text-primary hover:underline">fwiseai@gmail.com</a>
+              </p>
+            </CardContent>
+          </Card>
+
+          {/* Internet Identity */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <Shield className="h-6 w-6 text-primary" />
+                <CardTitle>Internet Identity Authentication</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">
+                We use Internet Identity for secure, passwordless authentication:
+              </p>
+              <ul className="space-y-2 list-disc list-inside text-muted-foreground">
+                <li><strong>No Passwords:</strong> Eliminates the risk of password breaches and phishing attacks</li>
+                <li><strong>Biometric Security:</strong> Uses your device's built-in security (fingerprint, Face ID, etc.)</li>
+                <li><strong>Privacy-First:</strong> Your identity is cryptographically secured and never shared</li>
+                <li><strong>Multi-Device:</strong> Securely access your account from multiple devices</li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          {/* GDPR Compliance */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <Globe className="h-6 w-6 text-primary" />
+                <CardTitle>GDPR & Regulatory Compliance</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">
+                We comply with international data protection regulations:
+              </p>
+              <ul className="space-y-2 list-disc list-inside text-muted-foreground">
+                <li><strong>GDPR Compliance:</strong> Full compliance with EU General Data Protection Regulation</li>
+                <li><strong>Data Minimization:</strong> We collect only what's necessary for service delivery</li>
+                <li><strong>Lawful Processing:</strong> All data processing is based on your explicit consent</li>
+                <li><strong>Data Protection Officer:</strong> Dedicated team member overseeing compliance</li>
+                <li><strong>Breach Notification:</strong> Immediate notification in case of any security incidents</li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          {/* Contact */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <Mail className="h-6 w-6 text-primary" />
+                <CardTitle>Contact Us</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">
+                For any questions, concerns, or requests regarding your data:
+              </p>
+              <div className="p-4 rounded-lg border bg-card">
+                <p className="font-semibold mb-2">Data Protection Team</p>
+                <p className="text-sm text-muted-foreground">Email: <a href="mailto:fwiseai@gmail.com" className="text-primary hover:underline">fwiseai@gmail.com</a></p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  We aim to respond to all inquiries within 48 hours
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Last Updated */}
+          <div className="text-center text-sm text-muted-foreground">
+            <p>Last Updated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <p className="mt-2">This policy may be updated periodically. We will notify you of any significant changes.</p>
+          </div>
         </div>
+      </main>
 
-        {/* Security Status */}
-        <Card className="border-2 border-green-500/20 bg-gradient-to-br from-green-500/5 to-green-500/10">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-xl">
-              <Shield className="w-6 h-6 text-green-500" />
-              Security Status: Protected
-            </CardTitle>
-            <CardDescription>All security features are active and working properly</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-card">
-                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-                <div>
-                  <p className="font-semibold text-sm">End-to-End Encryption</p>
-                  <p className="text-xs text-muted-foreground">All data encrypted with AES-256</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-card">
-                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-                <div>
-                  <p className="font-semibold text-sm">Internet Identity</p>
-                  <p className="text-xs text-muted-foreground">Blockchain authentication active</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-card">
-                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-                <div>
-                  <p className="font-semibold text-sm">No Suspicious Activity</p>
-                  <p className="text-xs text-muted-foreground">Account is secure</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-card">
-                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
-                <div>
-                  <p className="font-semibold text-sm">Private Data Storage</p>
-                  <p className="text-xs text-muted-foreground">No third-party access</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Privacy Controls */}
-        <Card className="border-2 border-border/50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Eye className="w-5 h-5 text-primary" />
-              Privacy Controls
-            </CardTitle>
-            <CardDescription>Manage how your data is used and shared</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-center justify-between p-4 rounded-lg border-2 border-border/50">
-              <div className="space-y-1">
-                <Label htmlFor="stealth-mode" className="text-base font-semibold">
-                  Stealth Mode
-                </Label>
-                <p className="text-sm text-muted-foreground">
-                  Hide your financial data from screenshots and screen recordings
-                </p>
-              </div>
-              <Switch
-                id="stealth-mode"
-                checked={stealthMode}
-                onCheckedChange={setStealthMode}
-              />
-            </div>
-
-            <div className="flex items-center justify-between p-4 rounded-lg border-2 border-border/50">
-              <div className="space-y-1">
-                <Label htmlFor="biometric" className="text-base font-semibold">
-                  Biometric Authentication
-                </Label>
-                <p className="text-sm text-muted-foreground">
-                  Use fingerprint or face recognition for quick access
-                </p>
-              </div>
-              <Switch
-                id="biometric"
-                checked={biometricEnabled}
-                onCheckedChange={setBiometricEnabled}
-              />
-            </div>
-
-            <div className="flex items-center justify-between p-4 rounded-lg border-2 border-border/50">
-              <div className="space-y-1">
-                <Label htmlFor="data-sharing" className="text-base font-semibold">
-                  Data Sharing
-                </Label>
-                <p className="text-sm text-muted-foreground">
-                  Share anonymized data to improve AI predictions (recommended: off)
-                </p>
-              </div>
-              <Switch
-                id="data-sharing"
-                checked={dataSharing}
-                onCheckedChange={setDataSharing}
-              />
-            </div>
-
-            <div className="flex items-center justify-between p-4 rounded-lg border-2 border-border/50">
-              <div className="space-y-1">
-                <Label htmlFor="analytics" className="text-base font-semibold">
-                  Usage Analytics
-                </Label>
-                <p className="text-sm text-muted-foreground">
-                  Help us improve the app by sharing usage statistics
-                </p>
-              </div>
-              <Switch
-                id="analytics"
-                checked={analyticsEnabled}
-                onCheckedChange={setAnalyticsEnabled}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Connected Devices */}
-        <Card className="border-2 border-border/50">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Smartphone className="w-5 h-5 text-primary" />
-              Connected Devices
-            </CardTitle>
-            <CardDescription>Manage devices that have access to your account</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {connectedDevices.map((device, index) => (
-              <div
-                key={index}
-                className={`p-4 rounded-lg border-2 ${
-                  device.current
-                    ? 'border-primary/20 bg-gradient-to-br from-primary/5 to-chart-1/5'
-                    : 'border-border/50'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Smartphone className="w-5 h-5 text-muted-foreground" />
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <p className="font-semibold">{device.name}</p>
-                        {device.current && (
-                          <span className="text-xs px-2 py-1 rounded-full bg-primary/20 text-primary font-medium">
-                            Current
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground">{device.location}</p>
-                      <p className="text-xs text-muted-foreground mt-1">Last active: {device.lastActive}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* Data Encryption Info */}
-        <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-chart-1/5">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Lock className="w-5 h-5 text-primary" />
-              Data Encryption & Protection
-            </CardTitle>
-            <CardDescription>How we protect your financial information</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-sm">Military-Grade Encryption</p>
-                  <p className="text-sm text-muted-foreground">
-                    All data is encrypted using AES-256 encryption standard
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-sm">Blockchain Storage</p>
-                  <p className="text-sm text-muted-foreground">
-                    Data stored on Internet Computer blockchain for maximum security
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-sm">Zero-Knowledge Architecture</p>
-                  <p className="text-sm text-muted-foreground">
-                    We cannot access your data - only you have the keys
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-sm">No Third-Party Access</p>
-                  <p className="text-sm text-muted-foreground">
-                    Your data is never shared with advertisers or data brokers
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-sm">Internet Identity Authentication</p>
-                  <p className="text-sm text-muted-foreground">
-                    Secure, passwordless authentication powered by blockchain technology
-                  </p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <Footer />
     </div>
   );
 }

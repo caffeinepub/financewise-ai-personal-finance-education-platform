@@ -35,6 +35,7 @@ export interface AIPrediction {
   'confidenceScore' : number,
   'savingsConsistency' : number,
   'balancePrediction' : number,
+  'modelVersion' : string,
   'disclaimer' : string,
   'spendingGrowthRate' : number,
   'riskLevel' : string,

@@ -1,118 +1,121 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Financial management app with unified backend, AI-powered budgeting system, intelligent insights hub, and AdSense integration",
+  "summary": "Full-stack finance tracking application with backend-first architecture, Internet Identity authentication, and complete data persistence across all private pages (Dashboard, Transactions, Goals, Analytics, Budget, Planner, Calculators, AI Insights, Quiz). Each user's data is isolated by Principal and persists through logout, refresh, and across devices.",
   "architectural_notes": [
-    "Motoko backend serves as single source of truth for all financial data",
-    "Real-time data sharing between all modules (dashboard, transactions, goals, analytics, AI budget planner)",
-    "Global AI assistant reads all backend data to provide data-driven insights",
-    "Advanced AI budget planner fully integrated with all other modules",
-    "Google AdSense code integrated in head section across all pages"
+    "Backend uses Motoko with HashMap storing Principal → UserData",
+    "All CRUD operations must save immediately to backend",
+    "Never store important data only in frontend state",
+    "Each user's data completely isolated by their Principal",
+    "Login flow: fetch user data from backend on authentication",
+    "Logout flow: clear frontend state but preserve backend data",
+    "All private pages fetch data from backend on every load",
+    "Data persistence must work across refresh, logout/login, and different devices"
   ],
   "known_issues": [],
   "isFixRequest": false,
   "existing_features": [
     {
-      "id": "feature-verify-that-the-google-adsense-script-with-publisher-id-pub-5050836253831761-is-correctly-integrated-in-the-head-section-of-frontend-index-html-and-confirm-it-loads-on-all-application-pages",
-      "title": "Verify that the Google AdSense script with publisher ID 'pub-5050836253831761' is correctly integrated in the <head> section of frontend/index.html and confirm it loads on all application pages",
+      "id": "feature-implement-internet-identity-authentication-system-that-manages-login-logout-flow-and-persists-authentication-state-across-browser-sessions",
+      "title": "Implement Internet Identity authentication system that manages login/logout flow and persists authentication state across browser sessions",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-create-a-dedicated-ai-insights-hub-page-accessible-from-the-main-navigation-where-users-can-ask-natural-language-questions-about-their-financial-data",
-      "title": "Create a dedicated AI Insights Hub page accessible from the main navigation where users can ask natural language questions about their financial data",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-integrate-the-ai-insights-hub-with-the-unified-motoko-backend-to-read-all-user-data-including-transactions-goals-budgets-preferences-and-analytics-in-real-time",
-      "title": "Integrate the AI Insights Hub with the unified Motoko backend to read all user data including transactions, goals, budgets, preferences, and analytics in real-time",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-replace-the-existing-budget-planner-interface-with-an-advanced-ai-budget-system-that-includes-mandatory-input-fields-monthly-income-rent-emi-food-travel-utilities-and-existing-loans",
-      "title": "Replace the existing budget planner interface with an Advanced AI Budget System that includes mandatory input fields: Monthly Income, Rent/EMI, Food, Travel, Utilities, and Existing Loans",
+      "id": "feature-modify-dashboard-page-to-fetch-all-data-from-backend-on-mount-and-after-any-mutation-never-relying-on-frontend-only-state-for-persistence",
+      "title": "Modify Dashboard page to fetch all data from backend on mount and after any mutation, never relying on frontend-only state for persistence",
       "reqIds": [
         "REQ-4"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-optional-input-fields-to-the-advanced-ai-budget-system-entertainment-subscriptions-shopping-insurance-and-investments",
-      "title": "Add optional input fields to the Advanced AI Budget System: Entertainment, Subscriptions, Shopping, Insurance, and Investments",
+      "id": "feature-modify-transactions-page-to-fetch-transaction-history-from-backend-and-implement-add-edit-delete-operations-that-save-immediately-to-backend",
+      "title": "Modify Transactions page to fetch transaction history from backend and implement add/edit/delete operations that save immediately to backend",
       "reqIds": [
         "REQ-5"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-ai-powered-smart-category-allocation-suggestion-that-analyzes-user-input-and-recommends-optimal-expense-distribution-across-categories",
-      "title": "Implement AI-powered smart category allocation suggestion that analyzes user input and recommends optimal expense distribution across categories",
+      "id": "feature-modify-goals-page-to-fetch-savings-goals-from-backend-and-implement-crud-operations-with-immediate-backend-persistence",
+      "title": "Modify Goals page to fetch savings goals from backend and implement CRUD operations with immediate backend persistence",
       "reqIds": [
         "REQ-6"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-automatic-savings-percentage-calculation-that-determines-optimal-savings-based-on-income-mandatory-expenses-and-optional-spending",
-      "title": "Implement automatic savings percentage calculation that determines optimal savings based on income, mandatory expenses, and optional spending",
+      "id": "feature-modify-analytics-page-to-fetch-transaction-data-and-user-preferences-from-backend-ensuring-all-analytics-calculations-are-based-on-backend-data",
+      "title": "Modify Analytics page to fetch transaction data and user preferences from backend, ensuring all analytics calculations are based on backend data",
       "reqIds": [
         "REQ-7"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-emergency-fund-calculation-that-recommends-emergency-fund-target-based-on-monthly-expenses-and-displays-current-progress",
-      "title": "Implement emergency fund calculation that recommends emergency fund target based on monthly expenses and displays current progress",
+      "id": "feature-modify-budget-planner-page-to-save-budget-plans-to-backend-and-fetch-them-on-page-load",
+      "title": "Modify Budget Planner page to save budget plans to backend and fetch them on page load",
       "reqIds": [
         "REQ-8"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-overspending-alert-system-that-detects-when-expenses-exceed-budget-allocations-and-notifies-users",
-      "title": "Implement overspending alert system that detects when expenses exceed budget allocations and notifies users",
+      "id": "feature-modify-calculators-page-to-save-calculation-history-to-backend-and-fetch-previous-calculations-on-page-load",
+      "title": "Modify Calculators page to save calculation history to backend and fetch previous calculations on page load",
       "reqIds": [
         "REQ-9"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-dynamic-budget-adjustment-capability-that-adapts-budget-recommendations-based-on-actual-spending-patterns-and-income-changes",
-      "title": "Implement dynamic budget adjustment capability that adapts budget recommendations based on actual spending patterns and income changes",
+      "id": "feature-modify-ai-insights-page-to-fetch-ai-predictions-from-backend-and-ensure-prediction-generation-saves-results-to-backend",
+      "title": "Modify AI Insights page to fetch AI predictions from backend and ensure prediction generation saves results to backend",
       "reqIds": [
         "REQ-10"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-end-of-month-balance-prediction-that-forecasts-remaining-balance-based-on-current-spending-trends-and-upcoming-expenses",
-      "title": "Implement end-of-month balance prediction that forecasts remaining balance based on current spending trends and upcoming expenses",
+      "id": "feature-modify-quiz-learning-pages-to-save-quiz-progress-and-scores-to-backend-keyed-by-user-principal",
+      "title": "Modify Quiz/Learning pages to save quiz progress and scores to backend keyed by user Principal",
       "reqIds": [
         "REQ-11"
       ],
       "version": 1
     },
     {
-      "id": "feature-implement-student-professional-adaptive-mode-that-tailors-budget-recommendations-and-financial-advice-based-on-user-s-life-stage-selection",
-      "title": "Implement Student/Professional adaptive mode that tailors budget recommendations and financial advice based on user's life stage selection",
+      "id": "feature-implement-settings-page-backend-integration-to-save-user-preferences-theme-notifications-analytics-visibility-currency-to-backend-and-fetch-on-page-load",
+      "title": "Implement Settings page backend integration to save user preferences (theme, notifications, analytics visibility, currency) to backend and fetch on page load",
       "reqIds": [
         "REQ-12"
       ],
       "version": 1
     },
     {
-      "id": "feature-ensure-the-advanced-ai-budget-system-stores-all-budget-data-in-the-unified-motoko-backend-and-integrates-with-existing-transactions-goals-and-analytics-modules-for-real-time-data-synchronization",
-      "title": "Ensure the Advanced AI Budget System stores all budget data in the unified Motoko backend and integrates with existing transactions, goals, and analytics modules for real-time data synchronization",
+      "id": "feature-update-all-react-query-hooks-to-invalidate-and-refetch-data-after-mutations-ensuring-frontend-always-displays-current-backend-state",
+      "title": "Update all React Query hooks to invalidate and refetch data after mutations, ensuring frontend always displays current backend state",
       "reqIds": [
         "REQ-13"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-comprehensive-data-persistence-testing-across-all-private-pages-to-verify-data-survives-browser-refresh-logout-login-cycles-and-cross-device-access",
+      "title": "Implement comprehensive data persistence testing across all private pages to verify data survives browser refresh, logout/login cycles, and cross-device access",
+      "reqIds": [
+        "REQ-14"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-update-applayout-logout-handler-to-clear-all-frontend-state-and-query-cache-while-preserving-backend-data",
+      "title": "Update AppLayout logout handler to clear all frontend state and query cache while preserving backend data",
+      "reqIds": [
+        "REQ-15"
       ],
       "version": 1
     }
@@ -120,34 +123,42 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Verify AdSense code is properly added in head section across all pages",
+      "summary": "Backend-first data storage with Principal-based user isolation",
       "reqIds": [],
-      "status": "pending"
+      "status": "in_progress"
     },
     {
       "id": "AR-2",
-      "summary": "Create dedicated AI insights hub where users can ask natural language questions using all backend data",
+      "summary": "Internet Identity authentication system",
       "reqIds": [],
-      "status": "pending"
+      "status": "in_progress"
     },
     {
       "id": "AR-3",
-      "summary": "Replace basic budget planner with Advanced AI Budget System with mandatory inputs (Monthly Income, Rent/EMI, Food, Travel, Utilities, Existing Loans) and optional inputs (Entertainment, Subscriptions, Shopping, Insurance, Investments)",
+      "summary": "Private pages: Dashboard, Transactions, Goals, Analytics, Budget, Planner, Calculators, AI Insights, Quiz",
       "reqIds": [],
-      "status": "pending"
+      "status": "in_progress"
     },
     {
       "id": "AR-4",
-      "summary": "Implement AI budget features: smart category allocation, auto savings percentage, emergency fund calculation, overspending alerts, dynamic budget adjustment, end-of-month balance prediction, Student/Professional adaptive modes",
+      "summary": "Complete data persistence across logout, refresh, and devices",
+      "reqIds": [],
+      "status": "in_progress"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Create backend data structure using HashMap to store user data keyed by Principal, with each user having isolated storage for transactions, goals, budgets, preferences, predictions, and quiz progress",
       "reqIds": [
-        "AR-3"
+        "REQ-2"
       ],
       "status": "pending"
     },
     {
-      "id": "AR-5",
-      "summary": "Ensure unified backend data architecture with complete real-time integration across dashboard, transactions, goals, analytics, and AI budget system",
-      "reqIds": [],
+      "id": "AR-7",
+      "summary": "Implement backend API endpoints for all CRUD operations on user data (transactions, goals, budgets, preferences, predictions, quiz progress) that save immediately to the HashMap and return updated data",
+      "reqIds": [
+        "REQ-3"
+      ],
       "status": "pending"
     }
   ],
