@@ -1,0 +1,56 @@
+{
+  "installCommand": "corepack enable && pnpm install",
+  "buildCommand": "pnpm install vite && pnpm run build:skip-bindings",
+  "outputDirectory": "dist",
+  "env": {
+    "VITE_BACKEND_CANISTER_ID": "bkyz2-fmaaa-aaaaa-qaaaq-cai",
+    "VITE_IC_HOST": "https://icp-api.io",
+    "VITE_APP_VERSION": "242"
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/ads.txt",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/plain"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        }
+      ]
+    }
+  ]
+}

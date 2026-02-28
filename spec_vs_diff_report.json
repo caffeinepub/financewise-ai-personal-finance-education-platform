@@ -1,0 +1,53 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-28T07:59:10.273Z",
+  "summary": "The diff shows backend/main.mo has been modified to use stable var declarations with Map.empty<K,V>() (from mo:core/Map) for all major state variables. This addresses REQ-2's requirement to avoid non-stable HashMaps. However, the diff is truncated and does not show the preupgrade/postupgrade hooks that REQ-1 explicitly requires. The approach using mo:core/Map with stable var may satisfy stable-compatibility if Map from mo:core is a stable type, but the absence of preupgrade/postupgrade hooks is a concern for REQ-1. Additionally, the build request specifically called for HashMap-to-stable-array patterns with Iter.toArray, which is not visible in the diff.",
+  "missing_requirements": [
+    {
+      "id": "REQ-1",
+      "requirement": "A system func preupgrade() hook must serialize all non-stable collections to their stable backing arrays before upgrade",
+      "reason": "The diff shows no preupgrade function. The AC explicitly requires this hook to be present.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-1",
+      "requirement": "A system func postupgrade() hook must restore all non-stable collections from their stable backing arrays after upgrade",
+      "reason": "No postupgrade function is visible in the diff. The AC explicitly requires this hook.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "requirement": "All HashMaps are backed by stable entry arrays populated in preupgrade and used to reconstruct maps in postupgrade using Iter.toArray pattern",
+      "reason": "The diff uses mo:core/Map directly as stable vars rather than the HashMap-to-stable-array pattern with Iter.toArray and reconstruction in postupgrade as specified in the AC. No stable backing arrays or Iter.toArray usage is visible.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Use of mo:core/Map and mo:core/Set (a new core library) instead of the standard base HashMap pattern",
+      "reason": "The build request specifies converting HashMaps using stable backing arrays with Iter.toArray and preupgrade/postupgrade hooks. The diff instead imports from mo:core/Map and mo:core/Set which were not mentioned in the build request, representing a different architectural approach than what was specified.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    },
+    {
+      "description": "Import of AccessControl, Storage, and MixinStorage modules",
+      "reason": "The diff introduces imports for authorization/access-control and blob-storage modules that were not part of the stable storage fix requirements.",
+      "evidence": [
+        "backend/main.mo"
+      ]
+    }
+  ],
+  "confidence": 0.62,
+  "changed_files": [
+    "backend/main.mo",
+    "project_state.json"
+  ]
+}

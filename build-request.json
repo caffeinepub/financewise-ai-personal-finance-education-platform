@@ -1,0 +1,67 @@
+{
+  "kind": "build_request",
+  "title": "Fix Motoko backend stable storage for data persistence across upgrades",
+  "projectName": "FinanceWise AI",
+  "priority": "high",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Convert all mutable state variables in backend/main.mo to stable variables using `stable var` declarations so that user data (transactions, expenses, budgets, savings goals, user profiles, preferences, net worth entries, emergency fund data, spending limits, blog posts, quiz questions, quiz progress, chat messages, contact submissions, AI predictions, and any other persisted state) survives canister upgrades and redeployments without data loss.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-18",
+          "msg-19",
+          "msg-20"
+        ],
+        "quotes": [
+          "Implement proper stable storage in Motoko so all data survives canister upgrades and redeployments",
+          "The data to persist: Everything — user profiles, transactions, expenses, budgets, categories, settings, etc.",
+          "The fix will use stable var declarations and proper preupgrade/postupgrade hooks"
+        ]
+      },
+      "acceptanceCriteria": [
+        "All top-level mutable state (HashMap, Array, var fields) in backend/main.mo are declared with the `stable` keyword or backed by stable arrays",
+        "Any HashMap or non-stable collection is converted to use a stable backing array (e.g., stable entries arrays) with serialization/deserialization in preupgrade/postupgrade hooks",
+        "A `system func preupgrade()` hook serializes all non-stable collections to their stable backing arrays before upgrade",
+        "A `system func postupgrade()` hook restores all non-stable collections from their stable backing arrays after upgrade",
+        "After a simulated canister upgrade (redeploy), all previously saved user data (transactions, goals, profiles, budgets, preferences, net worth, emergency fund, spending limits) is still accessible and intact",
+        "No data is lost between successive redeployments"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Ensure that all data types stored in stable variables are stable-compatible in Motoko. Replace any non-stable types (such as `HashMap`, `RBTree`, or other non-stable data structures used as top-level state) with their stable equivalents or with stable array-backed patterns using `Iter.toArray` and reconstruction in postupgrade.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "msg-18",
+          "msg-19"
+        ],
+        "quotes": [
+          "ensuring all data is stored in stable variables in the Motoko backend, so data is lost on canister upgrades/redeployments"
+        ]
+      },
+      "acceptanceCriteria": [
+        "No non-stable type is used directly as a top-level stable variable",
+        "All HashMaps are backed by stable entry arrays that are populated in preupgrade and used to reconstruct the maps in postupgrade",
+        "The Motoko compiler does not emit any stability-related warnings or errors for the actor's stable fields"
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not change any frontend files",
+    "Do not alter the public API (function signatures) of the backend actor — only internal storage mechanisms should change",
+    "All existing data types and their fields must remain structurally identical to avoid breaking frontend integration"
+  ],
+  "nonGoals": [
+    "Adding new backend features or data models",
+    "Changing the frontend UI or any frontend files",
+    "Migrating existing live data (this is a fresh stable storage implementation)",
+    "Adding new API endpoints"
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

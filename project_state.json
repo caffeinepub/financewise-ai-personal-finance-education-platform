@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "FinanceWise AI — an AI-powered personal finance management platform (expense manager + finance tracker) built on the Internet Computer using Motoko backend. Features include transactions, analytics, AI assistant, goals, budget planner, calculators, and quiz. Custom domain: financewise-ai.info. Stripe (including RuPay) is the supported payment processor.",
+  "architectural_notes": [
+    "Backend: Motoko on Internet Computer; all data keyed by user's Internet Identity Principal",
+    "Stable storage fix required: use stable var declarations and preupgrade/postupgrade hooks to prevent data loss on redeployment",
+    "Payment: Stripe integration supporting debit/credit cards including RuPay; UPI not supported",
+    "Custom domain: financewise-ai.info (use for AdSense/ads, not caffeine.xyz subdomain)"
+  ],
+  "known_issues": [
+    "User data is wiped on every redeployment due to missing stable storage in Motoko backend"
+  ],
+  "isFixRequest": true,
+  "existing_features": [],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Fix Motoko backend stable storage so all user data (transactions, expenses, budgets, goals, profiles, settings) persists across canister upgrades and redeployments using stable var and preupgrade/postupgrade hooks",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Convert all mutable state variables in backend/main.mo to stable variables using `stable var` declarations so that user data (transactions, expenses, budgets, savings goals, user profiles, preferences, net worth entries, emergency fund data, spending limits, blog posts, quiz questions, quiz progress, chat messages, contact submissions, AI predictions, and any other persisted state) survives canister upgrades and redeployments without data loss.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Ensure that all data types stored in stable variables are stable-compatible in Motoko. Replace any non-stable types (such as `HashMap`, `RBTree`, or other non-stable data structures used as top-level state) with their stable equivalents or with stable array-backed patterns using `Iter.toArray` and reconstruction in postupgrade.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "status": "pending"
+    }
+  ],
+  "gameProjectType": "none",
+  "projectName": "FinanceWise AI",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}
