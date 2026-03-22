@@ -1,4 +1,4 @@
-import type { SavingsGoal } from '../../types/backend-types';
+import type { SavingsGoal } from "../../types/backend-types";
 
 export interface GoalPlanMetrics {
   remaining: number;
@@ -19,7 +19,7 @@ export function computeMonthsRemaining(goal: SavingsGoal): number {
     const now = Date.now();
     const monthsRemaining = Math.max(
       1,
-      Math.ceil((goal.targetDate - now) / (1000 * 60 * 60 * 24 * 30))
+      Math.ceil((goal.targetDate - now) / (1000 * 60 * 60 * 24 * 30)),
     );
     return monthsRemaining;
   }
@@ -38,7 +38,10 @@ export function computeMonthsRemaining(goal: SavingsGoal): number {
 export function computeDaysRemaining(goal: SavingsGoal): number | null {
   if (goal.targetDate) {
     const now = Date.now();
-    const daysRemaining = Math.max(0, Math.ceil((goal.targetDate - now) / (1000 * 60 * 60 * 24)));
+    const daysRemaining = Math.max(
+      0,
+      Math.ceil((goal.targetDate - now) / (1000 * 60 * 60 * 24)),
+    );
     return daysRemaining;
   }
   if (goal.targetMonths) {
@@ -55,19 +58,19 @@ export function computeDaysRemaining(goal: SavingsGoal): number | null {
  */
 export function computeGoalPlanMetrics(
   goal: SavingsGoal,
-  monthlyIncome: number
+  monthlyIncome: number,
 ): GoalPlanMetrics {
   const remaining = Math.max(0, goal.targetAmount - goal.currentAmount);
-  const progressPercent = goal.targetAmount > 0 
-    ? (goal.currentAmount / goal.targetAmount) * 100 
-    : 0;
+  const progressPercent =
+    goal.targetAmount > 0 ? (goal.currentAmount / goal.targetAmount) * 100 : 0;
 
   const monthsRemaining = computeMonthsRemaining(goal);
   const requiredMonthlySaving = remaining / monthsRemaining;
   const requiredDailySaving = requiredMonthlySaving / 30;
 
-  const isFeasible = monthlyIncome > 0 ? requiredMonthlySaving <= monthlyIncome * 0.6 : true;
-  const feasibilityLabel = isFeasible ? 'Achievable' : 'Unrealistic';
+  const isFeasible =
+    monthlyIncome > 0 ? requiredMonthlySaving <= monthlyIncome * 0.6 : true;
+  const feasibilityLabel = isFeasible ? "Achievable" : "Unrealistic";
 
   let warningMessage: string | null = null;
   if (!isFeasible && monthlyIncome > 0) {

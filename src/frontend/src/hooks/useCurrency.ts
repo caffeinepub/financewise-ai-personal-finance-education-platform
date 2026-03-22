@@ -1,52 +1,100 @@
-import { useMemo } from 'react';
-import { useGetCallerUserPreferences } from './useQueries';
-import { Currency } from '../types/backend-types';
+import { useCallback, useEffect, useState } from "react";
+import { Currency } from "../backend";
+import {
+  type CurrencyCode,
+  FALLBACK_RATES,
+  fetchExchangeRates,
+  getCachedRates,
+} from "../lib/exchangeRates";
+import { useGetUserPreferences } from "./useQueries";
 
-const EXCHANGE_RATES: Record<Currency, number> = {
-  [Currency.usd]: 1,
-  [Currency.inr]: 83,
-  [Currency.eur]: 0.92,
+export type { CurrencyCode };
+
+const CURRENCY_SYMBOLS: Record<CurrencyCode, string> = {
+  USD: "$",
+  INR: "₹",
+  EUR: "€",
 };
 
-const CURRENCY_SYMBOLS: Record<Currency, string> = {
-  [Currency.usd]: '$',
-  [Currency.inr]: '₹',
-  [Currency.eur]: '€',
-};
-
-const CURRENCY_LOCALES: Record<Currency, string> = {
-  [Currency.usd]: 'en-US',
-  [Currency.inr]: 'en-IN',
-  [Currency.eur]: 'de-DE',
-};
+function backendCurrencyToCode(currency: Currency | undefined): CurrencyCode {
+  if (!currency) return "USD";
+  switch (currency) {
+    case Currency.inr:
+      return "INR";
+    case Currency.eur:
+      return "EUR";
+    default:
+      return "USD";
+  }
+}
 
 export function useCurrency() {
-  const { data: preferences } = useGetCallerUserPreferences();
-  const currency = preferences?.currency || Currency.inr;
+  const { data: preferences } = useGetUserPreferences();
+  const currencyCode = backendCurrencyToCode(preferences?.currency);
+  const [rates, setRates] =
+    useState<Record<CurrencyCode, number>>(FALLBACK_RATES);
+  const [ratesFromLive, setRatesFromLive] = useState(false);
 
-  const convert = useMemo(() => {
-    return (amount: number, from: Currency = Currency.inr, to: Currency = currency): number => {
-      const amountInUSD = amount / EXCHANGE_RATES[from];
-      return amountInUSD * EXCHANGE_RATES[to];
-    };
-  }, [currency]);
+  useEffect(() => {
+    const cached = getCachedRates();
+    if (cached) {
+      setRates(cached);
+      setRatesFromLive(true);
+      return;
+    }
+    fetchExchangeRates().then((fetched) => {
+      if (fetched) {
+        setRates(fetched);
+        setRatesFromLive(true);
+      }
+    });
+  }, []);
 
-  const format = useMemo(() => {
-    return (amount: number, from: Currency = Currency.inr): string => {
-      const convertedAmount = convert(amount, from, currency);
-      return new Intl.NumberFormat(CURRENCY_LOCALES[currency], {
-        style: 'currency',
-        currency: currency.toUpperCase(),
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-      }).format(convertedAmount);
-    };
-  }, [currency, convert]);
+  const getCurrencySymbol = useCallback(
+    (code?: CurrencyCode) => CURRENCY_SYMBOLS[code ?? currencyCode],
+    [currencyCode],
+  );
+
+  const convertFromUSD = useCallback(
+    (amountUSD: number, targetCode?: CurrencyCode): number => {
+      const target = targetCode ?? currencyCode;
+      return amountUSD * (rates[target] ?? FALLBACK_RATES[target]);
+    },
+    [currencyCode, rates],
+  );
+
+  const convertToUSD = useCallback(
+    (amount: number, sourceCode?: CurrencyCode): number => {
+      const source = sourceCode ?? currencyCode;
+      const rate = rates[source] ?? FALLBACK_RATES[source];
+      return rate === 0 ? 0 : amount / rate;
+    },
+    [currencyCode, rates],
+  );
+
+  const format = useCallback(
+    (amountUSD: number): string => {
+      const converted = convertFromUSD(amountUSD);
+      const symbol = CURRENCY_SYMBOLS[currencyCode];
+      if (currencyCode === "INR") {
+        return `${symbol}${converted.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
+      }
+      return `${symbol}${converted.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    },
+    [currencyCode, convertFromUSD],
+  );
+
+  const formatCurrency = format;
 
   return {
-    currency,
-    symbol: CURRENCY_SYMBOLS[currency],
-    convert,
+    currencyCode,
+    symbol: CURRENCY_SYMBOLS[currencyCode],
+    getCurrencySymbol,
     format,
+    formatCurrency,
+    convertFromUSD,
+    convertToUSD,
+    rates,
+    ratesFromLive,
   };
 }

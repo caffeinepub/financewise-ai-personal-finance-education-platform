@@ -1,54 +1,59 @@
 import Map "mo:core/Map";
-import Set "mo:core/Set";
-import Nat "mo:core/Nat";
-import Text "mo:core/Text";
 import Int "mo:core/Int";
+import Text "mo:core/Text";
 import Time "mo:core/Time";
 import Array "mo:core/Array";
-import Order "mo:core/Order";
-import Iter "mo:core/Iter";
 import Float "mo:core/Float";
+import Iter "mo:core/Iter";
 import List "mo:core/List";
+import Order "mo:core/Order";
 import Blob "mo:core/Blob";
+import Nat64 "mo:core/Nat64";
 import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
 import AccessControl "authorization/access-control";
 import Storage "blob-storage/Storage";
 import MixinStorage "blob-storage/Mixin";
-import Migration "migration";
 
-// Persist state with migration transformation
-(with migration = Migration.run)
+
+
 actor {
   let accessControlState = AccessControl.initState();
   let storage = Storage.new();
   include MixinStorage(storage);
 
-  // State Variables
-  var legalPages = Map.empty<Text, LegalPage>();
-  var userProfiles = Map.empty<Principal, UserProfile>();
-  var userPreferences = Map.empty<Principal, UserPreferences>();
-  var userCookieConsent = Map.empty<Principal, CookieConsent>();
-  var transactions = Map.empty<Principal, [TransactionData]>();
-  var expenses = Map.empty<Principal, [ExpenseItem]>();
-  var contactSubmissions = Map.empty<Text, ContactSubmission>();
-  var aiPredictions = Map.empty<Principal, AIPrediction>();
-  var caFeaturesContent = Map.empty<Text, CharteredAccountantFeaturesContent>();
-  var chatSessions = Map.empty<Text, ChatSession>();
-  var quizQuestions = Map.empty<Text, QuizQuestion>();
-  var budgets = Map.empty<Principal, BudgetData>();
-  var subscriptions = Map.empty<Principal, [Subscription]>();
-  var userQuizProgress = Map.empty<Principal, QuizProgress>();
-  var quizDatabase : ?QuizDatabase = null;
-  var quizInitializationLock : Bool = false;
-  var aiModelPredictions = Map.empty<Principal, AIModelPrediction>();
-  var aiModelTrainingData = Map.empty<Principal, AIModelTrainingData>();
-  var blogPosts = Map.empty<Text, BlogPost>();
-  var blogPostContents = Map.empty<Text, FinanceBlogContent>();
-  var systemInitialized : Bool = false;
-  var userBudgets = Map.empty<Principal, BudgetData>();
-  var savingsGoals = Map.empty<Principal, [SavingsGoal]>();
+  stable var legalPages = Map.empty<Text, LegalPage>();
+  stable var userProfiles = Map.empty<Principal, UserProfile>();
+  stable var userPreferences = Map.empty<Principal, UserPreferences>();
+  stable var userCookieConsent = Map.empty<Principal, CookieConsent>();
+  stable var transactions = Map.empty<Principal, [TransactionData]>();
+  stable var expenses = Map.empty<Principal, [ExpenseItem]>();
+  stable var contactSubmissions = Map.empty<Text, ContactSubmission>();
+  stable var aiPredictions = Map.empty<Principal, AIPrediction>();
+  stable var caFeaturesContent = Map.empty<Text, CharteredAccountantFeaturesContent>();
+  stable var chatSessions = Map.empty<Text, ChatSession>();
+  stable var quizQuestions = Map.empty<Text, QuizQuestion>();
+  stable var budgets = Map.empty<Principal, BudgetData>();
+  stable var subscriptions = Map.empty<Principal, [Subscription]>();
+  stable var userQuizProgress = Map.empty<Principal, QuizProgress>();
+  stable var quizDatabase : ?QuizDatabase = null;
+  stable var quizInitializationLock : Bool = false;
+  stable var aiModelPredictions = Map.empty<Principal, AIModelPrediction>();
+  stable var aiModelTrainingData = Map.empty<Principal, AIModelTrainingData>();
+  stable var blogPosts = Map.empty<Text, BlogPost>();
+  stable var blogPostContents = Map.empty<Text, FinanceBlogContent>();
+  stable var systemInitialized : Bool = false;
+  stable var userBudgets = Map.empty<Principal, BudgetData>();
+  stable var savingsGoals = Map.empty<Principal, [SavingsGoal]>();
   let backendVersion = "2.4.2";
+
+  // New state variable for budget plans
+  stable var budgetPlans = Map.empty<Principal, BudgetPlannerData>();
+
+  // New state variable for financial wellness features
+  stable var userNetWorthData = Map.empty<Principal, NetWorthData>();
+  stable var userEmergencyFundData = Map.empty<Principal, EmergencyFundData>();
+  stable var userSpendingLimits = Map.empty<Principal, [SpendingLimit]>();
 
   // Type Definitions
   public type UserProfile = {
@@ -159,6 +164,18 @@ actor {
     lastUpdated : Int;
   };
 
+  public type BudgetPlan = {
+    categories : [BudgetCategory];
+    amounts : [(Text, Float)];
+    selectedMode : BudgetMode;
+    currency : Currency;
+  };
+
+  public type BudgetPlannerData = {
+    plan : BudgetPlan;
+    lastUpdated : Int;
+  };
+
   public type BudgetType = {
     #primaryNecessity;
     #discretionary;
@@ -169,6 +186,14 @@ actor {
     #good;
     #warning;
     #critical;
+  };
+
+  public type BudgetMode = {
+    #evilBudget;
+    #student;
+    #professional;
+    #retired;
+    #custom;
   };
 
   public type ServiceSubscription = {
@@ -586,6 +611,68 @@ actor {
     #custom;
   };
 
+  // New types for financial wellness features
+  public type Asset = {
+    name : Text;
+    category : AssetCategory;
+    amount : Float;
+  };
+
+  public type AssetCategory = {
+    #cash;
+    #bankBalance;
+    #savingsAccount;
+    #investments;
+    #stocks;
+    #mutualFunds;
+    #gold;
+    #property;
+    #other;
+  };
+
+  public type Liability = {
+    name : Text;
+    category : LiabilityCategory;
+    amount : Float;
+  };
+
+  public type LiabilityCategory = {
+    #loans;
+    #creditCardDebt;
+    #emi;
+    #personalLoans;
+    #otherDebt;
+  };
+
+  public type NetWorthData = {
+    assets : [Asset];
+    liabilities : [Liability];
+    user : Principal;
+    lastUpdated : Int;
+  };
+
+  public type EmergencyFundData = {
+    savedAmount : Float;
+    user : Principal;
+    lastUpdated : Int;
+  };
+
+  public type SpendingLimit = {
+    category : SpendingLimitCategory;
+    limitAmount : Float;
+    user : Principal;
+    lastUpdated : Int;
+  };
+
+  public type SpendingLimitCategory = {
+    #food;
+    #transport;
+    #shopping;
+    #entertainment;
+    #bills;
+    #other;
+  };
+
   // Required authentication functions
   public shared ({ caller }) func initializeAccessControl() : async () {
     AccessControl.initialize(accessControlState, caller);
@@ -626,6 +713,25 @@ actor {
       Runtime.trap("Unauthorized: Only users can save profiles");
     };
     userProfiles.add(caller, profile);
+  };
+
+  // Budget Planner
+  public shared ({ caller }) func saveBudgetPlan(plan : BudgetPlan) : async () {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can save budget plans");
+    };
+    let updatedPlan = {
+      plan;
+      lastUpdated = Time.now();
+    };
+    budgetPlans.add(caller, updatedPlan);
+  };
+
+  public query ({ caller }) func getBudgetPlan() : async ?BudgetPlannerData {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can access budget plans");
+    };
+    budgetPlans.get(caller);
   };
 
   // Settings Page Backend Integration
@@ -1278,6 +1384,71 @@ actor {
       savingsAmount;
       categoryBreakdown = finalCategoryBreakdown;
       categoryAnalysis;
+    };
+  };
+
+  // Financial Wellness Public Functions
+
+  // Net Worth Functions
+  public shared ({ caller }) func saveNetWorthData(data : NetWorthData) : async () {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can save net worth data");
+    };
+    if (data.user != caller) {
+      Runtime.trap("Unauthorized: Cannot save net worth data for other users");
+    };
+    userNetWorthData.add(caller, data);
+  };
+
+  public query ({ caller }) func getNetWorthData() : async ?NetWorthData {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can access net worth data");
+    };
+    userNetWorthData.get(caller);
+  };
+
+  // Emergency Fund Functions
+  public shared ({ caller }) func saveEmergencyFundData(data : EmergencyFundData) : async () {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can save emergency fund data");
+    };
+    if (data.user != caller) {
+      Runtime.trap("Unauthorized: Cannot save emergency fund data for other users");
+    };
+    userEmergencyFundData.add(caller, data);
+  };
+
+  public query ({ caller }) func getEmergencyFundData() : async ?EmergencyFundData {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can access emergency fund data");
+    };
+    userEmergencyFundData.get(caller);
+  };
+
+  // Spending Limits Functions
+  public shared ({ caller }) func saveSpendingLimits(limits : [SpendingLimit]) : async () {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can save spending limits");
+    };
+    // Verify all limits belong to the caller
+    let invalidLimit = limits.find(func(limit) { limit.user != caller });
+    switch (invalidLimit) {
+      case (?_limit) {
+        Runtime.trap("Unauthorized: All spending limits must belong to the caller");
+      };
+      case (null) {
+        userSpendingLimits.add(caller, limits);
+      };
+    };
+  };
+
+  public query ({ caller }) func getSpendingLimits() : async [SpendingLimit] {
+    if (not AccessControl.hasPermission(accessControlState, caller, #user)) {
+      Runtime.trap("Unauthorized: Only users can access spending limits");
+    };
+    switch (userSpendingLimits.get(caller)) {
+      case (?limits) { limits };
+      case (null) { [] };
     };
   };
 };

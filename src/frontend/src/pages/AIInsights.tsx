@@ -1,76 +1,98 @@
-import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useGetCallerUserPreferences, useGetUserTransactions, useGetBalance, useGetUserSavingsGoals } from '../hooks/useQueries';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Lightbulb, TrendingUp, AlertTriangle, DollarSign, Target, Info, TrendingDown, Sparkles, Brain, LineChart, Cpu, Zap } from 'lucide-react';
-import { useMemo } from 'react';
-import AccessDenied from '../components/AccessDenied';
-import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart as RechartsLine, Line, PieChart, Pie, Legend } from 'recharts';
-import { useCurrency } from '../hooks/useCurrency';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { AlertTriangle, Brain, Cpu, Info, TrendingUp, Zap } from "lucide-react";
+import { useMemo } from "react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Legend,
+  Line,
+  Pie,
+  PieChart,
+  LineChart as RechartsLine,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import AccessDenied from "../components/AccessDenied";
+import { useCurrency } from "../hooks/useCurrency";
+import { useInternetIdentity } from "../hooks/useInternetIdentity";
+import {
+  useGetBalance,
+  useGetSavingsGoals,
+  useGetUserTransactions,
+} from "../hooks/useQueries";
 
 const CATEGORY_COLORS: Record<string, string> = {
-  'Entertainment': 'oklch(var(--chart-1))',
-  'Housing & Utilities': 'oklch(var(--chart-2))',
-  'Transportation': 'oklch(var(--chart-3))',
-  'Shopping': 'oklch(var(--chart-4))',
-  'Food & Dining': 'oklch(var(--chart-5))',
-  'Healthcare': 'oklch(var(--chart-1))',
-  'Other': 'oklch(var(--chart-5))',
+  Entertainment: "#8b5cf6",
+  "Housing & Utilities": "#06b6d4",
+  Transportation: "#10b981",
+  Shopping: "#f59e0b",
+  "Food & Dining": "#ef4444",
+  Healthcare: "#3b82f6",
+  Other: "#6b7280",
 };
 
 const ML_MODELS = [
-  { name: 'Linear Regression', icon: TrendingUp, color: 'text-green-500', desc: 'Trend prediction and linear relationship modeling' },
-  { name: 'GRU', icon: Zap, color: 'text-teal-500', desc: 'Efficient sequential data analysis with gated recurrent units' },
-  { name: 'LSTM', icon: Cpu, color: 'text-violet-500', desc: 'Long-term memory patterns for complex financial forecasting' },
+  {
+    name: "Linear Regression",
+    icon: TrendingUp,
+    color: "text-green-500",
+    desc: "Trend prediction and linear relationship modeling",
+  },
+  {
+    name: "GRU",
+    icon: Zap,
+    color: "text-teal-500",
+    desc: "Efficient sequential data analysis with gated recurrent units",
+  },
+  {
+    name: "LSTM",
+    icon: Cpu,
+    color: "text-violet-500",
+    desc: "Long-term memory patterns for complex financial forecasting",
+  },
 ];
 
 export default function AIInsights() {
   const { identity } = useInternetIdentity();
-  const { data: transactions } = useGetUserTransactions();
-  const { data: balance } = useGetBalance();
-  const { data: goals } = useGetUserSavingsGoals();
-  const { format: formatCurrency, symbol: currencySymbol } = useCurrency();
+  const { data: transactions = [] } = useGetUserTransactions();
+  const { data: _balance = 0 } = useGetBalance();
+  const { data: goals = [] } = useGetSavingsGoals();
+  const { format: formatCurrency } = useCurrency();
 
-  // Calculate spending by category
   const categorySpending = useMemo(() => {
-    if (!transactions) return [];
-    
-    const categoryTotals: Record<string, number> = {};
-    transactions
-      .filter(t => t.transactionType === 'expense')
-      .forEach(t => {
-        categoryTotals[t.category] = (categoryTotals[t.category] || 0) + t.amount;
-      });
-    
-    return Object.entries(categoryTotals).map(([category, amount]) => ({
-      name: category,
-      value: amount,
-    })).sort((a, b) => b.value - a.value);
+    const totals: Record<string, number> = {};
+    for (const t of transactions.filter(
+      (t) => t.transactionType === "expense",
+    )) {
+      totals[t.category] = (totals[t.category] || 0) + Number(t.amount);
+    }
+    return Object.entries(totals)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
   }, [transactions]);
 
-  // Calculate monthly trends
   const monthlyTrends = useMemo(() => {
-    if (!transactions || transactions.length === 0) return [];
-    
-    const monthlyData: Record<string, { income: number; expenses: number }> = {};
-    
-    transactions.forEach(t => {
-      const date = new Date(Number(t.date) / 1000000);
-      const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      
-      if (!monthlyData[monthKey]) {
-        monthlyData[monthKey] = { income: 0, expenses: 0 };
-      }
-      
-      if (t.transactionType === 'income') {
-        monthlyData[monthKey].income += t.amount;
-      } else {
-        monthlyData[monthKey].expenses += t.amount;
-      }
-    });
-    
-    return Object.entries(monthlyData)
+    const map: Record<string, { income: number; expenses: number }> = {};
+    for (const t of transactions) {
+      const date = new Date(Number(t.date) / 1_000_000);
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+      if (!map[key]) map[key] = { income: 0, expenses: 0 };
+      if (t.transactionType === "income") map[key].income += Number(t.amount);
+      else map[key].expenses += Number(t.amount);
+    }
+    return Object.entries(map)
       .map(([month, data]) => ({
         month,
         income: data.income,
@@ -81,21 +103,28 @@ export default function AIInsights() {
       .slice(-6);
   }, [transactions]);
 
-  // Calculate insights
   const insights = useMemo(() => {
-    const totalIncome = transactions?.filter(t => t.transactionType === 'income').reduce((sum, t) => sum + t.amount, 0) || 0;
-    const totalExpenses = transactions?.filter(t => t.transactionType === 'expense').reduce((sum, t) => sum + t.amount, 0) || 0;
+    const totalIncome = transactions
+      .filter((t) => t.transactionType === "income")
+      .reduce((s, t) => s + Number(t.amount), 0);
+    const totalExpenses = transactions
+      .filter((t) => t.transactionType === "expense")
+      .reduce((s, t) => s + Number(t.amount), 0);
     const netSavings = totalIncome - totalExpenses;
     const savingsRate = totalIncome > 0 ? (netSavings / totalIncome) * 100 : 0;
-    
-    const totalGoalTarget = goals?.reduce((sum, g) => sum + g.targetAmount, 0) || 0;
-    const totalGoalCurrent = goals?.reduce((sum, g) => sum + g.currentAmount, 0) || 0;
-    const goalProgress = totalGoalTarget > 0 ? (totalGoalCurrent / totalGoalTarget) * 100 : 0;
-    
-    let riskLevel = 'Low';
-    if (netSavings < 0) riskLevel = 'High';
-    else if (savingsRate < 20) riskLevel = 'Medium';
-    
+    const totalGoalTarget = goals.reduce(
+      (s, g) => s + Number(g.targetAmount),
+      0,
+    );
+    const totalGoalCurrent = goals.reduce(
+      (s, g) => s + Number(g.currentAmount),
+      0,
+    );
+    const goalProgress =
+      totalGoalTarget > 0 ? (totalGoalCurrent / totalGoalTarget) * 100 : 0;
+    let riskLevel = "Low";
+    if (netSavings < 0) riskLevel = "High";
+    else if (savingsRate < 20) riskLevel = "Medium";
     return {
       totalIncome,
       totalExpenses,
@@ -108,11 +137,9 @@ export default function AIInsights() {
     };
   }, [transactions, goals]);
 
-  if (!identity) {
-    return <AccessDenied />;
-  }
+  if (!identity) return <AccessDenied />;
 
-  if (!transactions || transactions.length === 0) {
+  if (transactions.length === 0) {
     return (
       <div className="min-h-screen p-4 md:p-6 lg:p-8">
         <Card className="max-w-2xl mx-auto">
@@ -125,11 +152,12 @@ export default function AIInsights() {
               Add transactions to unlock AI-powered insights
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent>
             <Alert>
               <Info className="h-4 w-4" />
               <AlertDescription>
-                Start by adding some transactions to see personalized AI insights and predictions.
+                Start by adding some transactions to see personalized AI
+                insights and predictions.
               </AlertDescription>
             </Alert>
           </CardContent>
@@ -149,7 +177,6 @@ export default function AIInsights() {
         </p>
       </div>
 
-      {/* ML Models Overview */}
       <div className="grid gap-4 md:grid-cols-3">
         {ML_MODELS.map((model) => {
           const Icon = model.icon;
@@ -169,48 +196,51 @@ export default function AIInsights() {
         })}
       </div>
 
-      {/* Key Metrics */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Total Income</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{formatCurrency(insights.totalIncome)}</div>
+            <div className="text-2xl font-bold text-green-600">
+              {formatCurrency(insights.totalIncome)}
+            </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Total Expenses</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{formatCurrency(insights.totalExpenses)}</div>
+            <div className="text-2xl font-bold text-red-600">
+              {formatCurrency(insights.totalExpenses)}
+            </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Net Savings</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${insights.netSavings >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <div
+              className={`text-2xl font-bold ${insights.netSavings >= 0 ? "text-green-600" : "text-red-600"}`}
+            >
               {formatCurrency(insights.netSavings)}
             </div>
           </CardContent>
         </Card>
-
         <Card>
           <CardHeader className="pb-2">
             <CardDescription>Savings Rate</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{insights.savingsRate.toFixed(1)}%</div>
+            <div className="text-2xl font-bold">
+              {insights.savingsRate.toFixed(1)}%
+            </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Risk Assessment */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -220,19 +250,29 @@ export default function AIInsights() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4">
-            <Badge variant={insights.riskLevel === 'Low' ? 'default' : insights.riskLevel === 'Medium' ? 'secondary' : 'destructive'}>
+            <Badge
+              variant={
+                insights.riskLevel === "Low"
+                  ? "default"
+                  : insights.riskLevel === "Medium"
+                    ? "secondary"
+                    : "destructive"
+              }
+            >
               {insights.riskLevel} Risk
             </Badge>
             <p className="text-sm text-muted-foreground">
-              {insights.riskLevel === 'High' && 'Your expenses exceed income. Consider reducing spending.'}
-              {insights.riskLevel === 'Medium' && 'Your savings rate is below 20%. Try to increase savings.'}
-              {insights.riskLevel === 'Low' && 'Your financial health looks good. Keep up the good work!'}
+              {insights.riskLevel === "High" &&
+                "Your expenses exceed income. Consider reducing spending."}
+              {insights.riskLevel === "Medium" &&
+                "Your savings rate is below 20%. Try to increase savings."}
+              {insights.riskLevel === "Low" &&
+                "Your financial health looks good. Keep up the good work!"}
             </p>
           </div>
         </CardContent>
       </Card>
 
-      {/* Spending Distribution */}
       {categorySpending.length > 0 && (
         <Card>
           <CardHeader>
@@ -249,10 +289,13 @@ export default function AIInsights() {
                   cx="50%"
                   cy="50%"
                   outerRadius={100}
-                  label={(entry) => `${entry.name}: ${formatCurrency(entry.value)}`}
+                  label={(e) => e.name}
                 >
-                  {categorySpending.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={CATEGORY_COLORS[entry.name] || 'oklch(var(--chart-1))'} />
+                  {categorySpending.map((_entry) => (
+                    <Cell
+                      key={`cell-${_entry.name}`}
+                      fill={CATEGORY_COLORS[_entry.name] || "#8884d8"}
+                    />
                   ))}
                 </Pie>
                 <Tooltip formatter={(value: number) => formatCurrency(value)} />
@@ -263,7 +306,6 @@ export default function AIInsights() {
         </Card>
       )}
 
-      {/* Monthly Trends */}
       {monthlyTrends.length > 0 && (
         <Card>
           <CardHeader>
@@ -278,21 +320,37 @@ export default function AIInsights() {
                 <YAxis />
                 <Tooltip formatter={(value: number) => formatCurrency(value)} />
                 <Legend />
-                <Line type="monotone" dataKey="income" stroke="oklch(var(--chart-1))" name="Income" />
-                <Line type="monotone" dataKey="expenses" stroke="oklch(var(--chart-2))" name="Expenses" />
-                <Line type="monotone" dataKey="savings" stroke="oklch(var(--chart-3))" name="Savings" />
+                <Line
+                  type="monotone"
+                  dataKey="income"
+                  stroke="#10b981"
+                  name="Income"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="expenses"
+                  stroke="#ef4444"
+                  name="Expenses"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="savings"
+                  stroke="#3b82f6"
+                  name="Savings"
+                />
               </RechartsLine>
             </ResponsiveContainer>
           </CardContent>
         </Card>
       )}
 
-      {/* Educational Disclaimer */}
       <Alert>
         <Info className="h-4 w-4" />
         <AlertDescription>
-          <strong>Educational Purpose Only:</strong> These insights are for educational purposes and should not be considered financial advice. 
-          Always consult with a certified financial advisor before making investment decisions.
+          <strong>Educational Purpose Only:</strong> These insights are for
+          educational purposes and should not be considered financial advice.
+          Always consult with a certified financial advisor before making
+          investment decisions.
         </AlertDescription>
       </Alert>
     </div>

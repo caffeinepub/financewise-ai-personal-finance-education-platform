@@ -1,5 +1,11 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Heart, Brain, Shield, Smile, TrendingUp, Users } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Brain, Heart, Shield, Smile, TrendingUp, Users } from "lucide-react";
 
 export default function FinancialWellness() {
   return (
@@ -21,7 +27,8 @@ export default function FinancialWellness() {
                 <Heart className="w-12 h-12 text-primary mb-4" />
                 <CardTitle>Emotional Comfort</CardTitle>
                 <CardDescription>
-                  Reduce financial stress with clear insights and actionable recommendations
+                  Reduce financial stress with clear insights and actionable
+                  recommendations
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -31,7 +38,8 @@ export default function FinancialWellness() {
                 <Brain className="w-12 h-12 text-chart-1 mb-4" />
                 <CardTitle>Financial Psychology</CardTitle>
                 <CardDescription>
-                  Understand your money mindset and build healthier financial habits
+                  Understand your money mindset and build healthier financial
+                  habits
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -41,7 +49,8 @@ export default function FinancialWellness() {
                 <Shield className="w-12 h-12 text-chart-2 mb-4" />
                 <CardTitle>Security & Trust</CardTitle>
                 <CardDescription>
-                  Feel safe knowing your data is protected with bank-level security
+                  Feel safe knowing your data is protected with bank-level
+                  security
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -61,7 +70,8 @@ export default function FinancialWellness() {
                 <TrendingUp className="w-12 h-12 text-chart-4 mb-4" />
                 <CardTitle>Growth Mindset</CardTitle>
                 <CardDescription>
-                  Learn and improve with educational content and personalized coaching
+                  Learn and improve with educational content and personalized
+                  coaching
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -71,7 +81,8 @@ export default function FinancialWellness() {
                 <Users className="w-12 h-12 text-chart-5 mb-4" />
                 <CardTitle>Community Support</CardTitle>
                 <CardDescription>
-                  Join a community of users working toward financial independence
+                  Join a community of users working toward financial
+                  independence
                 </CardDescription>
               </CardHeader>
             </Card>

@@ -7,9 +7,9 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
-export interface Budget {
-    type: BudgetType;
-    category: string;
+export interface Liability {
+    name: string;
+    category: LiabilityCategory;
     amount: number;
 }
 export interface UserPreferences {
@@ -56,21 +56,9 @@ export interface CASection {
     description: string;
     points: Array<string>;
 }
-export interface BudgetData {
-    savingsPercentage: number;
-    status: BudgetStatus;
-    totalMandatoryExpenses: number;
-    monthlySavingsGoal: number;
-    remainingBudget: number;
-    emergencyFundTargetMonths: bigint;
-    totalMonthlyIncome: number;
-    emergencyFundTargetAmount: number;
-    user: Principal;
+export interface BudgetPlannerData {
+    plan: BudgetPlan;
     lastUpdated: bigint;
-    budgets: Array<Budget>;
-    currentEmergencyFundBalance: number;
-    totalOptionalExpenses: number;
-    totalMonthlySavings: number;
 }
 export interface Subscription {
     endDate?: bigint;
@@ -92,12 +80,33 @@ export interface CharteredAccountantFeaturesContent {
     disclaimer: string;
     sections: Array<CASection>;
 }
+export interface BudgetData {
+    savingsPercentage: number;
+    status: BudgetStatus;
+    totalMandatoryExpenses: number;
+    monthlySavingsGoal: number;
+    remainingBudget: number;
+    emergencyFundTargetMonths: bigint;
+    totalMonthlyIncome: number;
+    emergencyFundTargetAmount: number;
+    user: Principal;
+    lastUpdated: bigint;
+    budgets: Array<Budget>;
+    currentEmergencyFundBalance: number;
+    totalOptionalExpenses: number;
+    totalMonthlySavings: number;
+}
 export interface AIModelPrediction {
     futureSavings: number;
     lastUpdated: bigint;
     confidenceScore: number;
     balancePrediction: number;
     riskLevel: string;
+}
+export interface Budget {
+    type: BudgetType;
+    category: string;
+    amount: number;
 }
 export interface QuizInitResponse {
     currentDifficulty: QuizDifficulty;
@@ -113,13 +122,15 @@ export interface ChatMessage {
     role: ChatRole;
     timestamp: bigint;
 }
-export interface CookieConsent {
-    expiresAt: bigint;
-    advertising: boolean;
-    analytics: boolean;
-    essential: boolean;
-    timestamp: bigint;
-    functional: boolean;
+export interface Asset {
+    name: string;
+    category: AssetCategory;
+    amount: number;
+}
+export interface EmergencyFundData {
+    user: Principal;
+    lastUpdated: bigint;
+    savedAmount: number;
 }
 export interface SavingsGoal {
     id: string;
@@ -128,6 +139,29 @@ export interface SavingsGoal {
     user: Principal;
     targetAmount: number;
     currentAmount: number;
+}
+export interface NetWorthData {
+    liabilities: Array<Liability>;
+    assets: Array<Asset>;
+    user: Principal;
+    lastUpdated: bigint;
+}
+export interface CookieConsent {
+    expiresAt: bigint;
+    advertising: boolean;
+    analytics: boolean;
+    essential: boolean;
+    timestamp: bigint;
+    functional: boolean;
+}
+export interface BudgetCategory {
+    id: string;
+    monthlyAllocation: number;
+    icon: string;
+    name: string;
+    color: string;
+    isMandatory: boolean;
+    priorityLevel: bigint;
 }
 export interface BlogPost {
     id: string;
@@ -184,6 +218,12 @@ export interface ExpenseItem {
         longitude: number;
     };
 }
+export interface BudgetPlan {
+    categories: Array<BudgetCategory>;
+    amounts: Array<[string, number]>;
+    currency: Currency;
+    selectedMode: BudgetMode;
+}
 export interface AIPrediction {
     futureSavings: number;
     remainingGoalAmount: number;
@@ -205,6 +245,12 @@ export interface ChatSession {
     messages: Array<ChatMessage>;
     createdAt: bigint;
     user: Principal;
+}
+export interface SpendingLimit {
+    user: Principal;
+    lastUpdated: bigint;
+    limitAmount: number;
+    category: SpendingLimitCategory;
 }
 export interface AIModelTrainingData {
     quizNumQuestions: bigint;
@@ -232,7 +278,18 @@ export interface TransactionData {
     paymentType: string;
     amount: number;
 }
-export enum BudgetRecommendation {
+export enum AssetCategory {
+    mutualFunds = "mutualFunds",
+    stocks = "stocks",
+    other = "other",
+    cash = "cash",
+    gold = "gold",
+    investments = "investments",
+    savingsAccount = "savingsAccount",
+    property = "property",
+    bankBalance = "bankBalance"
+}
+export enum BudgetMode {
     evilBudget = "evilBudget",
     custom = "custom",
     professional = "professional",
@@ -267,6 +324,13 @@ export enum ExpenseType {
     optional = "optional",
     mandatory = "mandatory"
 }
+export enum LiabilityCategory {
+    emi = "emi",
+    creditCardDebt = "creditCardDebt",
+    personalLoans = "personalLoans",
+    loans = "loans",
+    otherDebt = "otherDebt"
+}
 export enum PaymentType {
     upi = "upi",
     creditCard = "creditCard",
@@ -298,6 +362,14 @@ export enum QuizTopic {
     debts = "debts",
     spending = "spending"
 }
+export enum SpendingLimitCategory {
+    other = "other",
+    entertainment = "entertainment",
+    food = "food",
+    transport = "transport",
+    bills = "bills",
+    shopping = "shopping"
+}
 export enum UserRole {
     admin = "admin",
     user = "user",
@@ -328,6 +400,7 @@ export interface backendInterface {
     getBlogContent(contentId: string): Promise<FinanceBlogContent | null>;
     getBlogPost(postId: string): Promise<BlogPost | null>;
     getBudgetData(): Promise<BudgetData | null>;
+    getBudgetPlan(): Promise<BudgetPlannerData | null>;
     getCAFeaturesContent(contentId: string): Promise<CharteredAccountantFeaturesContent | null>;
     getCallerUserProfile(): Promise<UserProfile | null>;
     getCallerUserRole(): Promise<UserRole>;
@@ -335,10 +408,13 @@ export interface backendInterface {
     getContactSubmissions(): Promise<Array<[string, ContactSubmission]>>;
     getCookieConsent(): Promise<CookieConsent | null>;
     getDefaultBudgetSuggestions(recommendationType: BudgetRecommendation): Promise<Array<[string, number]>>;
+    getEmergencyFundData(): Promise<EmergencyFundData | null>;
     getExpenses(): Promise<Array<ExpenseItem>>;
     getLegalPage(pageId: string): Promise<LegalPage | null>;
+    getNetWorthData(): Promise<NetWorthData | null>;
     getQuizStatistics(): Promise<QuizStatistics>;
     getSavingsGoals(): Promise<Array<SavingsGoal>>;
+    getSpendingLimits(): Promise<Array<SpendingLimit>>;
     getSubscriptions(): Promise<Array<Subscription>>;
     getTransactions(): Promise<Array<TransactionData>>;
     getUserPreferences(): Promise<UserPreferences | null>;
@@ -351,10 +427,14 @@ export interface backendInterface {
     saveAIPrediction(prediction: AIPrediction): Promise<void>;
     saveBlogContent(contentId: string, content: FinanceBlogContent): Promise<void>;
     saveBudgetData(budget: BudgetData): Promise<void>;
+    saveBudgetPlan(plan: BudgetPlan): Promise<void>;
     saveCAFeaturesContent(contentId: string, content: CharteredAccountantFeaturesContent): Promise<void>;
     saveCallerUserProfile(profile: UserProfile): Promise<void>;
     saveCookieConsent(consent: CookieConsent): Promise<void>;
+    saveEmergencyFundData(data: EmergencyFundData): Promise<void>;
     saveLegalPage(pageId: string, page: LegalPage): Promise<void>;
+    saveNetWorthData(data: NetWorthData): Promise<void>;
+    saveSpendingLimits(limits: Array<SpendingLimit>): Promise<void>;
     saveUserPreferences(preferences: UserPreferences): Promise<void>;
     submitContactForm(submission: ContactSubmission): Promise<void>;
     submitQuizAnswer(answer: QuizAnswer): Promise<QuizFeedback>;

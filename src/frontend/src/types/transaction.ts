@@ -1,4 +1,4 @@
-import type { Principal } from '@icp-sdk/core/principal';
+import type { Principal } from "@icp-sdk/core/principal";
 
 // Local Transaction type definition since it's not exported from backend
 export interface Transaction {

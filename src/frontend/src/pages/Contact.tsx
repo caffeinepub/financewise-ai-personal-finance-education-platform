@@ -1,37 +1,40 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { useSubmitContactForm } from '../hooks/useQueries';
-import { Mail, Clock, MessageSquare } from 'lucide-react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import type { ContactSubmission } from '../types/backend-types';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Clock, Mail, MessageSquare } from "lucide-react";
+import { useState } from "react";
+import type { ContactSubmission } from "../backend";
+import Footer from "../components/Footer";
+import Header from "../components/Header";
+import { useSubmitContactForm } from "../hooks/useQueries";
 
 export default function Contact() {
   const submitForm = useSubmitContactForm();
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: '',
+    name: "",
+    email: "",
+    message: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     const submission: ContactSubmission = {
       id: `contact_${Date.now()}`,
       name: formData.name,
       email: formData.email,
       message: formData.message,
-      submittedAt: Date.now(),
+      submittedAt: BigInt(Date.now()),
     };
-
     await submitForm.mutateAsync(submission);
-    
-    setFormData({ name: '', email: '', message: '' });
+    setFormData({ name: "", email: "", message: "" });
   };
 
   return (
@@ -54,27 +57,31 @@ export default function Contact() {
                   <CardTitle>Email</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">fwiseai@gmail.com</p>
+                  <p className="text-sm text-muted-foreground">
+                    fwiseai@gmail.com
+                  </p>
                 </CardContent>
               </Card>
-
               <Card>
                 <CardHeader>
                   <Clock className="w-8 h-8 text-primary mb-2" />
                   <CardTitle>Response Time</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">Within 24-48 hours</p>
+                  <p className="text-sm text-muted-foreground">
+                    Within 24-48 hours
+                  </p>
                 </CardContent>
               </Card>
-
               <Card>
                 <CardHeader>
                   <MessageSquare className="w-8 h-8 text-primary mb-2" />
                   <CardTitle>Support</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">Available Mon-Fri</p>
+                  <p className="text-sm text-muted-foreground">
+                    Available Mon-Fri
+                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -82,7 +89,9 @@ export default function Contact() {
             <Card>
               <CardHeader>
                 <CardTitle>Send us a message</CardTitle>
-                <CardDescription>Fill out the form below and we'll get back to you soon</CardDescription>
+                <CardDescription>
+                  Fill out the form below and we'll get back to you soon
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -91,40 +100,43 @@ export default function Contact() {
                     <Input
                       id="name"
                       value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
                       required
                     />
                   </div>
-
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
                       id="email"
                       type="email"
                       value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
                       required
                     />
                   </div>
-
                   <div className="space-y-2">
                     <Label htmlFor="message">Message</Label>
                     <Textarea
                       id="message"
                       rows={6}
                       value={formData.message}
-                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, message: e.target.value })
+                      }
                       required
                     />
                   </div>
-
                   <Button
                     type="submit"
                     size="lg"
                     className="w-full"
                     disabled={submitForm.isPending}
                   >
-                    {submitForm.isPending ? 'Sending...' : 'Send Message'}
+                    {submitForm.isPending ? "Sending..." : "Send Message"}
                   </Button>
                 </form>
               </CardContent>

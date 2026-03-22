@@ -1,56 +1,75 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { MessageCircle, X, Send, Minimize2, Maximize2, Loader2, AlertCircle, TrendingUp, Lightbulb, HelpCircle, Brain, GraduationCap, PiggyBank } from 'lucide-react';
-import { useProcessChatMessage, useGetUserTransactions, useGetBalance } from '../hooks/useQueries';
-import { toast } from 'sonner';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { BarChart, Bar, ResponsiveContainer, Tooltip, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { useCurrency } from '../hooks/useCurrency';
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  AlertCircle,
+  Brain,
+  GraduationCap,
+  Lightbulb,
+  Loader2,
+  Maximize2,
+  MessageCircle,
+  Minimize2,
+  PiggyBank,
+  Send,
+  TrendingUp,
+  X,
+} from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { toast } from "sonner";
+import { useCurrency } from "../hooks/useCurrency";
+import {
+  useGetUserTransactions,
+  useProcessChatMessage,
+} from "../hooks/useQueries";
 
 interface Message {
   id: string;
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
   content: string;
   timestamp: number;
   visualData?: VisualInsight;
-  followUpSuggestion?: string;
   disclaimer?: string;
 }
 
 interface VisualInsight {
-  type: 'spending-chart' | 'balance-card' | 'prediction-card' | 'category-pie';
+  type: "spending-chart" | "balance-card";
   data: any;
   title: string;
 }
 
-// Generate visual insights based on query and data
-const generateVisualInsight = (query: string, response: string): VisualInsight | undefined => {
+const generateVisualInsight = (query: string): VisualInsight | undefined => {
   const lowerQuery = query.toLowerCase();
-  
-  if (lowerQuery.includes('spending') || lowerQuery.includes('expense')) {
+  if (lowerQuery.includes("spending") || lowerQuery.includes("expense")) {
     return {
-      type: 'spending-chart',
-      title: 'Your Spending Overview',
+      type: "spending-chart",
+      title: "Sample Spending Overview",
       data: [
-        { category: 'Food', amount: 5000 },
-        { category: 'Transport', amount: 3000 },
-        { category: 'Entertainment', amount: 2000 },
-        { category: 'Shopping', amount: 4000 },
+        { category: "Food", amount: 5000 },
+        { category: "Transport", amount: 3000 },
+        { category: "Entertainment", amount: 2000 },
+        { category: "Shopping", amount: 4000 },
       ],
     };
   }
-  
-  if (lowerQuery.includes('balance') || lowerQuery.includes('money')) {
+  if (lowerQuery.includes("balance") || lowerQuery.includes("money")) {
     return {
-      type: 'balance-card',
-      title: 'Current Balance',
-      data: { balance: 25000, change: '+12%' },
+      type: "balance-card",
+      title: "Current Balance",
+      data: { balance: 25000, change: "+12%" },
     };
   }
-  
   return undefined;
 };
 
@@ -58,25 +77,16 @@ export default function AIChatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [inputMessage, setInputMessage] = useState('');
+  const [inputMessage, setInputMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const processChatMessage = useProcessChatMessage();
-  const { data: transactions } = useGetUserTransactions();
-  const { data: balance } = useGetBalance();
   const { format } = useCurrency();
 
-  const context = useMemo(() => ({
-    transactions: transactions || [],
-    balance: balance || 0,
-  }), [transactions, balance]);
-
-  // Auto-scroll to bottom when messages change
   useEffect(() => {
-    if (messagesEndRef.current && scrollContainerRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, []);
 
   const handleSendMessage = async () => {
     const trimmedMessage = inputMessage.trim();
@@ -84,45 +94,46 @@ export default function AIChatbot() {
 
     const userMessage: Message = {
       id: Date.now().toString(),
-      role: 'user',
+      role: "user",
       content: trimmedMessage,
       timestamp: Date.now(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
-    setInputMessage('');
+    setMessages((prev) => [...prev, userMessage]);
+    setInputMessage("");
 
     try {
       const response = await processChatMessage.mutateAsync(trimmedMessage);
-      
-      const visualInsight = generateVisualInsight(trimmedMessage, response.content);
+
+      const visualInsight = generateVisualInsight(trimmedMessage);
 
       const assistantMessage: Message = {
-        id: response.id,
-        role: 'assistant',
+        id: `${Date.now().toString()}_ai`,
+        role: "assistant",
         content: response.content,
-        timestamp: response.timestamp,
+        timestamp: Date.now(),
         visualData: visualInsight,
         disclaimer: response.disclaimer,
       };
 
-      setMessages(prev => [...prev, assistantMessage]);
-    } catch (error) {
-      console.error('Chat error:', error);
-      toast.error('Failed to get response. Please try again.');
-      
-      const errorMessage: Message = {
-        id: Date.now().toString(),
-        role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try asking your question again.',
-        timestamp: Date.now(),
-      };
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages((prev) => [...prev, assistantMessage]);
+    } catch {
+      toast.error("Failed to get response. Please try again.");
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now().toString(),
+          role: "assistant",
+          content:
+            "Sorry, I encountered an error. Please try asking your question again.",
+          timestamp: Date.now(),
+        },
+      ]);
     }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
     }
@@ -130,7 +141,7 @@ export default function AIChatbot() {
 
   const renderVisualInsight = (insight: VisualInsight) => {
     switch (insight.type) {
-      case 'spending-chart':
+      case "spending-chart":
         return (
           <Card className="mt-3 bg-muted/50">
             <CardHeader className="pb-3">
@@ -139,11 +150,20 @@ export default function AIChatbot() {
             <CardContent>
               <ResponsiveContainer width="100%" height={200}>
                 <BarChart data={insight.data}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                  <XAxis dataKey="category" stroke="hsl(var(--muted-foreground))" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="hsl(var(--border))"
+                  />
+                  <XAxis
+                    dataKey="category"
+                    stroke="hsl(var(--muted-foreground))"
+                  />
                   <YAxis stroke="hsl(var(--muted-foreground))" />
-                  <Tooltip 
-                    contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))' }}
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "hsl(var(--card))",
+                      border: "1px solid hsl(var(--border))",
+                    }}
                     formatter={(value: any) => format(value)}
                   />
                   <Bar dataKey="amount" fill="hsl(var(--primary))" />
@@ -152,24 +172,29 @@ export default function AIChatbot() {
             </CardContent>
           </Card>
         );
-      
-      case 'balance-card':
+      case "balance-card":
         return (
           <Card className="mt-3 bg-gradient-to-br from-primary/10 to-chart-1/10 border-primary/20">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground">{insight.title}</p>
-                  <p className="text-2xl font-bold">{format(insight.data.balance)}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {insight.title}
+                  </p>
+                  <p className="text-2xl font-bold">
+                    {format(insight.data.balance)}
+                  </p>
                 </div>
-                <Badge variant="secondary" className="bg-green-500/20 text-green-600">
+                <Badge
+                  variant="secondary"
+                  className="bg-green-500/20 text-green-600"
+                >
                   {insight.data.change}
                 </Badge>
               </div>
             </CardContent>
           </Card>
         );
-      
       default:
         return null;
     }
@@ -188,11 +213,11 @@ export default function AIChatbot() {
   }
 
   return (
-    <Card 
+    <Card
       className={`fixed bottom-6 right-6 shadow-2xl border-2 border-primary/20 z-50 transition-all duration-300 flex flex-col ${
-        isExpanded 
-          ? 'w-[min(600px,90vw)] h-[min(700px,85vh)]' 
-          : 'w-[min(380px,90vw)] h-[min(500px,80vh)]'
+        isExpanded
+          ? "w-[min(600px,90vw)] h-[min(700px,85vh)]"
+          : "w-[min(380px,90vw)] h-[min(500px,80vh)]"
       } max-w-[90vw] max-h-[85vh]`}
     >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3 bg-gradient-to-r from-primary/10 to-chart-1/10 border-b shrink-0">
@@ -201,8 +226,12 @@ export default function AIChatbot() {
             <Brain className="h-4 w-4 text-primary-foreground" />
           </div>
           <div className="min-w-0">
-            <CardTitle className="text-base truncate">AI Finance Assistant</CardTitle>
-            <p className="text-xs text-muted-foreground truncate">Ask me anything about finance</p>
+            <CardTitle className="text-base truncate">
+              AI Finance Assistant
+            </CardTitle>
+            <p className="text-xs text-muted-foreground truncate">
+              Ask me anything about finance
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-1 shrink-0">
@@ -212,7 +241,11 @@ export default function AIChatbot() {
             onClick={() => setIsExpanded(!isExpanded)}
             className="h-8 w-8"
           >
-            {isExpanded ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+            {isExpanded ? (
+              <Minimize2 className="h-4 w-4" />
+            ) : (
+              <Maximize2 className="h-4 w-4" />
+            )}
           </Button>
           <Button
             variant="ghost"
@@ -235,7 +268,8 @@ export default function AIChatbot() {
               <div className="space-y-2">
                 <h3 className="font-semibold text-lg">Welcome!</h3>
                 <p className="text-sm text-muted-foreground">
-                  I can help you with budgeting, saving, investing, and understanding financial concepts.
+                  I can help you with budgeting, saving, investing, and
+                  understanding financial concepts.
                 </p>
               </div>
               <div className="grid grid-cols-2 gap-2 pt-4">
@@ -279,24 +313,24 @@ export default function AIChatbot() {
             </div>
           </div>
         ) : (
-          <div 
-            ref={scrollContainerRef}
-            className="flex-1 overflow-y-auto p-4 space-y-4"
-          >
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
               >
                 <div
                   className={`max-w-[85%] rounded-lg p-3 ${
-                    message.role === 'user'
-                      ? 'bg-gradient-to-r from-primary to-chart-1 text-primary-foreground'
-                      : 'bg-muted'
+                    message.role === "user"
+                      ? "bg-gradient-to-r from-primary to-chart-1 text-primary-foreground"
+                      : "bg-muted"
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
-                  {message.visualData && renderVisualInsight(message.visualData)}
+                  <p className="text-sm whitespace-pre-wrap break-words">
+                    {message.content}
+                  </p>
+                  {message.visualData &&
+                    renderVisualInsight(message.visualData)}
                   {message.disclaimer && (
                     <Alert className="mt-2 py-2 px-3 bg-amber-500/10 border-amber-500/20">
                       <AlertCircle className="h-3 w-3 text-amber-600" />
@@ -315,7 +349,9 @@ export default function AIChatbot() {
               <div className="flex justify-start">
                 <div className="bg-muted rounded-lg p-3 flex items-center gap-2">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  <span className="text-sm text-muted-foreground">Thinking...</span>
+                  <span className="text-sm text-muted-foreground">
+                    Thinking...
+                  </span>
                 </div>
               </div>
             )}

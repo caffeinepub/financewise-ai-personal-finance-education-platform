@@ -3,11 +3,19 @@
 
 export interface AssistantContext {
   balance?: number;
-  recentTransactions?: Array<{ amount: number; category: string; transactionType: string }>;
+  recentTransactions?: Array<{
+    amount: number;
+    category: string;
+    transactionType: string;
+  }>;
   totalTransactions?: number;
   totalIncome?: number;
   totalExpenses?: number;
-  savingsGoals?: Array<{ name: string; targetAmount: number; currentAmount: number }>;
+  savingsGoals?: Array<{
+    name: string;
+    targetAmount: number;
+    currentAmount: number;
+  }>;
   hasData?: boolean;
 }
 
@@ -17,28 +25,38 @@ export interface AssistantResponse {
   disclaimer?: string;
 }
 
-type QueryCategory = 'stocks' | 'investing' | 'budgeting' | 'saving' | 'expenses' | 'general';
+type QueryCategory =
+  | "stocks"
+  | "investing"
+  | "budgeting"
+  | "saving"
+  | "expenses"
+  | "general";
 
 // Classify query into categories
 export function classifyQuery(query: string): QueryCategory {
   const lowerQuery = query.toLowerCase();
-  
-  if (lowerQuery.match(/\b(stock|share|equity|market|trading|ticker|portfolio|diversif)/)) {
-    return 'stocks';
+
+  if (
+    lowerQuery.match(
+      /\b(stock|share|equity|market|trading|ticker|portfolio|diversif)/,
+    )
+  ) {
+    return "stocks";
   }
   if (lowerQuery.match(/\b(invest|mutual fund|sip|bond|asset|return|roi)/)) {
-    return 'investing';
+    return "investing";
   }
   if (lowerQuery.match(/\b(budget|expense|spend|track|allocat)/)) {
-    return 'budgeting';
+    return "budgeting";
   }
   if (lowerQuery.match(/\b(save|saving|emergency fund|goal)/)) {
-    return 'saving';
+    return "saving";
   }
   if (lowerQuery.match(/\b(expense|cost|reduce|cut|lower|control)/)) {
-    return 'expenses';
+    return "expenses";
   }
-  return 'general';
+  return "general";
 }
 
 // Check if query is too vague
@@ -49,11 +67,11 @@ function isVagueQuery(query: string): boolean {
     /^(help|what|how|tell me|explain)\s+\w{1,5}$/,
     /^(hi|hello|hey)$/,
   ];
-  return vaguePatterns.some(pattern => pattern.test(lowerQuery));
+  return vaguePatterns.some((pattern) => pattern.test(lowerQuery));
 }
 
 // Generate clarifying questions
-function generateClarifyingQuestions(query: string): string {
+function generateClarifyingQuestions(_query: string): string {
   return `I'd be happy to help! Could you please be more specific? For example:
 
 **Budgeting & Planning:**
@@ -89,39 +107,50 @@ function generateDataAwarePrefix(context: AssistantContext): string {
   }
 
   const parts: string[] = [];
-  
+
   if (context.balance !== undefined) {
     parts.push(`Current Balance: ${context.balance.toFixed(2)}`);
   }
-  
+
   if (context.totalIncome !== undefined && context.totalIncome > 0) {
     parts.push(`Total Income: ${context.totalIncome.toFixed(2)}`);
   }
-  
+
   if (context.totalExpenses !== undefined && context.totalExpenses > 0) {
     parts.push(`Total Expenses: ${context.totalExpenses.toFixed(2)}`);
   }
-  
+
   if (context.savingsGoals && context.savingsGoals.length > 0) {
     const activeGoals = context.savingsGoals.length;
-    const totalGoalAmount = context.savingsGoals.reduce((sum, g) => sum + g.targetAmount, 0);
-    const totalSaved = context.savingsGoals.reduce((sum, g) => sum + g.currentAmount, 0);
-    parts.push(`Active Goals: ${activeGoals} (${totalSaved.toFixed(2)} of ${totalGoalAmount.toFixed(2)} saved)`);
+    const totalGoalAmount = context.savingsGoals.reduce(
+      (sum, g) => sum + g.targetAmount,
+      0,
+    );
+    const totalSaved = context.savingsGoals.reduce(
+      (sum, g) => sum + g.currentAmount,
+      0,
+    );
+    parts.push(
+      `Active Goals: ${activeGoals} (${totalSaved.toFixed(2)} of ${totalGoalAmount.toFixed(2)} saved)`,
+    );
   }
 
   if (parts.length > 0) {
-    return `**Based on your data:** ${parts.join(' • ')}\n\n`;
+    return `**Based on your data:** ${parts.join(" • ")}\n\n`;
   }
 
-  return '';
+  return "";
 }
 
 // Generate response for budgeting queries
-function generateBudgetingResponse(query: string, context: AssistantContext): string {
+function generateBudgetingResponse(
+  query: string,
+  context: AssistantContext,
+): string {
   const lowerQuery = query.toLowerCase();
   const dataPrefix = generateDataAwarePrefix(context);
-  
-  if (lowerQuery.includes('50/30/20') || lowerQuery.includes('rule')) {
+
+  if (lowerQuery.includes("50/30/20") || lowerQuery.includes("rule")) {
     return `${dataPrefix}**The 50/30/20 Budgeting Rule**
 
 This simple budgeting framework divides your after-tax income into three categories:
@@ -155,8 +184,12 @@ This simple budgeting framework divides your after-tax income into three categor
 
 **Pro Tip:** Start by tracking your current spending for a month to see where you stand, then gradually adjust toward the 50/30/20 split.`;
   }
-  
-  if (lowerQuery.includes('create') || lowerQuery.includes('start') || lowerQuery.includes('make')) {
+
+  if (
+    lowerQuery.includes("create") ||
+    lowerQuery.includes("start") ||
+    lowerQuery.includes("make")
+  ) {
     return `${dataPrefix}**How to Create a Monthly Budget (Step-by-Step)**
 
 **Step 1: Calculate Your Income**
@@ -194,7 +227,7 @@ This simple budgeting framework divides your after-tax income into three categor
 
 **Quick Win:** Start with just tracking your expenses for 2 weeks—you'll be surprised where your money goes!`;
   }
-  
+
   return `${dataPrefix}**Budgeting Basics**
 
 Budgeting is simply planning how you'll spend your money each month. Here's why it matters:
@@ -218,11 +251,14 @@ Would you like to know about specific budgeting methods like the 50/30/20 rule?`
 }
 
 // Generate response for saving queries
-function generateSavingResponse(query: string, context: AssistantContext): string {
+function generateSavingResponse(
+  query: string,
+  context: AssistantContext,
+): string {
   const lowerQuery = query.toLowerCase();
   const dataPrefix = generateDataAwarePrefix(context);
-  
-  if (lowerQuery.includes('emergency fund')) {
+
+  if (lowerQuery.includes("emergency fund")) {
     return `${dataPrefix}**Building an Emergency Fund**
 
 An emergency fund is money set aside for unexpected expenses like medical bills, car repairs, or job loss.
@@ -256,8 +292,8 @@ An emergency fund is money set aside for unexpected expenses like medical bills,
 
 **Pro Tip:** Start with a mini-goal of $10,000. Once you hit it, you'll feel motivated to keep going!`;
   }
-  
-  if (lowerQuery.includes('how much') || lowerQuery.includes('percentage')) {
+
+  if (lowerQuery.includes("how much") || lowerQuery.includes("percentage")) {
     return `${dataPrefix}**How Much Should You Save Each Month?**
 
 **General Guidelines:**
@@ -279,7 +315,7 @@ An emergency fund is money set aside for unexpected expenses like medical bills,
 
 **Remember:** Saving something is better than saving nothing. Start where you can and increase gradually!`;
   }
-  
+
   return `${dataPrefix}**Smart Saving Strategies**
 
 **Core Principles:**
@@ -299,9 +335,12 @@ Would you like specific advice on building an emergency fund or saving on a tigh
 }
 
 // Generate response for expense control queries
-function generateExpenseControlResponse(query: string, context: AssistantContext): string {
+function generateExpenseControlResponse(
+  _query: string,
+  context: AssistantContext,
+): string {
   const dataPrefix = generateDataAwarePrefix(context);
-  
+
   return `${dataPrefix}**How to Control and Reduce Expenses**
 
 **Immediate Actions:**
@@ -336,13 +375,17 @@ function generateExpenseControlResponse(query: string, context: AssistantContext
 }
 
 // Generate response for investing queries
-function generateInvestingResponse(query: string, context: AssistantContext): string {
+function generateInvestingResponse(
+  query: string,
+  context: AssistantContext,
+): string {
   const lowerQuery = query.toLowerCase();
   const dataPrefix = generateDataAwarePrefix(context);
-  
-  const disclaimer = '\n\n**⚠️ Important Disclaimer:** This is educational information only, not financial advice. Investing involves risk. Consult a certified financial advisor before making investment decisions.';
-  
-  if (lowerQuery.includes('sip')) {
+
+  const disclaimer =
+    "\n\n**⚠️ Important Disclaimer:** This is educational information only, not financial advice. Investing involves risk. Consult a certified financial advisor before making investment decisions.";
+
+  if (lowerQuery.includes("sip")) {
     return `${dataPrefix}**SIP (Systematic Investment Plan) Explained**
 
 SIP is a method of investing a fixed amount regularly in mutual funds.
@@ -377,7 +420,7 @@ SIP is a method of investing a fixed amount regularly in mutual funds.
 
 **Pro Tip:** Start small ($1,000-2,000) and increase by 10% every year as your income grows!${disclaimer}`;
   }
-  
+
   return `${dataPrefix}**Investing Basics**
 
 Investing is putting your money to work to generate returns over time.
@@ -400,7 +443,10 @@ Start with mutual fund SIPs - they're simple, diversified, and professionally ma
 }
 
 // Main response generator
-export function generateResponse(query: string, context: AssistantContext): AssistantResponse {
+export function generateResponse(
+  query: string,
+  context: AssistantContext,
+): AssistantResponse {
   // Check for vague queries
   if (isVagueQuery(query)) {
     return {
@@ -411,21 +457,21 @@ export function generateResponse(query: string, context: AssistantContext): Assi
 
   // Classify and route to appropriate handler
   const category = classifyQuery(query);
-  
+
   let content: string;
-  
+
   switch (category) {
-    case 'budgeting':
+    case "budgeting":
       content = generateBudgetingResponse(query, context);
       break;
-    case 'saving':
+    case "saving":
       content = generateSavingResponse(query, context);
       break;
-    case 'expenses':
+    case "expenses":
       content = generateExpenseControlResponse(query, context);
       break;
-    case 'investing':
-    case 'stocks':
+    case "investing":
+    case "stocks":
       content = generateInvestingResponse(query, context);
       break;
     default:

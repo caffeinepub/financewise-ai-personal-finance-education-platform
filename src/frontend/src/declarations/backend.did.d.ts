@@ -40,6 +40,20 @@ export interface AIPrediction {
   'spendingGrowthRate' : number,
   'riskLevel' : string,
 }
+export interface Asset {
+  'name' : string,
+  'category' : AssetCategory,
+  'amount' : number,
+}
+export type AssetCategory = { 'mutualFunds' : null } |
+  { 'stocks' : null } |
+  { 'other' : null } |
+  { 'cash' : null } |
+  { 'gold' : null } |
+  { 'investments' : null } |
+  { 'savingsAccount' : null } |
+  { 'property' : null } |
+  { 'bankBalance' : null };
 export interface BlogPost {
   'id' : string,
   'title' : string,
@@ -54,6 +68,15 @@ export interface Budget {
   'type' : BudgetType,
   'category' : string,
   'amount' : number,
+}
+export interface BudgetCategory {
+  'id' : string,
+  'monthlyAllocation' : number,
+  'icon' : string,
+  'name' : string,
+  'color' : string,
+  'isMandatory' : boolean,
+  'priorityLevel' : bigint,
 }
 export interface BudgetData {
   'savingsPercentage' : number,
@@ -70,6 +93,21 @@ export interface BudgetData {
   'currentEmergencyFundBalance' : number,
   'totalOptionalExpenses' : number,
   'totalMonthlySavings' : number,
+}
+export type BudgetMode = { 'evilBudget' : null } |
+  { 'custom' : null } |
+  { 'professional' : null } |
+  { 'student' : null } |
+  { 'retired' : null };
+export interface BudgetPlan {
+  'categories' : Array<BudgetCategory>,
+  'amounts' : Array<[string, number]>,
+  'currency' : Currency,
+  'selectedMode' : BudgetMode,
+}
+export interface BudgetPlannerData {
+  'plan' : BudgetPlan,
+  'lastUpdated' : bigint,
 }
 export type BudgetRecommendation = { 'evilBudget' : null } |
   { 'custom' : null } |
@@ -134,6 +172,11 @@ export interface CookieConsent {
 export type Currency = { 'eur' : null } |
   { 'inr' : null } |
   { 'usd' : null };
+export interface EmergencyFundData {
+  'user' : Principal,
+  'lastUpdated' : bigint,
+  'savedAmount' : number,
+}
 export interface ExpenseItem {
   'id' : string,
   'expenseType' : ExpenseType,
@@ -169,6 +212,22 @@ export interface FinanceBlogContent {
   'excerpt' : string,
 }
 export interface LegalPage { 'title' : string, 'content' : string }
+export interface Liability {
+  'name' : string,
+  'category' : LiabilityCategory,
+  'amount' : number,
+}
+export type LiabilityCategory = { 'emi' : null } |
+  { 'creditCardDebt' : null } |
+  { 'personalLoans' : null } |
+  { 'loans' : null } |
+  { 'otherDebt' : null };
+export interface NetWorthData {
+  'liabilities' : Array<Liability>,
+  'assets' : Array<Asset>,
+  'user' : Principal,
+  'lastUpdated' : bigint,
+}
 export type PaymentType = { 'upi' : null } |
   { 'creditCard' : null } |
   { 'cash' : null } |
@@ -238,6 +297,18 @@ export interface SavingsGoal {
   'targetAmount' : number,
   'currentAmount' : number,
 }
+export interface SpendingLimit {
+  'user' : Principal,
+  'lastUpdated' : bigint,
+  'limitAmount' : number,
+  'category' : SpendingLimitCategory,
+}
+export type SpendingLimitCategory = { 'other' : null } |
+  { 'entertainment' : null } |
+  { 'food' : null } |
+  { 'transport' : null } |
+  { 'bills' : null } |
+  { 'shopping' : null };
 export interface Subscription {
   'endDate' : [] | [bigint],
   'name' : string,
@@ -324,6 +395,7 @@ export interface _SERVICE {
   'getBlogContent' : ActorMethod<[string], [] | [FinanceBlogContent]>,
   'getBlogPost' : ActorMethod<[string], [] | [BlogPost]>,
   'getBudgetData' : ActorMethod<[], [] | [BudgetData]>,
+  'getBudgetPlan' : ActorMethod<[], [] | [BudgetPlannerData]>,
   'getCAFeaturesContent' : ActorMethod<
     [string],
     [] | [CharteredAccountantFeaturesContent]
@@ -337,10 +409,13 @@ export interface _SERVICE {
     [BudgetRecommendation],
     Array<[string, number]>
   >,
+  'getEmergencyFundData' : ActorMethod<[], [] | [EmergencyFundData]>,
   'getExpenses' : ActorMethod<[], Array<ExpenseItem>>,
   'getLegalPage' : ActorMethod<[string], [] | [LegalPage]>,
+  'getNetWorthData' : ActorMethod<[], [] | [NetWorthData]>,
   'getQuizStatistics' : ActorMethod<[], QuizStatistics>,
   'getSavingsGoals' : ActorMethod<[], Array<SavingsGoal>>,
+  'getSpendingLimits' : ActorMethod<[], Array<SpendingLimit>>,
   'getSubscriptions' : ActorMethod<[], Array<Subscription>>,
   'getTransactions' : ActorMethod<[], Array<TransactionData>>,
   'getUserPreferences' : ActorMethod<[], [] | [UserPreferences]>,
@@ -353,13 +428,17 @@ export interface _SERVICE {
   'saveAIPrediction' : ActorMethod<[AIPrediction], undefined>,
   'saveBlogContent' : ActorMethod<[string, FinanceBlogContent], undefined>,
   'saveBudgetData' : ActorMethod<[BudgetData], undefined>,
+  'saveBudgetPlan' : ActorMethod<[BudgetPlan], undefined>,
   'saveCAFeaturesContent' : ActorMethod<
     [string, CharteredAccountantFeaturesContent],
     undefined
   >,
   'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'saveCookieConsent' : ActorMethod<[CookieConsent], undefined>,
+  'saveEmergencyFundData' : ActorMethod<[EmergencyFundData], undefined>,
   'saveLegalPage' : ActorMethod<[string, LegalPage], undefined>,
+  'saveNetWorthData' : ActorMethod<[NetWorthData], undefined>,
+  'saveSpendingLimits' : ActorMethod<[Array<SpendingLimit>], undefined>,
   'saveUserPreferences' : ActorMethod<[UserPreferences], undefined>,
   'submitContactForm' : ActorMethod<[ContactSubmission], undefined>,
   'submitQuizAnswer' : ActorMethod<[QuizAnswer], QuizFeedback>,

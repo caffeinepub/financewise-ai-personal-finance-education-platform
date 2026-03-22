@@ -1,120 +1,170 @@
-import { Link } from '@tanstack/react-router';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { BookOpen, Calendar, ArrowRight } from 'lucide-react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
-import { useGetAllBlogPosts } from '../hooks/useQueries';
+import { Link } from "@tanstack/react-router";
+import { ArrowRight, BookOpen, Calendar, Clock, Tag } from "lucide-react";
+import type React from "react";
+import { useState } from "react";
+import Footer from "../components/Footer";
+import Header from "../components/Header";
+import { staticBlogArticles } from "../content/staticBlogArticles";
+import { useSEO } from "../hooks/useSEO";
+
+const AdSensePlaceholder: React.FC<{ className?: string }> = ({
+  className = "",
+}) => (
+  <div className={`adsense-container ${className}`}>
+    {/* AdSense Ad Unit: Replace with your ad code */}
+    <div className="w-full min-h-[90px] bg-muted/30 border border-border/50 rounded-lg flex items-center justify-center text-muted-foreground text-sm">
+      <span className="opacity-50">Advertisement</span>
+    </div>
+  </div>
+);
+
+const CATEGORIES = [
+  "All",
+  ...Array.from(new Set(staticBlogArticles.map((a) => a.category))),
+];
 
 export default function FinanceBlog() {
-  const { data: blogPosts, isLoading } = useGetAllBlogPosts();
-  
+  useSEO(
+    "Personal Finance Blog – FinanceWise AI",
+    "Read expert finance articles on budgeting, saving, investing, and money management from the FinanceWise AI blog.",
+  );
+
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
+  const filtered =
+    selectedCategory === "All"
+      ? staticBlogArticles
+      : staticBlogArticles.filter((a) => a.category === selectedCategory);
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen bg-background text-foreground">
       <Header />
-      
-      <main className="flex-1">
-        {/* Hero Section */}
-        <section className="py-16 px-4 bg-gradient-to-br from-primary/10 via-chart-1/10 to-chart-2/10">
-          <div className="container mx-auto max-w-6xl text-center space-y-4">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-4">
-              <BookOpen className="w-4 h-4" />
-              Financial Education Hub
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-chart-1 bg-clip-text text-transparent">
-              Finance Blog & Learning Center
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Comprehensive guides on personal finance, saving strategies, budgeting methods, investing basics, and wealth-building techniques
-            </p>
+
+      {/* Hero */}
+      <section className="bg-gradient-to-br from-primary/10 via-background to-secondary/10 py-16 px-4">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-4">
+            <BookOpen className="w-4 h-4" />
+            Personal Finance Blog
           </div>
-        </section>
-        
-        {/* Blog Posts Grid */}
-        <section className="py-16 px-4">
-          <div className="container mx-auto max-w-6xl">
-            {isLoading ? (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {[...Array(6)].map((_, i) => (
-                  <Card key={i} className="animate-pulse">
-                    <div className="h-48 bg-muted rounded-t-lg" />
-                    <CardHeader>
-                      <div className="h-6 bg-muted rounded w-3/4 mb-2" />
-                      <div className="h-4 bg-muted rounded w-full" />
-                    </CardHeader>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {blogPosts?.map((post) => (
+          <h1 className="text-4xl font-bold mb-4">
+            Financial Education &amp; Insights
+          </h1>
+          <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
+            Welcome to the FinanceWise AI blog — your trusted resource for
+            practical personal finance education. Our articles cover budgeting,
+            saving, investing, expense management, and the role of artificial
+            intelligence in modern money management. Whether you are just
+            starting your financial journey or looking to optimize an already
+            solid foundation, you will find actionable, evidence-based guidance
+            here. Each article is written to be accessible to beginners while
+            providing enough depth to be valuable for experienced savers and
+            investors. Explore our growing library of finance articles and take
+            the next step toward financial freedom.
+          </p>
+        </div>
+      </section>
+
+      {/* AdSense Placeholder - After intro, before article grid */}
+      <div className="max-w-4xl mx-auto px-4 py-6">
+        <AdSensePlaceholder />
+      </div>
+
+      {/* Category Filter */}
+      <section className="py-4 px-4 border-b border-border">
+        <div className="max-w-6xl mx-auto flex flex-wrap gap-2 justify-center">
+          {CATEGORIES.map((cat) => (
+            <button
+              type="button"
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                selectedCategory === cat
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* Article Grid */}
+      <section className="py-12 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filtered.map((article) => (
+              <article
+                key={article.slug}
+                className="bg-card border border-border rounded-xl overflow-hidden hover:shadow-lg transition-shadow flex flex-col"
+              >
+                <div className="aspect-video overflow-hidden bg-muted">
+                  <img
+                    src={article.featuredImage}
+                    alt={article.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src =
+                        "/assets/generated/blog-personal-finance.dim_800x600.jpg";
+                    }}
+                  />
+                </div>
+                <div className="p-5 flex flex-col flex-1">
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground mb-3">
+                    <span className="flex items-center gap-1">
+                      <Tag className="w-3 h-3" />
+                      {article.category}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      {new Date(article.date).toLocaleDateString("en-IN", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
+                      })}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" />
+                      {article.readTime}
+                    </span>
+                  </div>
+                  <h2 className="font-bold text-lg mb-2 leading-snug line-clamp-2">
+                    {article.title}
+                  </h2>
+                  <p className="text-sm text-muted-foreground mb-4 flex-1 line-clamp-3">
+                    {article.excerpt}
+                  </p>
                   <Link
-                    key={post.id}
                     to="/blog/$slug"
-                    params={{ slug: post.slug }}
-                    className="group"
+                    params={{ slug: article.slug }}
+                    className="inline-flex items-center gap-1 text-primary text-sm font-medium hover:underline mt-auto"
                   >
-                    <Card className="h-full transition-all hover:shadow-lg hover:scale-[1.02] border-2 hover:border-primary/50">
-                      <div className="relative h-48 overflow-hidden rounded-t-lg">
-                        <img
-                          src={post.featuredImage}
-                          alt={post.title}
-                          className="w-full h-full object-cover transition-transform group-hover:scale-110"
-                        />
-                        <div className="absolute top-4 right-4">
-                          <Badge variant="secondary" className="bg-background/90 backdrop-blur">
-                            <Calendar className="w-3 h-3 mr-1" />
-                            {new Date(post.publicationDate).toLocaleDateString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                              year: 'numeric'
-                            })}
-                          </Badge>
-                        </div>
-                      </div>
-                      <CardHeader>
-                        <CardTitle className="line-clamp-2 group-hover:text-primary transition-colors">
-                          {post.title}
-                        </CardTitle>
-                        <CardDescription className="line-clamp-3">
-                          {post.excerpt}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="flex items-center text-sm text-primary font-medium group-hover:gap-2 transition-all">
-                          Read Full Article
-                          <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                        </div>
-                      </CardContent>
-                    </Card>
+                    Read Article <ArrowRight className="w-3 h-3" />
                   </Link>
-                ))}
-              </div>
-            )}
-            
-            {/* SEO Content */}
-            <div className="mt-16 prose prose-sm max-w-none">
-              <Card className="border-muted">
-                <CardHeader>
-                  <CardTitle className="text-xl">Why Financial Education Matters</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 text-muted-foreground">
-                  <p>
-                    Financial literacy is the foundation of long-term wealth creation and financial security. Our comprehensive blog covers essential topics including personal finance fundamentals, smart saving strategies, practical budgeting methods, beginner-friendly investing guidance, stock market basics, mutual funds, SIP investments, and emergency fund planning.
-                  </p>
-                  <p>
-                    Each article is designed to solve real-world financial problems with actionable advice. Whether you're learning to budget for the first time, exploring investment options, or optimizing your existing financial strategy, our content provides clear, practical guidance backed by proven principles.
-                  </p>
-                  <p>
-                    <strong>Educational Disclaimer:</strong> All content is for educational purposes only and does not constitute personalized financial advice. Always consult qualified financial advisors before making significant financial decisions.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+              </article>
+            ))}
           </div>
-        </section>
-      </main>
-      
+
+          {filtered.length === 0 && (
+            <div className="text-center py-16 text-muted-foreground">
+              No articles found in this category.
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Educational Disclaimer */}
+      <section className="py-8 px-4">
+        <div className="max-w-4xl mx-auto bg-muted/30 border border-border rounded-xl p-6 text-sm text-muted-foreground text-center">
+          <strong>Educational Disclaimer:</strong> All articles on this blog are
+          for educational purposes only and do not constitute financial,
+          investment, tax, or legal advice. Please consult a qualified financial
+          advisor before making any financial decisions.
+        </div>
+      </section>
+
       <Footer />
     </div>
   );

@@ -1,9 +1,15 @@
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ShieldAlert } from 'lucide-react';
-import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useNavigate } from '@tanstack/react-router';
-import { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useNavigate } from "@tanstack/react-router";
+import { ShieldAlert } from "lucide-react";
+import { useState } from "react";
+import { useInternetIdentity } from "../hooks/useInternetIdentity";
 
 export default function AccessDenied() {
   const { login, loginStatus } = useInternetIdentity();
@@ -15,13 +21,13 @@ export default function AccessDenied() {
     try {
       await login();
     } catch (error) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
     } finally {
       setTimeout(() => setIsLoggingIn(false), 500);
     }
   };
 
-  const isButtonDisabled = loginStatus === 'logging-in' || isLoggingIn;
+  const isButtonDisabled = loginStatus === "logging-in" || isLoggingIn;
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-background p-4">
@@ -44,16 +50,16 @@ export default function AccessDenied() {
           >
             {isButtonDisabled ? (
               <span className="flex items-center justify-center">
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent mr-2"></div>
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent mr-2" />
                 Logging in...
               </span>
             ) : (
-              'Login with Internet Identity'
+              "Login with Internet Identity"
             )}
           </Button>
           <Button
             variant="outline"
-            onClick={() => navigate({ to: '/' })}
+            onClick={() => navigate({ to: "/" })}
             className="w-full transition-all duration-200"
           >
             Go to Home

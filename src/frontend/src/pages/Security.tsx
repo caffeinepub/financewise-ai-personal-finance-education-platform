@@ -1,5 +1,11 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, Lock, Key, Database, Eye, CheckCircle2 } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { CheckCircle2, Database, Eye, Key, Lock, Shield } from "lucide-react";
 
 export default function Security() {
   return (
@@ -21,7 +27,8 @@ export default function Security() {
                 <Shield className="w-12 h-12 text-primary mb-4" />
                 <CardTitle>Military-Grade Encryption</CardTitle>
                 <CardDescription>
-                  All data is encrypted using AES-256 encryption standard, the same used by banks and governments.
+                  All data is encrypted using AES-256 encryption standard, the
+                  same used by banks and governments.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -31,7 +38,8 @@ export default function Security() {
                 <Database className="w-12 h-12 text-chart-1 mb-4" />
                 <CardTitle>Blockchain Storage</CardTitle>
                 <CardDescription>
-                  Your data is stored on the Internet Computer blockchain, ensuring immutability and security.
+                  Your data is stored on the Internet Computer blockchain,
+                  ensuring immutability and security.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -41,7 +49,8 @@ export default function Security() {
                 <Key className="w-12 h-12 text-chart-2 mb-4" />
                 <CardTitle>Internet Identity</CardTitle>
                 <CardDescription>
-                  Passwordless authentication using blockchain technology. No passwords to remember or steal.
+                  Passwordless authentication using blockchain technology. No
+                  passwords to remember or steal.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -51,7 +60,8 @@ export default function Security() {
                 <Eye className="w-12 h-12 text-chart-3 mb-4" />
                 <CardTitle>Zero-Knowledge Architecture</CardTitle>
                 <CardDescription>
-                  We cannot access your data. Only you have the keys to decrypt your financial information.
+                  We cannot access your data. Only you have the keys to decrypt
+                  your financial information.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -61,7 +71,8 @@ export default function Security() {
                 <Lock className="w-12 h-12 text-chart-4 mb-4" />
                 <CardTitle>No Third-Party Access</CardTitle>
                 <CardDescription>
-                  Your data is never shared with advertisers, data brokers, or any third parties.
+                  Your data is never shared with advertisers, data brokers, or
+                  any third parties.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -71,7 +82,8 @@ export default function Security() {
                 <CheckCircle2 className="w-12 h-12 text-chart-5 mb-4" />
                 <CardTitle>GDPR Compliant</CardTitle>
                 <CardDescription>
-                  Full compliance with data protection regulations. You have complete control over your data.
+                  Full compliance with data protection regulations. You have
+                  complete control over your data.
                 </CardDescription>
               </CardHeader>
             </Card>

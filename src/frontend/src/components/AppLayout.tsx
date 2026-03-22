@@ -1,207 +1,149 @@
-import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useNavigate, Outlet, useLocation } from '@tanstack/react-router';
-import { useQueryClient } from '@tanstack/react-query';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Menu, LayoutDashboard, TrendingUp, Target, BarChart3, Calculator, Brain, BookOpen, Settings, LogOut, DollarSign } from 'lucide-react';
-import { useState } from 'react';
-import { useGetCallerUserProfile, useGetCallerUserPreferences } from '../hooks/useQueries';
-import AccessDenied from './AccessDenied';
-import AIChatbot from './AIChatbot';
-import Dashboard from '../pages/Dashboard';
-import Transactions from '../pages/Transactions';
-import AIInsights from '../pages/AIInsights';
-import Goals from '../pages/Goals';
-import Analytics from '../pages/Analytics';
-import Calculators from '../pages/Calculators';
-import MoneyPsychology from '../pages/MoneyPsychology';
-import Learning from '../pages/Learning';
-import Quiz from '../pages/Quiz';
-import SettingsPage from '../pages/Settings';
-import BudgetPlanner from '../pages/BudgetPlanner';
-import AnalyticsGuard from './AnalyticsGuard';
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useQueryClient } from "@tanstack/react-query";
+import { useLocation, useNavigate } from "@tanstack/react-router";
+import {
+  AlertCircle,
+  ArrowLeftRight,
+  BarChart3,
+  Brain,
+  Calculator,
+  HelpCircle,
+  LayoutDashboard,
+  LogOut,
+  Menu,
+  Settings,
+  Shield,
+  Target,
+  TrendingUp,
+} from "lucide-react";
+import type React from "react";
+import { useState } from "react";
+import { useInternetIdentity } from "../hooks/useInternetIdentity";
 
-export default function AppLayout() {
-  const { identity, clear } = useInternetIdentity();
+const navItems = [
+  { path: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { path: "/analytics", label: "Analytics", icon: BarChart3 },
+  { path: "/transactions", label: "Transactions", icon: ArrowLeftRight },
+  { path: "/goals", label: "Goals", icon: Target },
+  { path: "/budget-planner", label: "Budget Planner", icon: Calculator },
+  { path: "/net-worth", label: "Net Worth", icon: TrendingUp },
+  { path: "/emergency-fund", label: "Emergency Fund", icon: Shield },
+  { path: "/spending-limits", label: "Spending Limits", icon: AlertCircle },
+  { path: "/calculators", label: "Calculators", icon: Calculator },
+  { path: "/ai-insights", label: "AI Insights", icon: Brain },
+  { path: "/quiz", label: "Quiz", icon: HelpCircle },
+  { path: "/settings", label: "Settings", icon: Settings },
+];
+
+interface AppLayoutProps {
+  children: React.ReactNode;
+}
+
+export default function AppLayout({ children }: AppLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { clear } = useInternetIdentity();
   const queryClient = useQueryClient();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { data: userProfile } = useGetCallerUserProfile();
-  const { data: preferences } = useGetCallerUserPreferences();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Filter navigation based on analyticsVisible preference
-  const baseNavigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Transactions', href: '/transactions', icon: TrendingUp },
-    { name: 'Goals', href: '/goals', icon: Target },
-    { name: 'Budget Planner', href: '/budget-planner', icon: DollarSign },
-    { name: 'Calculators', href: '/calculators', icon: Calculator },
-    { name: 'AI Insights', href: '/ai-insights', icon: Brain },
-    { name: 'Quiz', href: '/quiz', icon: BookOpen },
-  ];
-
-  const analyticsItem = { name: 'Analytics', href: '/analytics', icon: BarChart3 };
-
-  const navigation = preferences?.analyticsVisible !== false 
-    ? [...baseNavigation.slice(0, 3), analyticsItem, ...baseNavigation.slice(3)]
-    : baseNavigation;
-
-  const isAuthenticated = !!identity;
+  const currentPath = location.pathname;
 
   const handleLogout = async () => {
-    // Clear React Query cache (this clears all frontend state)
-    queryClient.clear();
-    
-    // Clear Internet Identity (this clears authentication state)
     await clear();
-    
-    // Note: Backend data is preserved - no delete operations are triggered
-    console.log('Logout complete - frontend state cleared, backend data preserved');
-    
-    // Navigate to home
-    navigate({ to: '/' });
+    queryClient.clear();
+    navigate({ to: "/" });
   };
 
-  if (!isAuthenticated) {
-    return <AccessDenied />;
-  }
-
-  // Render the appropriate page based on current path
-  const renderPage = () => {
-    const path = location.pathname;
-    
-    if (path === '/dashboard') return <Dashboard />;
-    if (path === '/transactions') return <Transactions />;
-    if (path === '/ai-insights') return <AIInsights />;
-    if (path === '/goals') return <Goals />;
-    if (path === '/analytics') return <AnalyticsGuard><Analytics /></AnalyticsGuard>;
-    if (path === '/calculators') return <Calculators />;
-    if (path === '/money-psychology') return <MoneyPsychology />;
-    if (path === '/learning') return <Learning />;
-    if (path === '/quiz') return <Quiz />;
-    if (path === '/settings') return <SettingsPage />;
-    if (path === '/budget-planner') return <BudgetPlanner />;
-    
-    return <Dashboard />;
-  };
+  const NavLinks = ({ onNavigate }: { onNavigate?: () => void }) => (
+    <nav className="flex flex-col gap-1 flex-1">
+      {navItems.map(({ path, label, icon: Icon }) => {
+        const isActive = currentPath === path;
+        return (
+          <button
+            type="button"
+            key={path}
+            onClick={() => {
+              navigate({ to: path });
+              onNavigate?.();
+            }}
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left w-full ${
+              isActive
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted"
+            }`}
+          >
+            <Icon className="w-4 h-4 shrink-0" />
+            {label}
+          </button>
+        );
+      })}
+    </nav>
+  );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
-      {/* Header */}
-      <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between px-4">
-          <div className="flex items-center gap-4">
-            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden">
-                  <Menu className="h-5 w-5" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-64 p-0">
-                <div className="flex h-full flex-col">
-                  <div className="border-b p-6">
-                    <h2 className="text-lg font-semibold bg-gradient-to-r from-primary to-chart-1 bg-clip-text text-transparent">
-                      FinanceWise AI
-                    </h2>
-                  </div>
-                  <nav className="flex-1 space-y-1 p-4">
-                    {navigation.map((item) => {
-                      const Icon = item.icon;
-                      const isActive = location.pathname === item.href;
-                      return (
-                        <Button
-                          key={item.name}
-                          variant={isActive ? 'secondary' : 'ghost'}
-                          className="w-full justify-start"
-                          onClick={() => {
-                            navigate({ to: item.href });
-                            setIsMobileMenuOpen(false);
-                          }}
-                        >
-                          <Icon className="mr-2 h-4 w-4" />
-                          {item.name}
-                        </Button>
-                      );
-                    })}
-                  </nav>
-                </div>
-              </SheetContent>
-            </Sheet>
-
-            <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-chart-1 bg-clip-text text-transparent">
-              FinanceWise AI
-            </h1>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                  <Avatar className="h-10 w-10">
-                    <AvatarFallback className="bg-gradient-to-br from-primary to-chart-1 text-primary-foreground">
-                      {userProfile?.name?.charAt(0).toUpperCase() || 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{userProfile?.name || 'User'}</p>
-                    <p className="text-xs leading-none text-muted-foreground">{userProfile?.email || ''}</p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate({ to: '/settings' })}>
-                  <Settings className="mr-2 h-4 w-4" />
-                  Settings
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-      </header>
-
+    <div className="flex h-screen bg-background overflow-hidden">
       {/* Desktop Sidebar */}
-      <div className="hidden md:flex">
-        <aside className="fixed left-0 top-16 z-30 h-[calc(100vh-4rem)] w-64 border-r bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <nav className="space-y-1 p-4">
-            {navigation.map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.href;
-              return (
-                <Button
-                  key={item.name}
-                  variant={isActive ? 'secondary' : 'ghost'}
-                  className="w-full justify-start"
-                  onClick={() => navigate({ to: item.href })}
-                >
-                  <Icon className="mr-2 h-4 w-4" />
-                  {item.name}
-                </Button>
-              );
-            })}
-          </nav>
-        </aside>
-      </div>
-
-      {/* Main Content */}
-      <main className="md:pl-64">
-        <div className="container py-6 px-4">
-          {renderPage()}
+      <aside className="hidden md:flex flex-col w-56 border-r border-border bg-card/50 p-3 shrink-0">
+        <div className="mb-4 px-2">
+          <h2 className="text-base font-bold text-foreground">
+            FinanceWise AI
+          </h2>
+          <p className="text-xs text-muted-foreground">Smart Finance</p>
         </div>
-      </main>
+        <NavLinks />
+        <div className="mt-auto pt-3 border-t border-border">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground"
+            onClick={handleLogout}
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </Button>
+        </div>
+      </aside>
 
-      {/* AI Chatbot */}
-      <AIChatbot />
+      {/* Mobile Header + Sheet */}
+      <div className="flex flex-col flex-1 overflow-hidden">
+        <header className="md:hidden flex items-center justify-between px-4 py-3 border-b border-border bg-card/50 shrink-0">
+          <h2 className="text-sm font-bold text-foreground">FinanceWise AI</h2>
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <Menu className="w-5 h-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-64 p-4 flex flex-col">
+              <div className="mb-4">
+                <h2 className="text-base font-bold text-foreground">
+                  FinanceWise AI
+                </h2>
+                <p className="text-xs text-muted-foreground">Smart Finance</p>
+              </div>
+              <NavLinks onNavigate={() => setMobileOpen(false)} />
+              <div className="mt-auto pt-3 border-t border-border">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start gap-2 text-muted-foreground"
+                  onClick={() => {
+                    setMobileOpen(false);
+                    handleLogout();
+                  }}
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </Button>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </header>
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto">{children}</main>
+      </div>
     </div>
   );
 }

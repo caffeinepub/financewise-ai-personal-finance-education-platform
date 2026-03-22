@@ -1,277 +1,272 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useGetCallerUserProfile, useGetCallerUserPreferences, useSaveUserPreferences } from '../hooks/useQueries';
-import { User, Bell, Eye, Shield, Moon, Sun, DollarSign, Globe } from 'lucide-react';
-import { useTheme } from 'next-themes';
-import { toast } from 'sonner';
-import AccessDenied from '../components/AccessDenied';
-import type { UserProfile } from '../backend';
-import type { UserPreferences, Currency } from '../types/backend-types';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import {
+  BarChart2,
+  Bell,
+  Globe,
+  Monitor,
+  Moon,
+  RefreshCw,
+  Sun,
+} from "lucide-react";
+import { useTheme } from "next-themes";
+import React, { useState, useEffect } from "react";
+import { toast } from "sonner";
+import { Currency } from "../backend";
+import ExchangeRateIndicator from "../components/ExchangeRateIndicator";
+import { useCurrency } from "../hooks/useCurrency";
+import {
+  useGetUserPreferences,
+  useSaveUserPreferences,
+} from "../hooks/useQueries";
 
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  usd: '$',
-  inr: '₹',
-  eur: '€',
-};
-
-const CURRENCY_NAMES: Record<string, string> = {
-  usd: 'US Dollar',
-  inr: 'Indian Rupee',
-  eur: 'Euro',
-};
+const CURRENCY_OPTIONS = [
+  { code: "USD", label: "USD — US Dollar", symbol: "$", value: Currency.usd },
+  {
+    code: "INR",
+    label: "INR — Indian Rupee",
+    symbol: "₹",
+    value: Currency.inr,
+  },
+  { code: "EUR", label: "EUR — Euro", symbol: "€", value: Currency.eur },
+] as const;
 
 export default function Settings() {
-  const { identity, clear } = useInternetIdentity();
-  const { data: userProfile } = useGetCallerUserProfile();
-  const { data: preferences } = useGetCallerUserPreferences();
-  const savePreferences = useSaveUserPreferences();
   const { theme, setTheme } = useTheme();
+  const { data: preferences, isLoading: _isLoading } = useGetUserPreferences();
+  const savePreferences = useSaveUserPreferences();
+  const { currencyCode, rates, ratesFromLive } = useCurrency();
 
-  const [localPrefs, setLocalPrefs] = useState<UserPreferences>({
-    themeMode: 'system',
-    notificationsEnabled: true,
-    analyticsVisible: true,
-    currency: 'inr' as Currency,
-    updatedAt: Date.now(),
-  });
+  const [notifications, setNotifications] = useState(true);
+  const [analyticsVisible, setAnalyticsVisible] = useState(true);
+  const [selectedCurrency, setSelectedCurrency] = useState<Currency>(
+    Currency.usd,
+  );
+  const [savingCurrency, setSavingCurrency] = useState(false);
 
   useEffect(() => {
     if (preferences) {
-      setLocalPrefs(preferences);
-      // Sync theme with saved preference
-      if (preferences.themeMode && preferences.themeMode !== theme) {
-        setTheme(preferences.themeMode);
-      }
+      setNotifications(preferences.notificationsEnabled);
+      setAnalyticsVisible(preferences.analyticsVisible);
+      setSelectedCurrency(preferences.currency);
     }
   }, [preferences]);
 
-  if (!identity) {
-    return <AccessDenied />;
-  }
-
-  const handleSavePreferences = async () => {
+  const handleSavePreferences = async (
+    overrides?: Partial<{
+      currency: Currency;
+      notifications: boolean;
+      analyticsVisible: boolean;
+    }>,
+  ) => {
+    const prefs = {
+      themeMode: theme ?? "system",
+      notificationsEnabled: overrides?.notifications ?? notifications,
+      analyticsVisible: overrides?.analyticsVisible ?? analyticsVisible,
+      currency: overrides?.currency ?? selectedCurrency,
+      updatedAt: BigInt(Date.now()),
+    };
     try {
-      await savePreferences.mutateAsync({
-        ...localPrefs,
-        themeMode: theme || 'system',
-        updatedAt: Date.now(),
-      });
-      toast.success('Preferences saved successfully');
-    } catch (error) {
-      console.error('Failed to save preferences:', error);
-      toast.error('Failed to save preferences');
+      await savePreferences.mutateAsync(prefs);
+    } catch {
+      // error handled by mutation
     }
   };
 
-  const handleThemeChange = (newTheme: string) => {
-    setTheme(newTheme);
-    setLocalPrefs({ ...localPrefs, themeMode: newTheme });
+  const handleCurrencyChange = async (currency: Currency) => {
+    setSelectedCurrency(currency);
+    setSavingCurrency(true);
+    try {
+      await handleSavePreferences({ currency });
+      toast.success(
+        "Currency updated! All monetary values will now display in the selected currency.",
+      );
+    } finally {
+      setSavingCurrency(false);
+    }
   };
 
-  const handleCurrencyChange = (newCurrency: string) => {
-    setLocalPrefs({ ...localPrefs, currency: newCurrency as Currency });
+  const handleToggleNotifications = async (val: boolean) => {
+    setNotifications(val);
+    await handleSavePreferences({ notifications: val });
   };
 
-  const selectedCurrencySymbol = CURRENCY_SYMBOLS[localPrefs.currency] || '$';
-  const selectedCurrencyName = CURRENCY_NAMES[localPrefs.currency] || 'US Dollar';
+  const handleToggleAnalytics = async (val: boolean) => {
+    setAnalyticsVisible(val);
+    localStorage.setItem("analyticsVisible", String(val));
+    await handleSavePreferences({ analyticsVisible: val });
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-4 lg:p-8">
-      <div className="max-w-4xl mx-auto space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Settings</h1>
-          <p className="text-muted-foreground">Manage your account settings and preferences</p>
-        </div>
-
-        {/* Profile Information */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <User className="w-5 h-5" />
-              <CardTitle>Profile Information</CardTitle>
-            </div>
-            <CardDescription>Your personal information and account details</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4">
-              <div className="space-y-2">
-                <Label>Name</Label>
-                <Input value={userProfile?.name || 'Not set'} disabled />
-              </div>
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <Input value={userProfile?.email || 'Not set'} disabled />
-              </div>
-              <div className="space-y-2">
-                <Label>User ID</Label>
-                <Input value={userProfile?.id || 'Not set'} disabled />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Display Preferences */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Eye className="w-5 h-5" />
-              <CardTitle>Display Preferences</CardTitle>
-            </div>
-            <CardDescription>Customize how you view your financial data</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Theme</Label>
-                <p className="text-sm text-muted-foreground">Choose your preferred theme</p>
-              </div>
-              <Select value={theme} onValueChange={handleThemeChange}>
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="light">
-                    <div className="flex items-center gap-2">
-                      <Sun className="w-4 h-4" />
-                      Light
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="dark">
-                    <div className="flex items-center gap-2">
-                      <Moon className="w-4 h-4" />
-                      Dark
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="system">
-                    <div className="flex items-center gap-2">
-                      <Globe className="w-4 h-4" />
-                      System
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5 flex-1">
-                <Label>Currency</Label>
-                <p className="text-sm text-muted-foreground">
-                  Select your preferred currency ({selectedCurrencySymbol})
-                </p>
-              </div>
-              <Select value={localPrefs.currency} onValueChange={handleCurrencyChange}>
-                <SelectTrigger className="w-40">
-                  <SelectValue>
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="w-4 h-4" />
-                      <span>{selectedCurrencySymbol} {localPrefs.currency.toUpperCase()}</span>
-                    </div>
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="usd">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold">$</span>
-                      <span>USD - US Dollar</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="inr">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold">₹</span>
-                      <span>INR - Indian Rupee</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="eur">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold">€</span>
-                      <span>EUR - Euro</span>
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Show Analytics</Label>
-                <p className="text-sm text-muted-foreground">Display financial analytics on dashboard</p>
-              </div>
-              <Switch
-                checked={localPrefs.analyticsVisible}
-                onCheckedChange={(checked) => setLocalPrefs({ ...localPrefs, analyticsVisible: checked })}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Notifications */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Bell className="w-5 h-5" />
-              <CardTitle>Notifications</CardTitle>
-            </div>
-            <CardDescription>Manage your notification preferences</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label>Enable Notifications</Label>
-                <p className="text-sm text-muted-foreground">Receive updates about your finances</p>
-              </div>
-              <Switch
-                checked={localPrefs.notificationsEnabled}
-                onCheckedChange={(checked) => setLocalPrefs({ ...localPrefs, notificationsEnabled: checked })}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Security */}
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Shield className="w-5 h-5" />
-              <CardTitle>Security</CardTitle>
-            </div>
-            <CardDescription>Your account security settings</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 border border-border rounded-lg">
-                <div>
-                  <p className="font-medium">Internet Identity</p>
-                  <p className="text-sm text-muted-foreground">Secure authentication via Internet Computer</p>
-                </div>
-                <Badge className="bg-green-500/20 text-green-600 border-green-500/20">Active</Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Save Button */}
-        <div className="flex justify-end gap-3">
-          <Button
-            onClick={handleSavePreferences}
-            disabled={savePreferences.isPending}
-            className="bg-gradient-to-r from-primary to-chart-1"
-          >
-            {savePreferences.isPending ? 'Saving...' : 'Save Changes'}
-          </Button>
-        </div>
+    <div className="p-4 md:p-6 space-y-6 max-w-2xl mx-auto">
+      <div>
+        <h1 className="text-2xl font-bold">Settings</h1>
+        <p className="text-muted-foreground text-sm mt-1">
+          Manage your preferences and application settings.
+        </p>
       </div>
+
+      {/* Theme */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Monitor className="w-4 h-4" />
+            Appearance
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex gap-2">
+            {[
+              {
+                value: "light",
+                icon: <Sun className="w-4 h-4" />,
+                label: "Light",
+              },
+              {
+                value: "dark",
+                icon: <Moon className="w-4 h-4" />,
+                label: "Dark",
+              },
+              {
+                value: "system",
+                icon: <Monitor className="w-4 h-4" />,
+                label: "System",
+              },
+            ].map((opt) => (
+              <Button
+                key={opt.value}
+                variant={theme === opt.value ? "default" : "outline"}
+                size="sm"
+                onClick={() => {
+                  setTheme(opt.value);
+                  handleSavePreferences();
+                }}
+                className="gap-2"
+              >
+                {opt.icon}
+                {opt.label}
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Currency */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Globe className="w-4 h-4" />
+            Currency
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Select your preferred currency. This affects all monetary displays
+            across the app — Dashboard, Transactions, Analytics, Budget Planner,
+            and Goals.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {CURRENCY_OPTIONS.map((opt) => (
+              <button
+                type="button"
+                key={opt.code}
+                onClick={() => handleCurrencyChange(opt.value)}
+                disabled={savingCurrency}
+                className={`flex items-center gap-3 p-3 rounded-lg border-2 transition-all text-left ${
+                  selectedCurrency === opt.value
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-primary/50"
+                }`}
+              >
+                <span className="text-2xl font-bold text-primary">
+                  {opt.symbol}
+                </span>
+                <div>
+                  <p className="font-semibold text-sm">{opt.code}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {opt.label.split("—")[1]?.trim()}
+                  </p>
+                </div>
+                {selectedCurrency === opt.value && (
+                  <Badge variant="default" className="ml-auto text-xs">
+                    Active
+                  </Badge>
+                )}
+              </button>
+            ))}
+          </div>
+          {savingCurrency && (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <RefreshCw className="w-3 h-3 animate-spin" />
+              Saving currency preference...
+            </div>
+          )}
+          <ExchangeRateIndicator
+            currentCurrency={currencyCode}
+            rates={rates}
+            ratesFromLive={ratesFromLive}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Notifications */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Bell className="w-4 h-4" />
+            Notifications
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="notifications">Enable Notifications</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Receive alerts for budget limits and goal milestones.
+              </p>
+            </div>
+            <Switch
+              id="notifications"
+              checked={notifications}
+              onCheckedChange={handleToggleNotifications}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Analytics */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <BarChart2 className="w-4 h-4" />
+            Analytics
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="analytics">Show Analytics</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Display the Analytics page in the navigation.
+              </p>
+            </div>
+            <Switch
+              id="analytics"
+              checked={analyticsVisible}
+              onCheckedChange={handleToggleAnalytics}
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      <Separator />
+      <p className="text-xs text-muted-foreground text-center">
+        Settings are saved to your account and sync across devices.
+      </p>
     </div>
   );
 }

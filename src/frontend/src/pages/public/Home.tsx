@@ -1,7 +1,7 @@
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Brain, TrendingUp, Shield, ArrowRight } from 'lucide-react';
-import { useNavigate } from '@tanstack/react-router';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { useNavigate } from "@tanstack/react-router";
+import { ArrowRight, Brain, Shield, TrendingUp } from "lucide-react";
 
 export default function PublicHome() {
   const navigate = useNavigate();
@@ -16,14 +16,23 @@ export default function PublicHome() {
               AI-Powered Financial Intelligence
             </h1>
             <p className="text-xl text-muted-foreground">
-              Take control of your finances with smart insights, real-time analytics, and personalized recommendations
+              Take control of your finances with smart insights, real-time
+              analytics, and personalized recommendations
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" onClick={() => navigate({ to: '/login' })} className="bg-gradient-to-r from-primary to-chart-1">
+              <Button
+                size="lg"
+                onClick={() => navigate({ to: "/login" })}
+                className="bg-gradient-to-r from-primary to-chart-1"
+              >
                 Get Started Free
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
-              <Button size="lg" variant="outline" onClick={() => navigate({ to: '/features' })}>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => navigate({ to: "/features" })}
+              >
                 Learn More
               </Button>
             </div>
@@ -40,7 +49,8 @@ export default function PublicHome() {
                 <Brain className="w-12 h-12 text-primary mx-auto" />
                 <h3 className="text-xl font-semibold">AI Insights</h3>
                 <p className="text-muted-foreground">
-                  Get personalized recommendations powered by advanced machine learning
+                  Get personalized recommendations powered by advanced machine
+                  learning
                 </p>
               </CardContent>
             </Card>
@@ -49,7 +59,8 @@ export default function PublicHome() {
                 <TrendingUp className="w-12 h-12 text-chart-1 mx-auto" />
                 <h3 className="text-xl font-semibold">Real-Time Analytics</h3>
                 <p className="text-muted-foreground">
-                  Track your financial health with live updates and beautiful charts
+                  Track your financial health with live updates and beautiful
+                  charts
                 </p>
               </CardContent>
             </Card>
@@ -58,7 +69,8 @@ export default function PublicHome() {
                 <Shield className="w-12 h-12 text-chart-2 mx-auto" />
                 <h3 className="text-xl font-semibold">Secure & Private</h3>
                 <p className="text-muted-foreground">
-                  Your data is protected with bank-level encryption on the blockchain
+                  Your data is protected with bank-level encryption on the
+                  blockchain
                 </p>
               </CardContent>
             </Card>
@@ -71,11 +83,17 @@ export default function PublicHome() {
         <div className="container mx-auto px-4">
           <Card className="max-w-4xl mx-auto border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-chart-1/5">
             <CardContent className="p-12 text-center space-y-6">
-              <h2 className="text-3xl lg:text-4xl font-bold">Ready to Transform Your Finances?</h2>
+              <h2 className="text-3xl lg:text-4xl font-bold">
+                Ready to Transform Your Finances?
+              </h2>
               <p className="text-xl text-muted-foreground">
                 Join thousands of users taking control of their financial future
               </p>
-              <Button size="lg" onClick={() => navigate({ to: '/login' })} className="bg-gradient-to-r from-primary to-chart-1">
+              <Button
+                size="lg"
+                onClick={() => navigate({ to: "/login" })}
+                className="bg-gradient-to-r from-primary to-chart-1"
+              >
                 Start Your Journey
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>

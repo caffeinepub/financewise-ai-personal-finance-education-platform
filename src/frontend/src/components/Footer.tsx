@@ -1,49 +1,58 @@
-import { useNavigate } from '@tanstack/react-router';
-import { SiFacebook, SiX, SiLinkedin, SiInstagram, SiGithub, SiYoutube } from 'react-icons/si';
-import { Badge } from '@/components/ui/badge';
-import { Heart } from 'lucide-react';
-import { TARGET_VERSION } from '../lib/buildInfo';
+import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "@tanstack/react-router";
+import { Heart } from "lucide-react";
+import {
+  SiFacebook,
+  SiGithub,
+  SiInstagram,
+  SiLinkedin,
+  SiX,
+  SiYoutube,
+} from "react-icons/si";
+import { TARGET_VERSION } from "../lib/buildInfo";
 
 export default function Footer() {
   const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
-  const appIdentifier = encodeURIComponent(window.location.hostname || 'financewise-ai');
+  const appIdentifier = encodeURIComponent(
+    window.location.hostname || "financewise-ai",
+  );
 
   const quickLinks = [
-    { name: 'Home', href: '/' },
-    { name: 'How It Works', href: '/how-it-works' },
-    { name: 'Features', href: '/features' },
-    { name: 'Security', href: '/security' },
+    { name: "Home", href: "/" },
+    { name: "How It Works", href: "/how-it-works" },
+    { name: "Features", href: "/features" },
+    { name: "Security", href: "/security" },
   ];
 
   const resources = [
-    { name: 'Blog', href: '/blog' },
-    { name: 'FAQ', href: '/faq' },
-    { name: 'Contact', href: '/contact' },
-    { name: 'About', href: '/about' },
+    { name: "Blog", href: "/blog" },
+    { name: "FAQ", href: "/faq" },
+    { name: "Contact", href: "/contact" },
+    { name: "About", href: "/about" },
   ];
 
   const learning = [
-    { name: 'AI Explained', href: '/ai-explained' },
-    { name: 'Financial Wellness', href: '/financial-wellness' },
-    { name: 'Resources', href: '/resources' },
+    { name: "AI Explained", href: "/ai-explained" },
+    { name: "Financial Wellness", href: "/financial-wellness" },
+    { name: "Resources", href: "/resources" },
   ];
 
   const trustSecurity = [
-    { name: 'Security & Privacy', href: '/security-privacy' },
-    { name: 'Privacy Policy', href: '/privacy-policy' },
-    { name: 'Terms & Conditions', href: '/terms-and-conditions' },
-    { name: 'Cookie Policy', href: '/cookie-policy' },
-    { name: 'Disclaimer', href: '/disclaimer' },
+    { name: "Security & Privacy", href: "/security-privacy" },
+    { name: "Privacy Policy", href: "/privacy-policy" },
+    { name: "Terms & Conditions", href: "/terms-and-conditions" },
+    { name: "Cookie Policy", href: "/cookie-policy" },
+    { name: "Disclaimer", href: "/disclaimer" },
   ];
 
   const socialLinks = [
-    { icon: SiFacebook, href: '#', label: 'Facebook' },
-    { icon: SiX, href: '#', label: 'X (Twitter)' },
-    { icon: SiLinkedin, href: '#', label: 'LinkedIn' },
-    { icon: SiInstagram, href: '#', label: 'Instagram' },
-    { icon: SiGithub, href: '#', label: 'GitHub' },
-    { icon: SiYoutube, href: '#', label: 'YouTube' },
+    { icon: SiFacebook, href: "#", label: "Facebook" },
+    { icon: SiX, href: "#", label: "X (Twitter)" },
+    { icon: SiLinkedin, href: "#", label: "LinkedIn" },
+    { icon: SiInstagram, href: "#", label: "Instagram" },
+    { icon: SiGithub, href: "#", label: "GitHub" },
+    { icon: SiYoutube, href: "#", label: "YouTube" },
   ];
 
   return (
@@ -57,6 +66,7 @@ export default function Footer() {
               {quickLinks.map((link) => (
                 <li key={link.name}>
                   <button
+                    type="button"
                     onClick={() => navigate({ to: link.href })}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
@@ -74,6 +84,7 @@ export default function Footer() {
               {resources.map((link) => (
                 <li key={link.name}>
                   <button
+                    type="button"
                     onClick={() => navigate({ to: link.href })}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
@@ -91,6 +102,7 @@ export default function Footer() {
               {learning.map((link) => (
                 <li key={link.name}>
                   <button
+                    type="button"
                     onClick={() => navigate({ to: link.href })}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
@@ -108,6 +120,7 @@ export default function Footer() {
               {trustSecurity.map((link) => (
                 <li key={link.name}>
                   <button
+                    type="button"
                     onClick={() => navigate({ to: link.href })}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                   >
@@ -149,7 +162,8 @@ export default function Footer() {
         {/* Copyright */}
         <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
           <p className="flex items-center justify-center gap-1">
-            © {currentYear} FinanceWise AI. Built with <Heart className="h-4 w-4 text-red-500 fill-red-500" /> using{' '}
+            © {currentYear} FinanceWise AI. Built with{" "}
+            <Heart className="h-4 w-4 text-red-500 fill-red-500" /> using{" "}
             <a
               href={`https://caffeine.ai/?utm_source=Caffeine-footer&utm_medium=referral&utm_content=${appIdentifier}`}
               target="_blank"

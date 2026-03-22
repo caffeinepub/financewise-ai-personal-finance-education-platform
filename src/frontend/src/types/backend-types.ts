@@ -1,7 +1,7 @@
 // Local type definitions for backend data structures
 // These types mirror the backend Motoko types but are defined locally since they're not exported
 
-import type { Principal } from '@icp-sdk/core/principal';
+import type { Principal } from "@icp-sdk/core/principal";
 
 export interface UserPreferences {
   themeMode: string;
@@ -12,9 +12,9 @@ export interface UserPreferences {
 }
 
 export enum Currency {
-  usd = 'usd',
-  inr = 'inr',
-  eur = 'eur',
+  usd = "usd",
+  inr = "inr",
+  eur = "eur",
 }
 
 export interface TransactionData {
@@ -94,23 +94,23 @@ export interface QuizQuestion {
 }
 
 export enum QuizTopic {
-  budgeting = 'budgeting',
-  saving = 'saving',
-  emergencyFunds = 'emergencyFunds',
-  salaryManagement = 'salaryManagement',
-  debts = 'debts',
-  loans = 'loans',
-  credit = 'credit',
-  spending = 'spending',
-  mistakes = 'mistakes',
-  investing = 'investing',
-  digitalPayments = 'digitalPayments',
+  budgeting = "budgeting",
+  saving = "saving",
+  emergencyFunds = "emergencyFunds",
+  salaryManagement = "salaryManagement",
+  debts = "debts",
+  loans = "loans",
+  credit = "credit",
+  spending = "spending",
+  mistakes = "mistakes",
+  investing = "investing",
+  digitalPayments = "digitalPayments",
 }
 
 export enum QuizDifficulty {
-  easy = 'easy',
-  medium = 'medium',
-  hard = 'hard',
+  easy = "easy",
+  medium = "medium",
+  hard = "hard",
 }
 
 export interface QuizProgress {
@@ -131,6 +131,6 @@ export interface ChatMessage {
 }
 
 export enum ChatRole {
-  user = 'user',
-  assistant = 'assistant',
+  user = "user",
+  assistant = "assistant",
 }

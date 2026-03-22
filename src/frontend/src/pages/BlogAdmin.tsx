@@ -1,9 +1,15 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { useInternetIdentity } from '@/hooks/useInternetIdentity';
-import { useInitializeDefaultContent } from '@/hooks/useDefaultContentInitialization';
-import { BookOpen, CheckCircle2, AlertCircle } from 'lucide-react';
-import AccessDenied from '@/components/AccessDenied';
+import AccessDenied from "@/components/AccessDenied";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useInitializeDefaultContent } from "@/hooks/useDefaultContentInitialization";
+import { useInternetIdentity } from "@/hooks/useInternetIdentity";
+import { AlertCircle, BookOpen, CheckCircle2 } from "lucide-react";
 
 export default function BlogAdmin() {
   const { identity } = useInternetIdentity();
@@ -24,7 +30,9 @@ export default function BlogAdmin() {
           <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-primary to-chart-1 bg-clip-text text-transparent">
             Blog Administration
           </h1>
-          <p className="text-muted-foreground">Initialize and manage blog posts</p>
+          <p className="text-muted-foreground">
+            Initialize and manage blog posts
+          </p>
         </div>
 
         <Card className="border-2 border-primary/20">
@@ -34,7 +42,8 @@ export default function BlogAdmin() {
               <div>
                 <CardTitle>Content Initialization</CardTitle>
                 <CardDescription>
-                  Initialize 15 comprehensive finance blog posts and 100 quiz questions
+                  Initialize 15 comprehensive finance blog posts and 100 quiz
+                  questions
                 </CardDescription>
               </div>
             </div>
@@ -44,16 +53,24 @@ export default function BlogAdmin() {
               <div className="flex items-center gap-3 p-4 rounded-lg bg-green-500/10 border border-green-500/20">
                 <CheckCircle2 className="w-6 h-6 text-green-500" />
                 <div>
-                  <p className="font-semibold text-green-500">Content initialized successfully!</p>
-                  <p className="text-sm text-muted-foreground">All blog posts and quiz questions are now available.</p>
+                  <p className="font-semibold text-green-500">
+                    Content initialized successfully!
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    All blog posts and quiz questions are now available.
+                  </p>
                 </div>
               </div>
             ) : (
               <div className="flex items-center gap-3 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/20">
                 <AlertCircle className="w-6 h-6 text-yellow-500" />
                 <div>
-                  <p className="font-semibold text-yellow-500">Content not initialized</p>
-                  <p className="text-sm text-muted-foreground">Click the button below to initialize all content.</p>
+                  <p className="font-semibold text-yellow-500">
+                    Content not initialized
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Click the button below to initialize all content.
+                  </p>
                 </div>
               </div>
             )}
@@ -61,21 +78,30 @@ export default function BlogAdmin() {
             <div className="space-y-3">
               <h3 className="font-semibold">Content to be Created:</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>• 15 comprehensive finance blog posts (1200+ words each)</li>
-                <li>• 100 educational quiz questions covering all finance topics</li>
-                <li>• Topics: budgeting, saving, investing, debt, loans, credit, and more</li>
+                <li>
+                  • 15 comprehensive finance blog posts (1200+ words each)
+                </li>
+                <li>
+                  • 100 educational quiz questions covering all finance topics
+                </li>
+                <li>
+                  • Topics: budgeting, saving, investing, debt, loans, credit,
+                  and more
+                </li>
               </ul>
             </div>
 
             <Button
               onClick={handleInitialize}
-              disabled={initializeContent.isPending || initializeContent.isSuccess}
+              disabled={
+                initializeContent.isPending || initializeContent.isSuccess
+              }
               className="w-full bg-gradient-to-r from-primary to-chart-1"
               size="lg"
             >
               {initializeContent.isPending ? (
                 <>
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent mr-2"></div>
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent mr-2" />
                   Initializing Content...
                 </>
               ) : initializeContent.isSuccess ? (

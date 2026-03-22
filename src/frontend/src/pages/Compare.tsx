@@ -1,20 +1,20 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle2, XCircle } from 'lucide-react';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckCircle2, XCircle } from "lucide-react";
+import Footer from "../components/Footer";
+import Header from "../components/Header";
 
 export default function Compare() {
   const features = [
-    { name: 'AI-Powered Insights', financewise: true, others: false },
-    { name: 'Real-Time Analytics', financewise: true, others: true },
-    { name: 'Bank-Level Security', financewise: true, others: true },
-    { name: 'Educational Content', financewise: true, others: false },
-    { name: '100 Quiz Questions', financewise: true, others: false },
-    { name: 'Goal Tracking', financewise: true, others: true },
-    { name: 'Investment Calculators', financewise: true, others: false },
-    { name: 'Money Psychology Tools', financewise: true, others: false },
-    { name: 'Blockchain Storage', financewise: true, others: false },
-    { name: 'Completely Free', financewise: true, others: false },
+    { name: "AI-Powered Insights", financewise: true, others: false },
+    { name: "Real-Time Analytics", financewise: true, others: true },
+    { name: "Bank-Level Security", financewise: true, others: true },
+    { name: "Educational Content", financewise: true, others: false },
+    { name: "100 Quiz Questions", financewise: true, others: false },
+    { name: "Goal Tracking", financewise: true, others: true },
+    { name: "Investment Calculators", financewise: true, others: false },
+    { name: "Money Psychology Tools", financewise: true, others: false },
+    { name: "Blockchain Storage", financewise: true, others: false },
+    { name: "Completely Free", financewise: true, others: false },
   ];
 
   return (
@@ -35,15 +35,20 @@ export default function Compare() {
             <Card className="border-2 border-primary/20">
               <CardHeader>
                 <div className="grid grid-cols-3 gap-4 text-center">
-                  <div></div>
+                  <div />
                   <CardTitle className="text-primary">FinanceWise AI</CardTitle>
-                  <CardTitle className="text-muted-foreground">Others</CardTitle>
+                  <CardTitle className="text-muted-foreground">
+                    Others
+                  </CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {features.map((feature, index) => (
-                    <div key={index} className="grid grid-cols-3 gap-4 items-center p-3 rounded-lg hover:bg-muted/50 transition-colors">
+                  {features.map((feature) => (
+                    <div
+                      key={feature.name}
+                      className="grid grid-cols-3 gap-4 items-center p-3 rounded-lg hover:bg-muted/50 transition-colors"
+                    >
                       <div className="font-medium">{feature.name}</div>
                       <div className="flex justify-center">
                         {feature.financewise ? (

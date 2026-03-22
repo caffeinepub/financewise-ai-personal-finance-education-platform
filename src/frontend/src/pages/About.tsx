@@ -1,5 +1,11 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Target, Eye, Heart, Users, Zap, Shield } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Eye, Heart, Shield, Target, Users, Zap } from "lucide-react";
 
 export default function About() {
   return (
@@ -21,7 +27,12 @@ export default function About() {
             </CardHeader>
             <CardContent>
               <p className="text-lg text-muted-foreground">
-                FinanceWise AI was created to democratize financial management and education. We believe everyone deserves access to powerful financial tools and AI-powered insights, regardless of their income level or financial knowledge. Our mission is to help people make better financial decisions, reduce stress, and achieve their financial goals faster.
+                FinanceWise AI was created to democratize financial management
+                and education. We believe everyone deserves access to powerful
+                financial tools and AI-powered insights, regardless of their
+                income level or financial knowledge. Our mission is to help
+                people make better financial decisions, reduce stress, and
+                achieve their financial goals faster.
               </p>
             </CardContent>
           </Card>
@@ -32,7 +43,8 @@ export default function About() {
                 <Target className="w-12 h-12 text-primary mb-4" />
                 <CardTitle>Our Vision</CardTitle>
                 <CardDescription>
-                  A world where everyone has the knowledge and tools to achieve financial independence
+                  A world where everyone has the knowledge and tools to achieve
+                  financial independence
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -42,7 +54,8 @@ export default function About() {
                 <Heart className="w-12 h-12 text-chart-1 mb-4" />
                 <CardTitle>Our Values</CardTitle>
                 <CardDescription>
-                  Privacy, transparency, education, and empowerment guide everything we do
+                  Privacy, transparency, education, and empowerment guide
+                  everything we do
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -52,7 +65,8 @@ export default function About() {
                 <Users className="w-12 h-12 text-chart-2 mb-4" />
                 <CardTitle>Our Community</CardTitle>
                 <CardDescription>
-                  Thousands of users worldwide trust FinanceWise AI for their financial management
+                  Thousands of users worldwide trust FinanceWise AI for their
+                  financial management
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -62,7 +76,8 @@ export default function About() {
                 <Zap className="w-12 h-12 text-chart-3 mb-4" />
                 <CardTitle>Innovation</CardTitle>
                 <CardDescription>
-                  Cutting-edge AI and blockchain technology for the best user experience
+                  Cutting-edge AI and blockchain technology for the best user
+                  experience
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -72,7 +87,8 @@ export default function About() {
                 <Shield className="w-12 h-12 text-chart-4 mb-4" />
                 <CardTitle>Security First</CardTitle>
                 <CardDescription>
-                  Bank-level security and privacy protection in everything we build
+                  Bank-level security and privacy protection in everything we
+                  build
                 </CardDescription>
               </CardHeader>
             </Card>

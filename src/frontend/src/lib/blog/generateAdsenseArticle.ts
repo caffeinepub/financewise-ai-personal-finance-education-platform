@@ -19,13 +19,16 @@ export interface GeneratedArticle {
   publicationDate: number;
 }
 
-export function generateAdsenseArticle(metadata: BlogMetadata): GeneratedArticle {
-  const { title, excerpt, featuredImage, publicationDate, seoMeta, slug } = metadata;
-  
+export function generateAdsenseArticle(
+  metadata: BlogMetadata,
+): GeneratedArticle {
+  const { title, excerpt, featuredImage, publicationDate, seoMeta, slug } =
+    metadata;
+
   // Generate comprehensive 800+ word article based on slug
-  let content = '';
-  
-  if (slug === 'personal-finance-fundamentals-guide') {
+  let content = "";
+
+  if (slug === "personal-finance-fundamentals-guide") {
     content = `
 <h2>Understanding Personal Finance: The Foundation of Financial Success</h2>
 
@@ -123,7 +126,7 @@ export function generateAdsenseArticle(metadata: BlogMetadata): GeneratedArticle
 
 <p>Take action today. Your future self will thank you.</p>
     `;
-  } else if (slug === 'smart-saving-strategies-build-wealth') {
+  } else if (slug === "smart-saving-strategies-build-wealth") {
     content = `
 <h2>Building Wealth Through Smart Saving: Strategies That Work</h2>
 
@@ -272,7 +275,7 @@ export function generateAdsenseArticle(metadata: BlogMetadata): GeneratedArticle
 
 <p>Remember: you don't need to be perfect. You just need to start, stay consistent, and let time and compound growth do the heavy lifting. Your future self will thank you for the discipline you build today.</p>
     `;
-  } else if (slug === 'budgeting-methods-that-work') {
+  } else if (slug === "budgeting-methods-that-work") {
     content = `
 <h2>Budgeting Methods That Actually Work: Find Your Perfect System</h2>
 
@@ -641,14 +644,19 @@ export function generateAdsenseArticle(metadata: BlogMetadata): GeneratedArticle
 <p>Take action today. Your future self will thank you for the discipline and wisdom you demonstrate now. Financial freedom isn't a destination—it's a journey of continuous improvement, learning, and growth. Start walking that path today, one step at a time.</p>
     `;
   }
-  
+
   return {
     title,
     excerpt,
     content,
     featuredImage,
-    author: 'FinanceWise AI Editorial Team',
-    tags: ['Personal Finance', 'Money Management', 'Financial Education', 'Wealth Building'],
+    author: "FinanceWise AI Editorial Team",
+    tags: [
+      "Personal Finance",
+      "Money Management",
+      "Financial Education",
+      "Wealth Building",
+    ],
     metaDescription: seoMeta,
     publicationDate,
   };

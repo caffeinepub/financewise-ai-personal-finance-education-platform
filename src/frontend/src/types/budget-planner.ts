@@ -4,8 +4,8 @@ export interface BudgetInputs {
   foodGroceries: number;
   transport: number;
   savingsAmount: number;
-  savingsType: 'amount' | 'percentage';
-  goalType: 'short-term' | 'long-term';
+  savingsType: "amount" | "percentage";
+  goalType: "short-term" | "long-term";
   secondaryIncome: number;
   passiveIncome: number;
   utilities: number;
@@ -21,10 +21,10 @@ export interface BudgetInputs {
   retirementPlanning: number;
   targetAmount: number;
   timeline: number;
-  riskTolerance: 'low' | 'medium' | 'high';
-  spendingBehavior: 'saver' | 'spender';
-  savingStyle: 'auto' | 'manual';
-  financialKnowledge: 'beginner' | 'intermediate' | 'advanced';
+  riskTolerance: "low" | "medium" | "high";
+  spendingBehavior: "saver" | "spender";
+  savingStyle: "auto" | "manual";
+  financialKnowledge: "beginner" | "intermediate" | "advanced";
 }
 
 export interface BudgetPlan {

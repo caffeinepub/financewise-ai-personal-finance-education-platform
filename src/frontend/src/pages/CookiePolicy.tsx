@@ -1,7 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Cookie, Settings, Shield, Eye, CheckCircle2 } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckCircle2, Cookie, Eye, Settings, Shield } from "lucide-react";
 
 export default function CookiePolicy() {
   return (
@@ -14,7 +14,9 @@ export default function CookiePolicy() {
             <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary to-chart-1 bg-clip-text text-transparent">
               Cookie Policy
             </h1>
-            <p className="text-muted-foreground">Last updated: January 31, 2026</p>
+            <p className="text-muted-foreground">
+              Last updated: January 31, 2026
+            </p>
           </div>
 
           <Card className="border-2 border-primary/20">
@@ -26,7 +28,10 @@ export default function CookiePolicy() {
             </CardHeader>
             <CardContent className="space-y-4 text-muted-foreground">
               <p>
-                Cookies are small text files that are placed on your device when you visit our website. They help us provide you with a better experience by remembering your preferences and understanding how you use our service.
+                Cookies are small text files that are placed on your device when
+                you visit our website. They help us provide you with a better
+                experience by remembering your preferences and understanding how
+                you use our service.
               </p>
             </CardContent>
           </Card>
@@ -35,14 +40,20 @@ export default function CookiePolicy() {
             <CardHeader>
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="w-8 h-8 text-chart-1" />
-                <CardTitle className="text-xl">Types of Cookies We Use</CardTitle>
+                <CardTitle className="text-xl">
+                  Types of Cookies We Use
+                </CardTitle>
               </div>
             </CardHeader>
             <CardContent className="space-y-6 text-muted-foreground">
               <div>
-                <h3 className="font-semibold text-foreground mb-2">1. Essential Cookies (Required)</h3>
+                <h3 className="font-semibold text-foreground mb-2">
+                  1. Essential Cookies (Required)
+                </h3>
                 <p className="mb-2">
-                  These cookies are necessary for the website to function properly. They enable core functionality such as security, authentication, and accessibility.
+                  These cookies are necessary for the website to function
+                  properly. They enable core functionality such as security,
+                  authentication, and accessibility.
                 </p>
                 <ul className="list-disc list-inside space-y-1 ml-4">
                   <li>Authentication and session management</li>
@@ -53,9 +64,13 @@ export default function CookiePolicy() {
               </div>
 
               <div>
-                <h3 className="font-semibold text-foreground mb-2">2. Analytics Cookies (Optional)</h3>
+                <h3 className="font-semibold text-foreground mb-2">
+                  2. Analytics Cookies (Optional)
+                </h3>
                 <p className="mb-2">
-                  These cookies help us understand how visitors interact with our website by collecting and reporting information anonymously.
+                  These cookies help us understand how visitors interact with
+                  our website by collecting and reporting information
+                  anonymously.
                 </p>
                 <ul className="list-disc list-inside space-y-1 ml-4">
                   <li>Google Analytics for usage statistics</li>
@@ -66,12 +81,17 @@ export default function CookiePolicy() {
               </div>
 
               <div>
-                <h3 className="font-semibold text-foreground mb-2">3. Advertising Cookies (Optional)</h3>
+                <h3 className="font-semibold text-foreground mb-2">
+                  3. Advertising Cookies (Optional)
+                </h3>
                 <p className="mb-2">
-                  These cookies are used to deliver relevant advertisements and track ad campaign performance.
+                  These cookies are used to deliver relevant advertisements and
+                  track ad campaign performance.
                 </p>
                 <ul className="list-disc list-inside space-y-1 ml-4">
-                  <li>Google AdSense (Publisher ID: ca-pub-5050836253831761)</li>
+                  <li>
+                    Google AdSense (Publisher ID: ca-pub-5050836253831761)
+                  </li>
                   <li>Personalized ad delivery</li>
                   <li>Ad performance tracking</li>
                   <li>Frequency capping</li>
@@ -79,9 +99,12 @@ export default function CookiePolicy() {
               </div>
 
               <div>
-                <h3 className="font-semibold text-foreground mb-2">4. Functional Cookies (Optional)</h3>
+                <h3 className="font-semibold text-foreground mb-2">
+                  4. Functional Cookies (Optional)
+                </h3>
                 <p className="mb-2">
-                  These cookies enable enhanced functionality and personalization.
+                  These cookies enable enhanced functionality and
+                  personalization.
                 </p>
                 <ul className="list-disc list-inside space-y-1 ml-4">
                   <li>Theme preferences (dark/light mode)</li>
@@ -105,12 +128,23 @@ export default function CookiePolicy() {
                 We use the following third-party services that may set cookies:
               </p>
               <ul className="list-disc list-inside space-y-2 ml-4">
-                <li><strong>Google Analytics:</strong> To understand user behavior and improve our service</li>
-                <li><strong>Google AdSense:</strong> To display relevant advertisements</li>
-                <li><strong>Internet Computer:</strong> For blockchain-based authentication and storage</li>
+                <li>
+                  <strong>Google Analytics:</strong> To understand user behavior
+                  and improve our service
+                </li>
+                <li>
+                  <strong>Google AdSense:</strong> To display relevant
+                  advertisements
+                </li>
+                <li>
+                  <strong>Internet Computer:</strong> For blockchain-based
+                  authentication and storage
+                </li>
               </ul>
               <p className="mt-4">
-                These third parties have their own privacy policies and cookie policies. We recommend reviewing them to understand how they use cookies.
+                These third parties have their own privacy policies and cookie
+                policies. We recommend reviewing them to understand how they use
+                cookies.
               </p>
             </CardContent>
           </Card>
@@ -119,23 +153,30 @@ export default function CookiePolicy() {
             <CardHeader>
               <div className="flex items-center gap-3">
                 <Settings className="w-8 h-8 text-chart-3" />
-                <CardTitle className="text-xl">Managing Your Cookie Preferences</CardTitle>
+                <CardTitle className="text-xl">
+                  Managing Your Cookie Preferences
+                </CardTitle>
               </div>
             </CardHeader>
             <CardContent className="space-y-4 text-muted-foreground">
-              <p>
-                You have several options to manage cookies:
-              </p>
+              <p>You have several options to manage cookies:</p>
               <div>
-                <h3 className="font-semibold text-foreground mb-2">1. Cookie Consent Banner</h3>
+                <h3 className="font-semibold text-foreground mb-2">
+                  1. Cookie Consent Banner
+                </h3>
                 <p>
-                  When you first visit our website, you'll see a cookie consent banner where you can accept all cookies, reject optional cookies, or manage your preferences.
+                  When you first visit our website, you'll see a cookie consent
+                  banner where you can accept all cookies, reject optional
+                  cookies, or manage your preferences.
                 </p>
               </div>
               <div>
-                <h3 className="font-semibold text-foreground mb-2">2. Browser Settings</h3>
+                <h3 className="font-semibold text-foreground mb-2">
+                  2. Browser Settings
+                </h3>
                 <p>
-                  Most web browsers allow you to control cookies through their settings. You can:
+                  Most web browsers allow you to control cookies through their
+                  settings. You can:
                 </p>
                 <ul className="list-disc list-inside space-y-1 ml-4 mt-2">
                   <li>Block all cookies</li>
@@ -145,9 +186,12 @@ export default function CookiePolicy() {
                 </ul>
               </div>
               <div>
-                <h3 className="font-semibold text-foreground mb-2">3. Opt-Out Tools</h3>
+                <h3 className="font-semibold text-foreground mb-2">
+                  3. Opt-Out Tools
+                </h3>
                 <p>
-                  You can opt out of Google Analytics tracking by installing the Google Analytics Opt-out Browser Add-on.
+                  You can opt out of Google Analytics tracking by installing the
+                  Google Analytics Opt-out Browser Add-on.
                 </p>
               </div>
             </CardContent>
@@ -157,12 +201,15 @@ export default function CookiePolicy() {
             <CardHeader>
               <div className="flex items-center gap-3">
                 <Shield className="w-8 h-8 text-chart-4" />
-                <CardTitle className="text-xl">Impact of Disabling Cookies</CardTitle>
+                <CardTitle className="text-xl">
+                  Impact of Disabling Cookies
+                </CardTitle>
               </div>
             </CardHeader>
             <CardContent className="space-y-4 text-muted-foreground">
               <p>
-                If you disable cookies, some features of FinanceWise AI may not function properly:
+                If you disable cookies, some features of FinanceWise AI may not
+                function properly:
               </p>
               <ul className="list-disc list-inside space-y-2 ml-4">
                 <li>You may need to log in more frequently</li>
@@ -171,7 +218,8 @@ export default function CookiePolicy() {
                 <li>You may see less relevant advertisements</li>
               </ul>
               <p className="mt-4">
-                Essential cookies cannot be disabled as they are necessary for the website to function.
+                Essential cookies cannot be disabled as they are necessary for
+                the website to function.
               </p>
             </CardContent>
           </Card>
@@ -185,8 +233,14 @@ export default function CookiePolicy() {
                 Cookies may be either "session" cookies or "persistent" cookies:
               </p>
               <ul className="list-disc list-inside space-y-2 ml-4">
-                <li><strong>Session cookies:</strong> Deleted when you close your browser</li>
-                <li><strong>Persistent cookies:</strong> Remain on your device for a set period or until you delete them</li>
+                <li>
+                  <strong>Session cookies:</strong> Deleted when you close your
+                  browser
+                </li>
+                <li>
+                  <strong>Persistent cookies:</strong> Remain on your device for
+                  a set period or until you delete them
+                </li>
               </ul>
               <p className="mt-4">
                 Our cookie consent preferences are stored for 365 days.
@@ -200,7 +254,10 @@ export default function CookiePolicy() {
             </CardHeader>
             <CardContent className="space-y-4 text-muted-foreground">
               <p>
-                We may update this Cookie Policy from time to time to reflect changes in our practices or for legal reasons. We will notify you of any significant changes by posting the new policy on this page.
+                We may update this Cookie Policy from time to time to reflect
+                changes in our practices or for legal reasons. We will notify
+                you of any significant changes by posting the new policy on this
+                page.
               </p>
             </CardContent>
           </Card>
@@ -211,7 +268,8 @@ export default function CookiePolicy() {
             </CardHeader>
             <CardContent className="space-y-4 text-muted-foreground">
               <p>
-                If you have any questions about our use of cookies, please contact us:
+                If you have any questions about our use of cookies, please
+                contact us:
               </p>
               <p className="font-semibold text-foreground">
                 Email: fwiseai@gmail.com

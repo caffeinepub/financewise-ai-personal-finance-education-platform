@@ -1,137 +1,36 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useActor } from './useActor';
-import { useInternetIdentity } from './useInternetIdentity';
-import { convertBigIntsToNumbers } from '../lib/serialization';
-import { generateResponse, type AssistantContext } from '../lib/deterministicAssistant';
-import { toast } from 'sonner';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import type {
+  AIPrediction,
+  BudgetPlan,
+  ChatMessage,
+  ContactSubmission,
+  EmergencyFundData,
+  NetWorthData,
+  QuizAnswer,
+  SavingsGoal,
+  SpendingLimit,
+  TransactionData,
+  UserPreferences,
+  UserProfile,
+} from "../backend";
+import {
+  type AssistantContext,
+  type AssistantResponse,
+  generateResponse,
+} from "../lib/deterministicAssistant";
+import { useActor } from "./useActor";
 
-// Mock blog posts for frontend-only rendering
-const mockBlogPosts = [
-  {
-    id: '1',
-    title: 'Master Your Money: The Complete Guide to Personal Finance Fundamentals',
-    slug: 'personal-finance-fundamentals-guide',
-    excerpt: 'Learn the essential building blocks of personal finance, from budgeting basics to long-term wealth creation strategies that actually work.',
-    featuredImage: '/assets/generated/blog-personal-finance.dim_800x600.jpg',
-    publicationDate: Date.now() - 86400000 * 5,
-    seoMeta: 'Complete guide to personal finance fundamentals, budgeting, saving, and building wealth from scratch',
-  },
-  {
-    id: '2',
-    title: 'Smart Saving Strategies: How to Build Wealth on Any Income',
-    slug: 'smart-saving-strategies-build-wealth',
-    excerpt: 'Discover proven saving strategies that work regardless of your income level. Learn how small, consistent actions compound into significant wealth over time.',
-    featuredImage: '/assets/generated/blog-saving-investing.dim_800x600.jpg',
-    publicationDate: Date.now() - 86400000 * 10,
-    seoMeta: 'Effective saving strategies for building wealth, income-independent saving tips, and compound growth techniques',
-  },
-  {
-    id: '3',
-    title: 'Budgeting Methods That Actually Work: 50/30/20, Zero-Based & More',
-    slug: 'budgeting-methods-that-work',
-    excerpt: 'Explore practical budgeting methods including the 50/30/20 rule, zero-based budgeting, and envelope system. Find the approach that fits your lifestyle.',
-    featuredImage: '/assets/generated/blog-budgeting-system.dim_800x600.jpg',
-    publicationDate: Date.now() - 86400000 * 15,
-    seoMeta: 'Practical budgeting methods, 50/30/20 rule, zero-based budgeting, envelope system, and personal budget planning',
-  },
-  {
-    id: '4',
-    title: 'Investing for Beginners: Your First Steps into the Stock Market',
-    slug: 'investing-for-beginners-first-steps',
-    excerpt: 'Demystify investing with this beginner-friendly guide. Learn the basics of stocks, bonds, mutual funds, and how to start building your investment portfolio.',
-    featuredImage: '/assets/generated/blog-investment-basics.dim_800x600.jpg',
-    publicationDate: Date.now() - 86400000 * 20,
-    seoMeta: 'Beginner investing guide, stock market basics, mutual funds, portfolio building, and investment fundamentals',
-  },
-  {
-    id: '5',
-    title: 'Stock Market Basics: Understanding How Markets Work',
-    slug: 'stock-market-basics-understanding-markets',
-    excerpt: 'Get a clear understanding of how stock markets function, from market indices and trading mechanisms to factors that drive stock prices.',
-    featuredImage: '/assets/generated/blog-stock-market-basics.dim_800x600.jpg',
-    publicationDate: Date.now() - 86400000 * 25,
-    seoMeta: 'Stock market basics, how markets work, market indices, trading mechanisms, and stock price factors',
-  },
-  {
-    id: '6',
-    title: 'Mutual Funds Explained: A Complete Guide for New Investors',
-    slug: 'mutual-funds-complete-guide',
-    excerpt: 'Understand mutual funds inside and out: types, benefits, risks, fees, and how to choose the right funds for your financial goals.',
-    featuredImage: '/assets/generated/blog-mutual-funds-explained.dim_800x600.jpg',
-    publicationDate: Date.now() - 86400000 * 30,
-    seoMeta: 'Mutual funds guide, types of mutual funds, benefits and risks, fund selection, and investment strategies',
-  },
-  {
-    id: '7',
-    title: 'SIP Investment Strategy: Build Wealth Through Systematic Investing',
-    slug: 'sip-investment-strategy-systematic-investing',
-    excerpt: 'Learn how Systematic Investment Plans (SIPs) help you build wealth consistently, reduce market timing risk, and harness the power of rupee cost averaging.',
-    featuredImage: '/assets/generated/blog-sip-investment-guide.dim_800x600.jpg',
-    publicationDate: Date.now() - 86400000 * 35,
-    seoMeta: 'SIP investment strategy, systematic investment plans, rupee cost averaging, and consistent wealth building',
-  },
-  {
-    id: '8',
-    title: 'Emergency Fund Essentials: Why You Need One and How to Build It',
-    slug: 'emergency-fund-essentials-how-to-build',
-    excerpt: 'Discover why an emergency fund is your financial safety net and learn practical steps to build 3-6 months of expenses, even on a tight budget.',
-    featuredImage: '/assets/generated/blog-emergency-fund.dim_800x600.jpg',
-    publicationDate: Date.now() - 86400000 * 40,
-    seoMeta: 'Emergency fund guide, financial safety net, building emergency savings, and financial security strategies',
-  },
-  {
-    id: '9',
-    title: 'Debt Management: Proven Strategies to Become Debt-Free Faster',
-    slug: 'debt-management-strategies-debt-free',
-    excerpt: 'Take control of your debt with proven strategies like the debt avalanche and snowball methods. Learn how to prioritize repayment and save on interest.',
-    featuredImage: '/assets/generated/blog-debt-management.dim_800x600.jpg',
-    publicationDate: Date.now() - 86400000 * 45,
-    seoMeta: 'Debt management strategies, debt avalanche method, debt snowball, debt repayment, and becoming debt-free',
-  },
-  {
-    id: '10',
-    title: 'Financial Goal Setting: Turn Dreams into Achievable Milestones',
-    slug: 'financial-goal-setting-achievable-milestones',
-    excerpt: 'Transform vague financial wishes into concrete, achievable goals. Learn the SMART framework and practical steps to reach your financial dreams.',
-    featuredImage: '/assets/generated/blog-financial-goals.dim_800x600.jpg',
-    publicationDate: Date.now() - 86400000 * 50,
-    seoMeta: 'Financial goal setting, SMART goals, achieving financial dreams, and milestone planning',
-  },
-];
+// ─── Profile ────────────────────────────────────────────────────────────────
 
-// Blog hooks (frontend-only)
-export function useGetAllBlogPosts() {
-  return useQuery({
-    queryKey: ['blogPosts'],
-    queryFn: async () => {
-      return mockBlogPosts;
-    },
-    staleTime: Infinity,
-  });
-}
-
-export function useGetBlogPost(slug: string) {
-  return useQuery({
-    queryKey: ['blogPost', slug],
-    queryFn: async () => {
-      const post = mockBlogPosts.find(p => p.slug === slug);
-      return post || null;
-    },
-    enabled: !!slug,
-    staleTime: Infinity,
-  });
-}
-
-// User profile hooks (backend)
 export function useGetCallerUserProfile() {
   const { actor, isFetching: actorFetching } = useActor();
 
-  const query = useQuery({
-    queryKey: ['currentUserProfile'],
+  const query = useQuery<UserProfile | null>({
+    queryKey: ["currentUserProfile"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      const profile = await actor.getCallerUserProfile();
-      return profile ? convertBigIntsToNumbers(profile) : null;
+      if (!actor) throw new Error("Actor not available");
+      return actor.getCallerUserProfile();
     },
     enabled: !!actor && !actorFetching,
     retry: false,
@@ -149,116 +48,87 @@ export function useSaveCallerUserProfile() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (profile: any) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.saveCallerUserProfile(profile);
-      return profile;
+    mutationFn: async (profile: UserProfile) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.saveCallerUserProfile(profile);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['currentUserProfile'] });
-      toast.success('Profile saved successfully');
+      queryClient.invalidateQueries({ queryKey: ["currentUserProfile"] });
+      toast.success("Profile saved successfully");
     },
-    onError: (error: any) => {
-      console.error('Failed to save profile:', error);
-      toast.error('Failed to save profile');
+    onError: () => {
+      toast.error("Failed to save profile");
     },
   });
 }
 
-// User preferences hooks (backend)
-export function useGetCallerUserPreferences() {
-  const { actor, isFetching: actorFetching } = useActor();
+// ─── Preferences ────────────────────────────────────────────────────────────
 
-  return useQuery({
-    queryKey: ['userPreferences'],
+export function useGetUserPreferences() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<UserPreferences | null>({
+    queryKey: ["userPreferences"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      const prefs = await actor.getUserPreferences();
-      if (prefs) {
-        return convertBigIntsToNumbers(prefs);
-      }
-      // Return default preferences if none exist
-      return {
-        themeMode: 'system',
-        notificationsEnabled: true,
-        analyticsVisible: true,
-        currency: 'usd',
-        updatedAt: Date.now(),
-      };
+      if (!actor) return null;
+      return actor.getUserPreferences();
     },
-    enabled: !!actor && !actorFetching,
+    enabled: !!actor && !isFetching,
   });
 }
+
+/** Alias kept for backward compatibility */
+export const useGetCallerUserPreferences = useGetUserPreferences;
 
 export function useSaveUserPreferences() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (preferences: any) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.saveUserPreferences(preferences);
-      return preferences;
+    mutationFn: async (preferences: UserPreferences) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.saveUserPreferences(preferences);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['userPreferences'] });
-      toast.success('Preferences saved successfully');
+      queryClient.invalidateQueries({ queryKey: ["userPreferences"] });
+      toast.success("Preferences saved");
     },
-    onError: (error: any) => {
-      console.error('Failed to save preferences:', error);
-      toast.error('Failed to save preferences');
+    onError: () => {
+      toast.error("Failed to save preferences");
     },
   });
 }
 
-// Transaction hooks (backend)
-export function useGetUserTransactions() {
-  const { actor, isFetching: actorFetching } = useActor();
+// ─── Transactions ────────────────────────────────────────────────────────────
 
-  return useQuery({
-    queryKey: ['transactions'],
+export function useGetUserTransactions() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<TransactionData[]>({
+    queryKey: ["transactions"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      const transactions = await actor.getTransactions();
-      return transactions.map((t: any) => convertBigIntsToNumbers(t));
+      if (!actor) return [];
+      return actor.getTransactions();
     },
-    enabled: !!actor && !actorFetching,
+    enabled: !!actor && !isFetching,
   });
 }
 
 export function useAddTransaction() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
-  const { identity } = useInternetIdentity();
 
   return useMutation({
-    mutationFn: async (transaction: any) => {
-      if (!actor) throw new Error('Actor not available');
-      if (!identity) throw new Error('Not authenticated');
-      
-      const newTransaction = {
-        ...transaction,
-        id: Date.now().toString(),
-        user: identity.getPrincipal(),
-        createdAt: BigInt(Date.now() * 1000000),
-        date: transaction.date ? BigInt(transaction.date) : BigInt(Date.now() * 1000000),
-        amount: Number(transaction.amount) || 0,
-      };
-      
-      await actor.addTransaction(newTransaction);
-      return newTransaction;
+    mutationFn: async (transaction: TransactionData) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.addTransaction(transaction);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['balance'] });
-      queryClient.invalidateQueries({ queryKey: ['categoryData'] });
-      queryClient.invalidateQueries({ queryKey: ['financialTrends'] });
-      queryClient.invalidateQueries({ queryKey: ['monthlyComparison'] });
-      toast.success('Transaction added successfully');
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      toast.success("Transaction added");
     },
-    onError: (error: any) => {
-      console.error('Failed to add transaction:', error);
-      toast.error('Failed to add transaction');
+    onError: () => {
+      toast.error("Failed to add transaction");
     },
   });
 }
@@ -268,24 +138,23 @@ export function useUpdateTransaction() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, updates }: { id: string; updates: any }) => {
-      if (!actor) throw new Error('Actor not available');
-      
-      // Backend doesn't have updateTransaction, so we need to delete and re-add
-      // For now, just invalidate queries to refetch
-      return { id, updates };
+    mutationFn: async ({
+      id,
+      updates,
+    }: { id: string; updates: Partial<TransactionData> }) => {
+      if (!actor) throw new Error("Actor not available");
+      const existing = await actor.getTransactions();
+      const transaction = existing.find((t) => t.id === id);
+      if (!transaction) throw new Error("Transaction not found");
+      await actor.deleteTransaction(id);
+      return actor.addTransaction({ ...transaction, ...updates });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['balance'] });
-      queryClient.invalidateQueries({ queryKey: ['categoryData'] });
-      queryClient.invalidateQueries({ queryKey: ['financialTrends'] });
-      queryClient.invalidateQueries({ queryKey: ['monthlyComparison'] });
-      toast.success('Transaction updated successfully');
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      toast.success("Transaction updated");
     },
-    onError: (error: any) => {
-      console.error('Failed to update transaction:', error);
-      toast.error('Failed to update transaction');
+    onError: () => {
+      toast.error("Failed to update transaction");
     },
   });
 }
@@ -295,180 +164,53 @@ export function useDeleteTransaction() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: string) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.deleteTransaction(id);
-      return id;
+    mutationFn: async (transactionId: string) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.deleteTransaction(transactionId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['balance'] });
-      queryClient.invalidateQueries({ queryKey: ['categoryData'] });
-      queryClient.invalidateQueries({ queryKey: ['financialTrends'] });
-      queryClient.invalidateQueries({ queryKey: ['monthlyComparison'] });
-      toast.success('Transaction deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ["transactions"] });
+      toast.success("Transaction deleted");
     },
-    onError: (error: any) => {
-      console.error('Failed to delete transaction:', error);
-      toast.error('Failed to delete transaction');
+    onError: () => {
+      toast.error("Failed to delete transaction");
     },
   });
 }
 
-export function useGetBalance() {
-  const { data: transactions } = useGetUserTransactions();
+// ─── Savings Goals ───────────────────────────────────────────────────────────
 
-  return useQuery({
-    queryKey: ['balance'],
-    queryFn: async () => {
-      if (!transactions) return 0;
-      const balance = transactions.reduce((acc: number, t: any) => {
-        const amount = Number(t.amount) || 0;
-        return t.transactionType === 'income' ? acc + amount : acc - amount;
-      }, 0);
-      return balance || 0;
-    },
-    enabled: !!transactions,
-  });
-}
-
-export function useGetCategoryData() {
-  const { data: transactions } = useGetUserTransactions();
-
-  return useQuery({
-    queryKey: ['categoryData'],
-    queryFn: async () => {
-      if (!transactions) return [];
-      const categoryMap = new Map<string, number>();
-      
-      transactions.forEach((t: any) => {
-        if (t.transactionType === 'expense') {
-          const current = categoryMap.get(t.category) || 0;
-          const amount = Number(t.amount) || 0;
-          categoryMap.set(t.category, current + amount);
-        }
-      });
-      
-      return Array.from(categoryMap.entries()).map(([category, totalAmount]) => ({
-        category,
-        totalAmount: totalAmount || 0,
-        color: '#' + Math.floor(Math.random()*16777215).toString(16),
-      }));
-    },
-    enabled: !!transactions,
-  });
-}
-
-export function useGetMonthlyComparison() {
-  const { data: transactions } = useGetUserTransactions();
-
-  return useQuery({
-    queryKey: ['monthlyComparison'],
-    queryFn: async () => {
-      if (!transactions) return [];
-      
-      const monthlyData = new Map<string, { expenses: number; income: number }>();
-      
-      transactions.forEach((t: any) => {
-        const date = new Date(Number(t.date) / 1000000);
-        const monthKey = `${date.getFullYear()}-${date.getMonth() + 1}`;
-        const current = monthlyData.get(monthKey) || { expenses: 0, income: 0 };
-        const amount = Number(t.amount) || 0;
-        
-        if (t.transactionType === 'income') {
-          current.income += amount;
-        } else {
-          current.expenses += amount;
-        }
-        
-        monthlyData.set(monthKey, current);
-      });
-      
-      return Array.from(monthlyData.entries()).map(([month, data]) => ({
-        month,
-        expenses: data.expenses || 0,
-        income: data.income || 0,
-        savings: (data.income || 0) - (data.expenses || 0),
-      }));
-    },
-    enabled: !!transactions,
-  });
-}
-
-export function useGetFinancialTrends() {
-  const { data: transactions } = useGetUserTransactions();
-
-  return useQuery({
-    queryKey: ['financialTrends'],
-    queryFn: async () => {
-      if (!transactions) return [];
-      
-      let balance = 0;
-      const trends = transactions.map((t: any) => {
-        const amount = Number(t.amount) || 0;
-        balance += t.transactionType === 'income' ? amount : -amount;
-        return {
-          date: Number(t.date),
-          balance: balance || 0,
-          expenses: t.transactionType === 'expense' ? amount : 0,
-          income: t.transactionType === 'income' ? amount : 0,
-        };
-      });
-      
-      return trends;
-    },
-    enabled: !!transactions,
-  });
-}
-
-// Savings goals hooks (backend)
 export function useGetSavingsGoals() {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isFetching } = useActor();
 
-  return useQuery({
-    queryKey: ['savingsGoals'],
+  return useQuery<SavingsGoal[]>({
+    queryKey: ["savingsGoals"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      const goals = await actor.getSavingsGoals();
-      return goals.map((g: any) => convertBigIntsToNumbers(g));
+      if (!actor) return [];
+      return actor.getSavingsGoals();
     },
-    enabled: !!actor && !actorFetching,
+    enabled: !!actor && !isFetching,
   });
 }
 
-export function useGetUserSavingsGoals() {
-  return useGetSavingsGoals();
-}
+/** Alias kept for backward compatibility */
+export const useGetUserSavingsGoals = useGetSavingsGoals;
 
 export function useAddSavingsGoal() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
-  const { identity } = useInternetIdentity();
 
   return useMutation({
-    mutationFn: async (goal: any) => {
-      if (!actor) throw new Error('Actor not available');
-      if (!identity) throw new Error('Not authenticated');
-      
-      const newGoal = {
-        ...goal,
-        id: Date.now().toString(),
-        user: identity.getPrincipal(),
-        createdAt: BigInt(Date.now() * 1000000),
-        currentAmount: Number(goal.currentAmount) || 0,
-        targetAmount: Number(goal.targetAmount) || 0,
-      };
-      
-      await actor.addSavingsGoal(newGoal);
-      return newGoal;
+    mutationFn: async (goal: SavingsGoal) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.addSavingsGoal(goal);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['savingsGoals'] });
-      toast.success('Goal added successfully');
+      queryClient.invalidateQueries({ queryKey: ["savingsGoals"] });
+      toast.success("Goal added");
     },
-    onError: (error: any) => {
-      console.error('Failed to add goal:', error);
-      toast.error('Failed to add goal');
+    onError: () => {
+      toast.error("Failed to add goal");
     },
   });
 }
@@ -476,32 +218,21 @@ export function useAddSavingsGoal() {
 export function useUpdateSavingsGoal() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
-  const { identity } = useInternetIdentity();
 
   return useMutation({
-    mutationFn: async ({ goalId, updatedGoal }: { goalId: string; updatedGoal: any }) => {
-      if (!actor) throw new Error('Actor not available');
-      if (!identity) throw new Error('Not authenticated');
-      
-      const goalData = {
-        ...updatedGoal,
-        id: goalId,
-        user: identity.getPrincipal(),
-        createdAt: BigInt(updatedGoal.createdAt || Date.now() * 1000000),
-        currentAmount: Number(updatedGoal.currentAmount) || 0,
-        targetAmount: Number(updatedGoal.targetAmount) || 0,
-      };
-      
-      await actor.updateSavingsGoal(goalId, goalData);
-      return goalData;
+    mutationFn: async ({
+      goalId,
+      updatedGoal,
+    }: { goalId: string; updatedGoal: SavingsGoal }) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.updateSavingsGoal(goalId, updatedGoal);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['savingsGoals'] });
-      toast.success('Goal updated successfully');
+      queryClient.invalidateQueries({ queryKey: ["savingsGoals"] });
+      toast.success("Goal updated");
     },
-    onError: (error: any) => {
-      console.error('Failed to update goal:', error);
-      toast.error('Failed to update goal');
+    onError: () => {
+      toast.error("Failed to update goal");
     },
   });
 }
@@ -512,125 +243,232 @@ export function useDeleteSavingsGoal() {
 
   return useMutation({
     mutationFn: async (goalId: string) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.deleteSavingsGoal(goalId);
-      return goalId;
+      if (!actor) throw new Error("Actor not available");
+      return actor.deleteSavingsGoal(goalId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['savingsGoals'] });
-      toast.success('Goal deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ["savingsGoals"] });
+      toast.success("Goal deleted");
     },
-    onError: (error: any) => {
-      console.error('Failed to delete goal:', error);
-      toast.error('Failed to delete goal');
+    onError: () => {
+      toast.error("Failed to delete goal");
     },
   });
 }
 
-// Budget data hooks (backend)
-export function useGetBudgetData() {
-  const { actor, isFetching: actorFetching } = useActor();
+// ─── Derived: Balance ─────────────────────────────────────────────────────────
+
+export function useGetBalance() {
+  const { data: transactions } = useGetUserTransactions();
+
+  const income = (transactions ?? [])
+    .filter((t) => t.transactionType === "income")
+    .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+
+  const expenses = (transactions ?? [])
+    .filter((t) => t.transactionType === "expense")
+    .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+
+  return useQuery<number>({
+    queryKey: ["balance", income, expenses],
+    queryFn: () => income - expenses,
+    enabled: transactions !== undefined,
+  });
+}
+
+// ─── Derived: Category Data ───────────────────────────────────────────────────
+
+export function useGetCategoryData() {
+  const { data: transactions } = useGetUserTransactions();
 
   return useQuery({
-    queryKey: ['budgetData'],
-    queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      const budget = await actor.getBudgetData();
-      return budget ? convertBigIntsToNumbers(budget) : null;
+    queryKey: ["categoryData", transactions?.length],
+    queryFn: () => {
+      if (!transactions) return [];
+      const map = new Map<string, number>();
+      for (const t of transactions) {
+        if (t.transactionType === "expense") {
+          map.set(
+            t.category,
+            (map.get(t.category) || 0) + (Number(t.amount) || 0),
+          );
+        }
+      }
+      return Array.from(map.entries()).map(([category, totalAmount]) => ({
+        category,
+        totalAmount,
+        color: "#8884d8",
+      }));
     },
-    enabled: !!actor && !actorFetching,
+    enabled: !!transactions,
   });
 }
 
-export function useSaveBudgetData() {
-  const { actor } = useActor();
-  const queryClient = useQueryClient();
-  const { identity } = useInternetIdentity();
+// ─── Derived: Monthly Comparison ─────────────────────────────────────────────
 
-  return useMutation({
-    mutationFn: async (budget: any) => {
-      if (!actor) throw new Error('Actor not available');
-      if (!identity) throw new Error('Not authenticated');
-      
-      const budgetData = {
-        ...budget,
-        user: identity.getPrincipal(),
-        lastUpdated: BigInt(Date.now() * 1000000),
-      };
-      
-      await actor.saveBudgetData(budgetData);
-      return budgetData;
+export function useGetMonthlyComparison() {
+  const { data: transactions } = useGetUserTransactions();
+
+  return useQuery({
+    queryKey: ["monthlyComparison", transactions?.length],
+    queryFn: () => {
+      if (!transactions) return [];
+      const map = new Map<string, { expenses: number; income: number }>();
+      for (const t of transactions) {
+        const date = new Date(Number(t.date) / 1_000_000);
+        const key = `${date.getFullYear()}-${date.getMonth() + 1}`;
+        const cur = map.get(key) || { expenses: 0, income: 0 };
+        const amount = Number(t.amount) || 0;
+        if (t.transactionType === "income") cur.income += amount;
+        else cur.expenses += amount;
+        map.set(key, cur);
+      }
+      return Array.from(map.entries()).map(([month, data]) => ({
+        month,
+        expenses: data.expenses,
+        income: data.income,
+        savings: data.income - data.expenses,
+      }));
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['budgetData'] });
-      toast.success('Budget saved successfully');
-    },
-    onError: (error: any) => {
-      console.error('Failed to save budget:', error);
-      toast.error('Failed to save budget');
-    },
+    enabled: !!transactions,
   });
 }
 
-// AI Prediction hooks (backend)
+// ─── Derived: Financial Trends ────────────────────────────────────────────────
+
+export function useGetFinancialTrends() {
+  const { data: transactions } = useGetUserTransactions();
+
+  return useQuery({
+    queryKey: ["financialTrends", transactions?.length],
+    queryFn: () => {
+      if (!transactions) return [];
+      let balance = 0;
+      return transactions.map((t) => {
+        const amount = Number(t.amount) || 0;
+        balance += t.transactionType === "income" ? amount : -amount;
+        return {
+          date: Number(t.date),
+          balance,
+          expenses: t.transactionType === "expense" ? amount : 0,
+          income: t.transactionType === "income" ? amount : 0,
+        };
+      });
+    },
+    enabled: !!transactions,
+  });
+}
+
+// ─── AI Prediction ───────────────────────────────────────────────────────────
+
 export function useGetAIPrediction() {
-  const { actor, isFetching: actorFetching } = useActor();
+  const { actor, isFetching } = useActor();
 
-  return useQuery({
-    queryKey: ['aiPrediction'],
+  return useQuery<AIPrediction | null>({
+    queryKey: ["aiPrediction"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      const prediction = await actor.getAIPrediction();
-      return prediction ? convertBigIntsToNumbers(prediction) : null;
+      if (!actor) return null;
+      return actor.getAIPrediction();
     },
-    enabled: !!actor && !actorFetching,
+    enabled: !!actor && !isFetching,
   });
 }
 
 export function useSaveAIPrediction() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
-  const { identity } = useInternetIdentity();
 
   return useMutation({
-    mutationFn: async (prediction: any) => {
-      if (!actor) throw new Error('Actor not available');
-      if (!identity) throw new Error('Not authenticated');
-      
-      const predictionData = {
-        ...prediction,
-        user: identity.getPrincipal(),
-        lastUpdated: BigInt(Date.now() * 1000000),
-      };
-      
-      await actor.saveAIPrediction(predictionData);
-      return predictionData;
+    mutationFn: async (prediction: AIPrediction) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.saveAIPrediction(prediction);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['aiPrediction'] });
-      toast.success('Prediction saved successfully');
+      queryClient.invalidateQueries({ queryKey: ["aiPrediction"] });
     },
-    onError: (error: any) => {
-      console.error('Failed to save prediction:', error);
-      toast.error('Failed to save prediction');
+    onError: () => {
+      toast.error("Failed to save AI prediction");
     },
   });
 }
 
-// Quiz hooks (backend)
-export function useInitializeQuiz() {
+// ─── Contact ─────────────────────────────────────────────────────────────────
+
+export function useSubmitContactForm() {
   const { actor } = useActor();
 
   return useMutation({
-    mutationFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      const response = await actor.initializeQuiz();
-      return convertBigIntsToNumbers(response);
+    mutationFn: async (submission: ContactSubmission) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.submitContactForm(submission);
     },
-    onError: (error: any) => {
-      console.error('Failed to initialize quiz:', error);
-      toast.error('Failed to initialize quiz');
+    onSuccess: () => {
+      toast.success("Message sent successfully!");
     },
+    onError: () => {
+      toast.error("Failed to send message");
+    },
+  });
+}
+
+// ─── Chat ─────────────────────────────────────────────────────────────────────
+
+export function useCreateChatSession() {
+  const { actor } = useActor();
+
+  return useMutation({
+    mutationFn: async (sessionId: string) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.createChatSession(sessionId);
+    },
+  });
+}
+
+export function useAddChatMessage() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      sessionId,
+      message,
+    }: { sessionId: string; message: ChatMessage }) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.addChatMessage(sessionId, message);
+    },
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: ["chatSession", variables.sessionId],
+      });
+    },
+  });
+}
+
+export function useGetChatSession(sessionId: string) {
+  const { actor, isFetching } = useActor();
+
+  return useQuery({
+    queryKey: ["chatSession", sessionId],
+    queryFn: async () => {
+      if (!actor) return null;
+      return actor.getChatSession(sessionId);
+    },
+    enabled: !!actor && !isFetching && !!sessionId,
+  });
+}
+
+// ─── Quiz ─────────────────────────────────────────────────────────────────────
+
+export function useGetQuizStatistics() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery({
+    queryKey: ["quizStatistics"],
+    queryFn: async () => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.getQuizStatistics();
+    },
+    enabled: !!actor && !isFetching,
   });
 }
 
@@ -639,167 +477,302 @@ export function useSubmitQuizAnswer() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (answer: any) => {
-      if (!actor) throw new Error('Actor not available');
-      const feedback = await actor.submitQuizAnswer(answer);
-      return convertBigIntsToNumbers(feedback);
+    mutationFn: async (answer: QuizAnswer) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.submitQuizAnswer(answer);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['quizStatistics'] });
-    },
-    onError: (error: any) => {
-      console.error('Failed to submit answer:', error);
-      toast.error('Failed to submit answer');
+      queryClient.invalidateQueries({ queryKey: ["quizStatistics"] });
     },
   });
 }
 
-export function useGetQuizStatistics() {
-  const { actor, isFetching: actorFetching } = useActor();
+// ─── Budget Plan ─────────────────────────────────────────────────────────────
+
+export function useGetBudgetPlan() {
+  const { actor, isFetching } = useActor();
 
   return useQuery({
-    queryKey: ['quizStatistics'],
+    queryKey: ["budgetPlan"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      const stats = await actor.getQuizStatistics();
-      return convertBigIntsToNumbers(stats);
+      if (!actor) return null;
+      return actor.getBudgetPlan();
     },
-    enabled: !!actor && !actorFetching,
+    enabled: !!actor && !isFetching,
   });
 }
 
-// Contact form hook (public)
-export function useSubmitContactForm() {
+export function useSaveBudgetPlan() {
   const { actor } = useActor();
+  const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (submission: any) => {
-      if (!actor) throw new Error('Actor not available');
-      
-      const contactData = {
-        ...submission,
-        id: Date.now().toString(),
-        submittedAt: BigInt(Date.now() * 1000000),
-      };
-      
-      await actor.submitContactForm(contactData);
-      return contactData;
+    mutationFn: async (plan: BudgetPlan) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.saveBudgetPlan(plan);
     },
     onSuccess: () => {
-      toast.success('Message sent successfully');
+      queryClient.invalidateQueries({ queryKey: ["budgetPlan"] });
+      toast.success("Budget plan saved");
     },
-    onError: (error: any) => {
-      console.error('Failed to submit contact form:', error);
-      toast.error('Failed to send message');
+    onError: () => {
+      toast.error("Failed to save budget plan");
     },
   });
 }
 
-// AI Chat hook (deterministic, frontend-only)
+// ─── Blog ─────────────────────────────────────────────────────────────────────
+
+const mockBlogPosts = [
+  {
+    id: "1",
+    title:
+      "Master Your Money: The Complete Guide to Personal Finance Fundamentals",
+    slug: "personal-finance-fundamentals-guide",
+    excerpt: "Learn the essential building blocks of personal finance.",
+    featuredImage: "/assets/generated/blog-personal-finance.dim_800x600.jpg",
+    publicationDate: Date.now() - 86400000 * 5,
+    seoMeta: "",
+  },
+  {
+    id: "2",
+    title: "Smart Saving Strategies: How to Build Wealth on Any Income",
+    slug: "smart-saving-strategies-build-wealth",
+    excerpt: "Discover proven saving strategies.",
+    featuredImage: "/assets/generated/blog-saving-investing.dim_800x600.jpg",
+    publicationDate: Date.now() - 86400000 * 10,
+    seoMeta: "",
+  },
+  {
+    id: "3",
+    title: "Budgeting Methods That Actually Work: 50/30/20, Zero-Based & More",
+    slug: "budgeting-methods-that-work",
+    excerpt: "Explore practical budgeting methods.",
+    featuredImage: "/assets/generated/blog-budgeting-system.dim_800x600.jpg",
+    publicationDate: Date.now() - 86400000 * 15,
+    seoMeta: "",
+  },
+  {
+    id: "4",
+    title: "Investing for Beginners: Your First Steps into the Stock Market",
+    slug: "investing-for-beginners-first-steps",
+    excerpt: "Demystify investing with this beginner-friendly guide.",
+    featuredImage: "/assets/generated/blog-investment-basics.dim_800x600.jpg",
+    publicationDate: Date.now() - 86400000 * 20,
+    seoMeta: "",
+  },
+  {
+    id: "5",
+    title: "Stock Market Basics: Understanding How Markets Work",
+    slug: "stock-market-basics-understanding-markets",
+    excerpt: "Get a clear understanding of how stock markets function.",
+    featuredImage: "/assets/generated/blog-stock-market-basics.dim_800x600.jpg",
+    publicationDate: Date.now() - 86400000 * 25,
+    seoMeta: "",
+  },
+  {
+    id: "6",
+    title: "Mutual Funds Explained: A Complete Guide for New Investors",
+    slug: "mutual-funds-complete-guide",
+    excerpt: "Understand mutual funds inside and out.",
+    featuredImage:
+      "/assets/generated/blog-mutual-funds-explained.dim_800x600.jpg",
+    publicationDate: Date.now() - 86400000 * 30,
+    seoMeta: "",
+  },
+  {
+    id: "7",
+    title: "SIP Investment Strategy: Build Wealth Through Systematic Investing",
+    slug: "sip-investment-strategy-systematic-investing",
+    excerpt: "Learn how SIPs help you build wealth consistently.",
+    featuredImage:
+      "/assets/generated/blog-sip-investment-guide.dim_800x600.jpg",
+    publicationDate: Date.now() - 86400000 * 35,
+    seoMeta: "",
+  },
+  {
+    id: "8",
+    title: "Emergency Fund Essentials: Why You Need One and How to Build It",
+    slug: "emergency-fund-essentials-how-to-build",
+    excerpt: "Discover why an emergency fund is your financial safety net.",
+    featuredImage: "/assets/generated/blog-emergency-fund.dim_800x600.jpg",
+    publicationDate: Date.now() - 86400000 * 40,
+    seoMeta: "",
+  },
+  {
+    id: "9",
+    title: "Debt Management: Proven Strategies to Become Debt-Free Faster",
+    slug: "debt-management-strategies-debt-free",
+    excerpt: "Take control of your debt with proven strategies.",
+    featuredImage: "/assets/generated/blog-debt-management.dim_800x600.jpg",
+    publicationDate: Date.now() - 86400000 * 45,
+    seoMeta: "",
+  },
+  {
+    id: "10",
+    title: "Financial Goal Setting: Turn Dreams into Achievable Milestones",
+    slug: "financial-goal-setting-achievable-milestones",
+    excerpt: "Transform vague financial wishes into concrete goals.",
+    featuredImage: "/assets/generated/blog-financial-goals.dim_800x600.jpg",
+    publicationDate: Date.now() - 86400000 * 50,
+    seoMeta: "",
+  },
+];
+
+export function useGetAllBlogPosts() {
+  return useQuery({
+    queryKey: ["blogPosts"],
+    queryFn: async () => mockBlogPosts,
+    staleTime: Number.POSITIVE_INFINITY,
+  });
+}
+
+export function useGetBlogPost(slug: string) {
+  return useQuery({
+    queryKey: ["blogPost", slug],
+    queryFn: async () => mockBlogPosts.find((p) => p.slug === slug) || null,
+    enabled: !!slug,
+    staleTime: Number.POSITIVE_INFINITY,
+  });
+}
+
+// ─── AI Chat (deterministic) ──────────────────────────────────────────────────
+
 export function useProcessChatMessage() {
   const { data: transactions } = useGetUserTransactions();
   const { data: goals } = useGetSavingsGoals();
-  const { data: balance } = useGetBalance();
+  const { data: balanceData } = useGetBalance();
 
   return useMutation({
-    mutationFn: async (userMessage: string) => {
-      // Calculate totals for context
-      const totalIncome = transactions?.reduce((sum, t) => 
-        t.transactionType === 'income' ? sum + Number(t.amount) : sum, 0) || 0;
-      const totalExpenses = transactions?.reduce((sum, t) => 
-        t.transactionType === 'expense' ? sum + Number(t.amount) : sum, 0) || 0;
-      
+    mutationFn: async (userMessage: string): Promise<AssistantResponse> => {
+      const txList = (transactions ?? []).map((t) => ({
+        amount: Number(t.amount),
+        category: t.category,
+        transactionType: t.transactionType,
+      }));
+      const totalIncome = txList
+        .filter((t) => t.transactionType === "income")
+        .reduce((s, t) => s + t.amount, 0);
+      const totalExpenses = txList
+        .filter((t) => t.transactionType === "expense")
+        .reduce((s, t) => s + t.amount, 0);
+
       const context: AssistantContext = {
-        balance: balance || 0,
-        recentTransactions: transactions?.slice(-10).map(t => ({
-          amount: Number(t.amount),
-          category: t.category,
-          transactionType: t.transactionType,
-        })) || [],
-        totalTransactions: transactions?.length || 0,
+        balance: balanceData ?? 0,
         totalIncome,
         totalExpenses,
-        savingsGoals: goals?.map(g => ({
+        recentTransactions: txList.slice(-10),
+        totalTransactions: txList.length,
+        hasData: txList.length > 0,
+        savingsGoals: (goals ?? []).map((g) => ({
           name: g.name,
           targetAmount: Number(g.targetAmount),
           currentAmount: Number(g.currentAmount),
-        })) || [],
-        hasData: (transactions?.length || 0) > 0 || (goals?.length || 0) > 0,
+        })),
       };
-      
-      const response = generateResponse(userMessage, context);
-      
-      // Return response with id and timestamp for UI
-      return {
-        id: Date.now().toString(),
-        content: response.content,
-        timestamp: Date.now(),
-        disclaimer: response.disclaimer,
-      };
+      return generateResponse(userMessage, context);
     },
   });
 }
 
-// Subscriptions hooks (backend)
-export function useGetSubscriptions() {
-  const { actor, isFetching: actorFetching } = useActor();
+// ─── Net Worth ────────────────────────────────────────────────────────────────
 
-  return useQuery({
-    queryKey: ['subscriptions'],
+export function useGetNetWorthData() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<NetWorthData | null>({
+    queryKey: ["netWorthData"],
     queryFn: async () => {
-      if (!actor) throw new Error('Actor not available');
-      const subs = await actor.getSubscriptions();
-      return subs.map((s: any) => convertBigIntsToNumbers(s));
+      if (!actor) return null;
+      return actor.getNetWorthData();
     },
-    enabled: !!actor && !actorFetching,
+    enabled: !!actor && !isFetching,
   });
 }
 
-export function useAddSubscription() {
+export function useSaveNetWorthData() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (subscription: any) => {
-      if (!actor) throw new Error('Actor not available');
-      
-      const subData = {
-        ...subscription,
-        startDate: BigInt(subscription.startDate || Date.now() * 1000000),
-        endDate: subscription.endDate ? BigInt(subscription.endDate) : undefined,
-      };
-      
-      await actor.addSubscription(subData);
-      return subData;
+    mutationFn: async (data: NetWorthData) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.saveNetWorthData(data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
-      toast.success('Subscription added successfully');
+      queryClient.invalidateQueries({ queryKey: ["netWorthData"] });
+      toast.success("Net worth data saved");
     },
-    onError: (error: any) => {
-      console.error('Failed to add subscription:', error);
-      toast.error('Failed to add subscription');
+    onError: () => {
+      toast.error("Failed to save net worth data");
     },
   });
 }
 
-export function useDeleteSubscription() {
+// ─── Emergency Fund ───────────────────────────────────────────────────────────
+
+export function useGetEmergencyFundData() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<EmergencyFundData | null>({
+    queryKey: ["emergencyFundData"],
+    queryFn: async () => {
+      if (!actor) return null;
+      return actor.getEmergencyFundData();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useSaveEmergencyFundData() {
   const { actor } = useActor();
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (subscriptionName: string) => {
-      if (!actor) throw new Error('Actor not available');
-      await actor.deleteSubscription(subscriptionName);
-      return subscriptionName;
+    mutationFn: async (data: EmergencyFundData) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.saveEmergencyFundData(data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['subscriptions'] });
-      toast.success('Subscription deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ["emergencyFundData"] });
+      toast.success("Emergency fund data saved");
     },
-    onError: (error: any) => {
-      console.error('Failed to delete subscription:', error);
-      toast.error('Failed to delete subscription');
+    onError: () => {
+      toast.error("Failed to save emergency fund data");
+    },
+  });
+}
+
+// ─── Spending Limits ──────────────────────────────────────────────────────────
+
+export function useGetSpendingLimits() {
+  const { actor, isFetching } = useActor();
+
+  return useQuery<SpendingLimit[]>({
+    queryKey: ["spendingLimits"],
+    queryFn: async () => {
+      if (!actor) return [];
+      return actor.getSpendingLimits();
+    },
+    enabled: !!actor && !isFetching,
+  });
+}
+
+export function useSaveSpendingLimits() {
+  const { actor } = useActor();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (limits: SpendingLimit[]) => {
+      if (!actor) throw new Error("Actor not available");
+      return actor.saveSpendingLimits(limits);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["spendingLimits"] });
+      toast.success("Spending limits saved");
+    },
+    onError: () => {
+      toast.error("Failed to save spending limits");
     },
   });
 }

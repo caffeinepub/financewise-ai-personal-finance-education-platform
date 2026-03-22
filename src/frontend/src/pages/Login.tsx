@@ -1,9 +1,15 @@
-import { useEffect } from 'react';
-import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { useNavigate } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, TrendingUp, Brain, Lock, Loader2 } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useNavigate } from "@tanstack/react-router";
+import { Brain, Loader2, Lock, Shield, TrendingUp } from "lucide-react";
+import { useEffect } from "react";
+import { useInternetIdentity } from "../hooks/useInternetIdentity";
 
 export default function Login() {
   const { login, loginStatus, identity } = useInternetIdentity();
@@ -12,7 +18,7 @@ export default function Login() {
   // Redirect to dashboard if already authenticated
   useEffect(() => {
     if (identity) {
-      navigate({ to: '/dashboard' });
+      navigate({ to: "/dashboard" });
     }
   }, [identity, navigate]);
 
@@ -20,14 +26,14 @@ export default function Login() {
     try {
       await login();
     } catch (error: any) {
-      console.error('Login error:', error);
-      if (error.message === 'User is already authenticated') {
-        navigate({ to: '/dashboard' });
+      console.error("Login error:", error);
+      if (error.message === "User is already authenticated") {
+        navigate({ to: "/dashboard" });
       }
     }
   };
 
-  const isLoggingIn = loginStatus === 'logging-in';
+  const isLoggingIn = loginStatus === "logging-in";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/10 flex items-center justify-center p-4">
@@ -39,7 +45,8 @@ export default function Login() {
               FinanceWise AI
             </h1>
             <p className="text-xl text-muted-foreground">
-              Your intelligent financial companion powered by blockchain security
+              Your intelligent financial companion powered by blockchain
+              security
             </p>
           </div>
 
@@ -133,8 +140,9 @@ export default function Login() {
             </div>
 
             <p className="text-xs text-center text-muted-foreground">
-              By logging in, you agree to our Terms of Service and Privacy Policy.
-              All your financial data is stored securely on the blockchain.
+              By logging in, you agree to our Terms of Service and Privacy
+              Policy. All your financial data is stored securely on the
+              blockchain.
             </p>
           </CardContent>
         </Card>

@@ -1,6 +1,13 @@
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { AlertTriangle } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { AlertTriangle } from "lucide-react";
 
 interface GoalDeleteConfirmDialogProps {
   open: boolean;
@@ -24,7 +31,8 @@ export default function GoalDeleteConfirmDialog({
             Delete Goal
           </DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete this goal? This action cannot be undone.
+            Are you sure you want to delete this goal? This action cannot be
+            undone.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2">
@@ -40,7 +48,7 @@ export default function GoalDeleteConfirmDialog({
             onClick={onConfirm}
             disabled={isDeleting}
           >
-            {isDeleting ? 'Deleting...' : 'Delete Goal'}
+            {isDeleting ? "Deleting..." : "Delete Goal"}
           </Button>
         </DialogFooter>
       </DialogContent>

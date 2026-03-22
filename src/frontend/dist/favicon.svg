@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Background circle with finance theme -->
+  <circle cx="256" cy="256" r="250" fill="#1e3a8a"/>
+  
+  <!-- Dollar/Rupee symbol stylized -->
+  <path d="M256 100 L256 412" stroke="#fbbf24" stroke-width="32" stroke-linecap="round"/>
+  <path d="M200 150 L312 150 C340 150, 340 200, 312 200 L200 200" 
+        fill="none" stroke="#fbbf24" stroke-width="28" stroke-linecap="round"/>
+  <path d="M200 250 L312 250 C340 250, 340 300, 312 300 L200 300" 
+        fill="none" stroke="#fbbf24" stroke-width="28" stroke-linecap="round"/>
+  
+  <!-- Growth arrow overlay -->
+  <path d="M150 350 C200 300, 250 320, 350 220"
+        fill="none"
+        stroke="#10b981"
+        stroke-width="20"
+        stroke-linecap="round"
+        opacity="0.8"/>
+  <polygon points="350,220 370,215 360,235" fill="#10b981" opacity="0.8"/>
+  
+  <!-- Accent dots for modern look -->
+  <circle cx="180" cy="380" r="12" fill="#fbbf24" opacity="0.6"/>
+  <circle cx="332" cy="380" r="12" fill="#fbbf24" opacity="0.6"/>
+</svg>

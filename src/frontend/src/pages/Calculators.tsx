@@ -1,52 +1,81 @@
-import { useInternetIdentity } from '../hooks/useInternetIdentity';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Calculator, TrendingUp, DollarSign, Flame, Receipt } from 'lucide-react';
-import { useState } from 'react';
-import { useCurrency } from '../hooks/useCurrency';
-import AccessDenied from '../components/AccessDenied';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Calculator,
+  DollarSign,
+  Flame,
+  Receipt,
+  TrendingUp,
+} from "lucide-react";
+import { useState } from "react";
+import AccessDenied from "../components/AccessDenied";
+import { useCurrency } from "../hooks/useCurrency";
+import { useInternetIdentity } from "../hooks/useInternetIdentity";
 
 export default function Calculators() {
   const { identity } = useInternetIdentity();
   const { format, symbol } = useCurrency();
 
   // SIP Calculator State
-  const [sipMonthly, setSipMonthly] = useState('5000');
-  const [sipRate, setSipRate] = useState('12');
-  const [sipYears, setSipYears] = useState('10');
-  const [sipResult, setSipResult] = useState<{ invested: number; returns: number; total: number } | null>(null);
+  const [sipMonthly, setSipMonthly] = useState("5000");
+  const [sipRate, setSipRate] = useState("12");
+  const [sipYears, setSipYears] = useState("10");
+  const [sipResult, setSipResult] = useState<{
+    invested: number;
+    returns: number;
+    total: number;
+  } | null>(null);
 
   // Lumpsum Calculator State
-  const [lumpsumAmount, setLumpsumAmount] = useState('100000');
-  const [lumpsumRate, setLumpsumRate] = useState('12');
-  const [lumpsumYears, setLumpsumYears] = useState('10');
-  const [lumpsumResult, setLumpsumResult] = useState<{ invested: number; returns: number; total: number } | null>(null);
+  const [lumpsumAmount, setLumpsumAmount] = useState("100000");
+  const [lumpsumRate, setLumpsumRate] = useState("12");
+  const [lumpsumYears, setLumpsumYears] = useState("10");
+  const [lumpsumResult, setLumpsumResult] = useState<{
+    invested: number;
+    returns: number;
+    total: number;
+  } | null>(null);
 
   // FIRE Calculator State
-  const [fireExpenses, setFireExpenses] = useState('50000');
-  const [fireCurrentSavings, setFireCurrentSavings] = useState('500000');
-  const [fireMonthlySavings, setFireMonthlySavings] = useState('20000');
-  const [fireRate, setFireRate] = useState('12');
-  const [fireResult, setFireResult] = useState<{ targetCorpus: number; yearsToFire: number; monthlyIncome: number } | null>(null);
+  const [fireExpenses, setFireExpenses] = useState("50000");
+  const [fireCurrentSavings, setFireCurrentSavings] = useState("500000");
+  const [fireMonthlySavings, setFireMonthlySavings] = useState("20000");
+  const [fireRate, setFireRate] = useState("12");
+  const [fireResult, setFireResult] = useState<{
+    targetCorpus: number;
+    yearsToFire: number;
+    monthlyIncome: number;
+  } | null>(null);
 
   // Tax Calculator State
-  const [taxIncome, setTaxIncome] = useState('1000000');
-  const [taxDeductions, setTaxDeductions] = useState('150000');
-  const [taxResult, setTaxResult] = useState<{ taxableIncome: number; tax: number; netIncome: number } | null>(null);
+  const [taxIncome, setTaxIncome] = useState("1000000");
+  const [taxDeductions, setTaxDeductions] = useState("150000");
+  const [taxResult, setTaxResult] = useState<{
+    taxableIncome: number;
+    tax: number;
+    netIncome: number;
+  } | null>(null);
 
   if (!identity) {
     return <AccessDenied />;
   }
 
   const calculateSIP = () => {
-    const monthly = parseFloat(sipMonthly);
-    const rate = parseFloat(sipRate) / 100 / 12;
-    const months = parseFloat(sipYears) * 12;
+    const monthly = Number.parseFloat(sipMonthly);
+    const rate = Number.parseFloat(sipRate) / 100 / 12;
+    const months = Number.parseFloat(sipYears) * 12;
 
-    const futureValue = monthly * (((Math.pow(1 + rate, months) - 1) / rate) * (1 + rate));
+    const futureValue =
+      monthly * ((((1 + rate) ** months - 1) / rate) * (1 + rate));
     const invested = monthly * months;
     const returns = futureValue - invested;
 
@@ -58,11 +87,11 @@ export default function Calculators() {
   };
 
   const calculateLumpsum = () => {
-    const principal = parseFloat(lumpsumAmount);
-    const rate = parseFloat(lumpsumRate) / 100;
-    const years = parseFloat(lumpsumYears);
+    const principal = Number.parseFloat(lumpsumAmount);
+    const rate = Number.parseFloat(lumpsumRate) / 100;
+    const years = Number.parseFloat(lumpsumYears);
 
-    const futureValue = principal * Math.pow(1 + rate, years);
+    const futureValue = principal * (1 + rate) ** years;
     const returns = futureValue - principal;
 
     setLumpsumResult({
@@ -73,10 +102,10 @@ export default function Calculators() {
   };
 
   const calculateFIRE = () => {
-    const monthlyExpenses = parseFloat(fireExpenses);
-    const currentSavings = parseFloat(fireCurrentSavings);
-    const monthlySavings = parseFloat(fireMonthlySavings);
-    const annualRate = parseFloat(fireRate) / 100;
+    const monthlyExpenses = Number.parseFloat(fireExpenses);
+    const currentSavings = Number.parseFloat(fireCurrentSavings);
+    const monthlySavings = Number.parseFloat(fireMonthlySavings);
+    const annualRate = Number.parseFloat(fireRate) / 100;
 
     // 25x rule for FIRE
     const targetCorpus = monthlyExpenses * 12 * 25;
@@ -84,7 +113,9 @@ export default function Calculators() {
 
     // Calculate years to FIRE with compound interest
     const monthlyRate = annualRate / 12;
-    const months = Math.log((remainingCorpus * monthlyRate) / monthlySavings + 1) / Math.log(1 + monthlyRate);
+    const months =
+      Math.log((remainingCorpus * monthlyRate) / monthlySavings + 1) /
+      Math.log(1 + monthlyRate);
     const yearsToFire = months / 12;
 
     // 4% withdrawal rule
@@ -98,8 +129,8 @@ export default function Calculators() {
   };
 
   const calculateTax = () => {
-    const income = parseFloat(taxIncome);
-    const deductions = parseFloat(taxDeductions);
+    const income = Number.parseFloat(taxIncome);
+    const deductions = Number.parseFloat(taxDeductions);
     const taxableIncome = income - deductions;
 
     let tax = 0;
@@ -109,13 +140,13 @@ export default function Calculators() {
     } else if (taxableIncome <= 600000) {
       tax = (taxableIncome - 300000) * 0.05;
     } else if (taxableIncome <= 900000) {
-      tax = 15000 + (taxableIncome - 600000) * 0.10;
+      tax = 15000 + (taxableIncome - 600000) * 0.1;
     } else if (taxableIncome <= 1200000) {
       tax = 45000 + (taxableIncome - 900000) * 0.15;
     } else if (taxableIncome <= 1500000) {
-      tax = 90000 + (taxableIncome - 1200000) * 0.20;
+      tax = 90000 + (taxableIncome - 1200000) * 0.2;
     } else {
-      tax = 150000 + (taxableIncome - 1500000) * 0.30;
+      tax = 150000 + (taxableIncome - 1500000) * 0.3;
     }
 
     setTaxResult({
@@ -133,7 +164,10 @@ export default function Calculators() {
           <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-primary to-chart-1 bg-clip-text text-transparent">
             Calculators
           </h1>
-          <p className="text-muted-foreground">Decision Helpers - Plan your financial future with real-time calculations in {symbol}</p>
+          <p className="text-muted-foreground">
+            Decision Helpers - Plan your financial future with real-time
+            calculations in {symbol}
+          </p>
         </div>
 
         {/* Calculators Tabs */}
@@ -144,7 +178,10 @@ export default function Calculators() {
               <span className="hidden sm:inline">SIP Calculator</span>
               <span className="sm:hidden">SIP</span>
             </TabsTrigger>
-            <TabsTrigger value="lumpsum" className="flex items-center gap-2 py-3">
+            <TabsTrigger
+              value="lumpsum"
+              className="flex items-center gap-2 py-3"
+            >
               <DollarSign className="w-4 h-4" />
               <span className="hidden sm:inline">Lumpsum</span>
               <span className="sm:hidden">Lumpsum</span>
@@ -170,13 +207,16 @@ export default function Calculators() {
                   SIP Calculator
                 </CardTitle>
                 <CardDescription>
-                  Calculate returns on your Systematic Investment Plan in {symbol}
+                  Calculate returns on your Systematic Investment Plan in{" "}
+                  {symbol}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid md:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="sip-monthly">Monthly Investment ({symbol})</Label>
+                    <Label htmlFor="sip-monthly">
+                      Monthly Investment ({symbol})
+                    </Label>
                     <Input
                       id="sip-monthly"
                       type="number"
@@ -214,27 +254,44 @@ export default function Calculators() {
                 {sipResult && (
                   <div className="grid md:grid-cols-3 gap-4 p-6 rounded-lg bg-gradient-to-br from-primary/10 to-chart-1/10 border-2 border-primary/20">
                     <div className="text-center">
-                      <p className="text-sm text-muted-foreground mb-2">Total Invested</p>
-                      <p className="text-2xl font-bold">{format(sipResult.invested)}</p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Total Invested
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {format(sipResult.invested)}
+                      </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-sm text-muted-foreground mb-2">Estimated Returns</p>
-                      <p className="text-2xl font-bold text-green-500">{format(sipResult.returns)}</p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Estimated Returns
+                      </p>
+                      <p className="text-2xl font-bold text-green-500">
+                        {format(sipResult.returns)}
+                      </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-sm text-muted-foreground mb-2">Total Value</p>
-                      <p className="text-2xl font-bold text-primary">{format(sipResult.total)}</p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Total Value
+                      </p>
+                      <p className="text-2xl font-bold text-primary">
+                        {format(sipResult.total)}
+                      </p>
                     </div>
                   </div>
                 )}
 
                 <div className="p-4 rounded-lg bg-muted/50 text-sm text-muted-foreground">
-                  <p className="font-semibold mb-2">💡 Plain Language Explanation:</p>
+                  <p className="font-semibold mb-2">
+                    💡 Plain Language Explanation:
+                  </p>
                   <p>
-                    If you invest {format(parseFloat(sipMonthly))} every month for {sipYears} years at {sipRate}% annual return,
-                    you'll build a corpus of approximately {sipResult ? format(sipResult.total) : '...'}.
-                    This includes your investment of {sipResult ? format(sipResult.invested) : '...'} and
-                    returns of {sipResult ? format(sipResult.returns) : '...'}.
+                    If you invest {format(Number.parseFloat(sipMonthly))} every
+                    month for {sipYears} years at {sipRate}% annual return,
+                    you'll build a corpus of approximately{" "}
+                    {sipResult ? format(sipResult.total) : "..."}. This includes
+                    your investment of{" "}
+                    {sipResult ? format(sipResult.invested) : "..."} and returns
+                    of {sipResult ? format(sipResult.returns) : "..."}.
                   </p>
                 </div>
               </CardContent>
@@ -256,7 +313,9 @@ export default function Calculators() {
               <CardContent className="space-y-6">
                 <div className="grid md:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="lumpsum-amount">Investment Amount ({symbol})</Label>
+                    <Label htmlFor="lumpsum-amount">
+                      Investment Amount ({symbol})
+                    </Label>
                     <Input
                       id="lumpsum-amount"
                       type="number"
@@ -266,7 +325,9 @@ export default function Calculators() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="lumpsum-rate">Expected Return Rate (%)</Label>
+                    <Label htmlFor="lumpsum-rate">
+                      Expected Return Rate (%)
+                    </Label>
                     <Input
                       id="lumpsum-rate"
                       type="number"
@@ -294,26 +355,44 @@ export default function Calculators() {
                 {lumpsumResult && (
                   <div className="grid md:grid-cols-3 gap-4 p-6 rounded-lg bg-gradient-to-br from-primary/10 to-chart-1/10 border-2 border-primary/20">
                     <div className="text-center">
-                      <p className="text-sm text-muted-foreground mb-2">Total Invested</p>
-                      <p className="text-2xl font-bold">{format(lumpsumResult.invested)}</p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Total Invested
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {format(lumpsumResult.invested)}
+                      </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-sm text-muted-foreground mb-2">Estimated Returns</p>
-                      <p className="text-2xl font-bold text-green-500">{format(lumpsumResult.returns)}</p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Estimated Returns
+                      </p>
+                      <p className="text-2xl font-bold text-green-500">
+                        {format(lumpsumResult.returns)}
+                      </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-sm text-muted-foreground mb-2">Total Value</p>
-                      <p className="text-2xl font-bold text-primary">{format(lumpsumResult.total)}</p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Total Value
+                      </p>
+                      <p className="text-2xl font-bold text-primary">
+                        {format(lumpsumResult.total)}
+                      </p>
                     </div>
                   </div>
                 )}
 
                 <div className="p-4 rounded-lg bg-muted/50 text-sm text-muted-foreground">
-                  <p className="font-semibold mb-2">💡 Plain Language Explanation:</p>
+                  <p className="font-semibold mb-2">
+                    💡 Plain Language Explanation:
+                  </p>
                   <p>
-                    A one-time investment of {format(parseFloat(lumpsumAmount))} at {lumpsumRate}% annual return for {lumpsumYears} years
-                    will grow to approximately {lumpsumResult ? format(lumpsumResult.total) : '...'}.
-                    Your returns will be {lumpsumResult ? format(lumpsumResult.returns) : '...'}.
+                    A one-time investment of{" "}
+                    {format(Number.parseFloat(lumpsumAmount))} at {lumpsumRate}%
+                    annual return for {lumpsumYears} years will grow to
+                    approximately{" "}
+                    {lumpsumResult ? format(lumpsumResult.total) : "..."}. Your
+                    returns will be{" "}
+                    {lumpsumResult ? format(lumpsumResult.returns) : "..."}.
                   </p>
                 </div>
               </CardContent>
@@ -329,13 +408,16 @@ export default function Calculators() {
                   FIRE Calculator
                 </CardTitle>
                 <CardDescription>
-                  Calculate your Financial Independence, Retire Early timeline in {symbol}
+                  Calculate your Financial Independence, Retire Early timeline
+                  in {symbol}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="fire-expenses">Monthly Expenses ({symbol})</Label>
+                    <Label htmlFor="fire-expenses">
+                      Monthly Expenses ({symbol})
+                    </Label>
                     <Input
                       id="fire-expenses"
                       type="number"
@@ -345,7 +427,9 @@ export default function Calculators() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="fire-current">Current Savings ({symbol})</Label>
+                    <Label htmlFor="fire-current">
+                      Current Savings ({symbol})
+                    </Label>
                     <Input
                       id="fire-current"
                       type="number"
@@ -355,7 +439,9 @@ export default function Calculators() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="fire-monthly">Monthly Savings ({symbol})</Label>
+                    <Label htmlFor="fire-monthly">
+                      Monthly Savings ({symbol})
+                    </Label>
                     <Input
                       id="fire-monthly"
                       type="number"
@@ -383,26 +469,45 @@ export default function Calculators() {
                 {fireResult && (
                   <div className="grid md:grid-cols-3 gap-4 p-6 rounded-lg bg-gradient-to-br from-primary/10 to-chart-1/10 border-2 border-primary/20">
                     <div className="text-center">
-                      <p className="text-sm text-muted-foreground mb-2">Target Corpus</p>
-                      <p className="text-2xl font-bold">{format(fireResult.targetCorpus)}</p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Target Corpus
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {format(fireResult.targetCorpus)}
+                      </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-sm text-muted-foreground mb-2">Years to FIRE</p>
-                      <p className="text-2xl font-bold text-primary">{fireResult.yearsToFire} years</p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Years to FIRE
+                      </p>
+                      <p className="text-2xl font-bold text-primary">
+                        {fireResult.yearsToFire} years
+                      </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-sm text-muted-foreground mb-2">Monthly Income</p>
-                      <p className="text-2xl font-bold text-green-500">{format(fireResult.monthlyIncome)}</p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Monthly Income
+                      </p>
+                      <p className="text-2xl font-bold text-green-500">
+                        {format(fireResult.monthlyIncome)}
+                      </p>
                     </div>
                   </div>
                 )}
 
                 <div className="p-4 rounded-lg bg-muted/50 text-sm text-muted-foreground">
-                  <p className="font-semibold mb-2">💡 Plain Language Explanation:</p>
+                  <p className="font-semibold mb-2">
+                    💡 Plain Language Explanation:
+                  </p>
                   <p>
-                    Based on the 25x rule, you need {fireResult ? format(fireResult.targetCorpus) : '...'} to retire.
-                    With your current savings and monthly contributions, you can achieve FIRE in approximately {fireResult?.yearsToFire || '...'} years.
-                    After retirement, you can withdraw {fireResult ? format(fireResult.monthlyIncome) : '...'} per month (4% rule).
+                    Based on the 25x rule, you need{" "}
+                    {fireResult ? format(fireResult.targetCorpus) : "..."} to
+                    retire. With your current savings and monthly contributions,
+                    you can achieve FIRE in approximately{" "}
+                    {fireResult?.yearsToFire || "..."} years. After retirement,
+                    you can withdraw{" "}
+                    {fireResult ? format(fireResult.monthlyIncome) : "..."} per
+                    month (4% rule).
                   </p>
                 </div>
               </CardContent>
@@ -418,7 +523,8 @@ export default function Calculators() {
                   Tax Calculator
                 </CardTitle>
                 <CardDescription>
-                  Calculate your income tax liability (New Tax Regime) in {symbol}
+                  Calculate your income tax liability (New Tax Regime) in{" "}
+                  {symbol}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -434,7 +540,9 @@ export default function Calculators() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="tax-deductions">Deductions ({symbol})</Label>
+                    <Label htmlFor="tax-deductions">
+                      Deductions ({symbol})
+                    </Label>
                     <Input
                       id="tax-deductions"
                       type="number"
@@ -452,25 +560,45 @@ export default function Calculators() {
                 {taxResult && (
                   <div className="grid md:grid-cols-3 gap-4 p-6 rounded-lg bg-gradient-to-br from-primary/10 to-chart-1/10 border-2 border-primary/20">
                     <div className="text-center">
-                      <p className="text-sm text-muted-foreground mb-2">Taxable Income</p>
-                      <p className="text-2xl font-bold">{format(taxResult.taxableIncome)}</p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Taxable Income
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {format(taxResult.taxableIncome)}
+                      </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-sm text-muted-foreground mb-2">Tax Liability</p>
-                      <p className="text-2xl font-bold text-destructive">{format(taxResult.tax)}</p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Tax Liability
+                      </p>
+                      <p className="text-2xl font-bold text-destructive">
+                        {format(taxResult.tax)}
+                      </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-sm text-muted-foreground mb-2">Net Income</p>
-                      <p className="text-2xl font-bold text-green-500">{format(taxResult.netIncome)}</p>
+                      <p className="text-sm text-muted-foreground mb-2">
+                        Net Income
+                      </p>
+                      <p className="text-2xl font-bold text-green-500">
+                        {format(taxResult.netIncome)}
+                      </p>
                     </div>
                   </div>
                 )}
 
                 <div className="p-4 rounded-lg bg-muted/50 text-sm text-muted-foreground">
-                  <p className="font-semibold mb-2">💡 Plain Language Explanation:</p>
+                  <p className="font-semibold mb-2">
+                    💡 Plain Language Explanation:
+                  </p>
                   <p>
-                    Your annual income of {format(parseFloat(taxIncome))} minus deductions of {format(parseFloat(taxDeductions))} gives you a taxable income of {taxResult ? format(taxResult.taxableIncome) : '...'}.
-                    Your tax liability is {taxResult ? format(taxResult.tax) : '...'}, leaving you with a net income of {taxResult ? format(taxResult.netIncome) : '...'}.
+                    Your annual income of {format(Number.parseFloat(taxIncome))}{" "}
+                    minus deductions of{" "}
+                    {format(Number.parseFloat(taxDeductions))} gives you a
+                    taxable income of{" "}
+                    {taxResult ? format(taxResult.taxableIncome) : "..."}. Your
+                    tax liability is {taxResult ? format(taxResult.tax) : "..."}
+                    , leaving you with a net income of{" "}
+                    {taxResult ? format(taxResult.netIncome) : "..."}.
                   </p>
                 </div>
               </CardContent>

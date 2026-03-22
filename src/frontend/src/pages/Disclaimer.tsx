@@ -1,7 +1,14 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle, TrendingDown, Brain, Shield, Scale, Info } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  AlertTriangle,
+  Brain,
+  Info,
+  Scale,
+  Shield,
+  TrendingDown,
+} from "lucide-react";
 
 export default function Disclaimer() {
   return (
@@ -14,22 +21,29 @@ export default function Disclaimer() {
             <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-primary to-chart-1 bg-clip-text text-transparent">
               Disclaimer
             </h1>
-            <p className="text-muted-foreground">Last updated: January 31, 2026</p>
+            <p className="text-muted-foreground">
+              Last updated: January 31, 2026
+            </p>
           </div>
 
           <Card className="border-2 border-destructive/50 bg-destructive/5">
             <CardHeader>
               <div className="flex items-center gap-3">
                 <AlertTriangle className="w-8 h-8 text-destructive" />
-                <CardTitle className="text-2xl text-destructive">Important Notice</CardTitle>
+                <CardTitle className="text-2xl text-destructive">
+                  Important Notice
+                </CardTitle>
               </div>
             </CardHeader>
             <CardContent className="space-y-4 text-muted-foreground">
               <p className="font-semibold text-foreground">
-                Please read this disclaimer carefully before using FinanceWise AI.
+                Please read this disclaimer carefully before using FinanceWise
+                AI.
               </p>
               <p>
-                The information provided by FinanceWise AI is for educational and informational purposes only. It should not be considered as financial, investment, tax, or legal advice.
+                The information provided by FinanceWise AI is for educational
+                and informational purposes only. It should not be considered as
+                financial, investment, tax, or legal advice.
               </p>
             </CardContent>
           </Card>
@@ -38,7 +52,9 @@ export default function Disclaimer() {
             <CardHeader>
               <div className="flex items-center gap-3">
                 <Info className="w-8 h-8 text-chart-1" />
-                <CardTitle className="text-xl">Educational Purpose Only</CardTitle>
+                <CardTitle className="text-xl">
+                  Educational Purpose Only
+                </CardTitle>
               </div>
             </CardHeader>
             <CardContent className="space-y-4 text-muted-foreground">
@@ -65,9 +81,7 @@ export default function Disclaimer() {
               </div>
             </CardHeader>
             <CardContent className="space-y-4 text-muted-foreground">
-              <p>
-                FinanceWise AI does not provide:
-              </p>
+              <p>FinanceWise AI does not provide:</p>
               <ul className="list-disc list-inside space-y-2 ml-4">
                 <li>Investment recommendations or advice</li>
                 <li>Tax planning or preparation services</li>
@@ -76,7 +90,9 @@ export default function Disclaimer() {
                 <li>Securities trading or brokerage services</li>
               </ul>
               <p className="mt-4">
-                Always consult with qualified financial advisors, tax professionals, or legal experts before making important financial decisions.
+                Always consult with qualified financial advisors, tax
+                professionals, or legal experts before making important
+                financial decisions.
               </p>
             </CardContent>
           </Card>
@@ -90,16 +106,29 @@ export default function Disclaimer() {
             </CardHeader>
             <CardContent className="space-y-4 text-muted-foreground">
               <p>
-                Our AI-powered features use machine learning algorithms to analyze your financial data and provide insights. However:
+                Our AI-powered features use machine learning algorithms to
+                analyze your financial data and provide insights. However:
               </p>
               <ul className="list-disc list-inside space-y-2 ml-4">
-                <li>AI predictions are based on historical patterns and may not be accurate</li>
-                <li>Algorithms cannot account for unexpected life events or market changes</li>
-                <li>AI recommendations should be verified with professional advisors</li>
-                <li>Machine learning models have inherent limitations and biases</li>
+                <li>
+                  AI predictions are based on historical patterns and may not be
+                  accurate
+                </li>
+                <li>
+                  Algorithms cannot account for unexpected life events or market
+                  changes
+                </li>
+                <li>
+                  AI recommendations should be verified with professional
+                  advisors
+                </li>
+                <li>
+                  Machine learning models have inherent limitations and biases
+                </li>
               </ul>
               <p className="mt-4 font-semibold text-foreground">
-                AI insights are for educational purposes only and should not be the sole basis for financial decisions.
+                AI insights are for educational purposes only and should not be
+                the sole basis for financial decisions.
               </p>
             </CardContent>
           </Card>
@@ -113,7 +142,8 @@ export default function Disclaimer() {
             </CardHeader>
             <CardContent className="space-y-4 text-muted-foreground">
               <p className="font-semibold text-foreground">
-                All investments carry risk. You could lose some or all of your invested capital.
+                All investments carry risk. You could lose some or all of your
+                invested capital.
               </p>
               <ul className="list-disc list-inside space-y-2 ml-4 mt-4">
                 <li>Past performance does not guarantee future results</li>
@@ -122,7 +152,8 @@ export default function Disclaimer() {
                 <li>Higher returns typically come with higher risk</li>
               </ul>
               <p className="mt-4">
-                Before investing, carefully consider your financial situation, risk tolerance, and investment objectives.
+                Before investing, carefully consider your financial situation,
+                risk tolerance, and investment objectives.
               </p>
             </CardContent>
           </Card>
@@ -132,9 +163,7 @@ export default function Disclaimer() {
               <CardTitle className="text-xl">No Guarantees</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-muted-foreground">
-              <p>
-                We make no guarantees or warranties about:
-              </p>
+              <p>We make no guarantees or warranties about:</p>
               <ul className="list-disc list-inside space-y-2 ml-4">
                 <li>The accuracy or completeness of information provided</li>
                 <li>Financial outcomes or results from using our service</li>
@@ -149,13 +178,14 @@ export default function Disclaimer() {
               <CardTitle className="text-xl">User Responsibility</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-muted-foreground">
-              <p>
-                By using FinanceWise AI, you acknowledge that:
-              </p>
+              <p>By using FinanceWise AI, you acknowledge that:</p>
               <ul className="list-disc list-inside space-y-2 ml-4">
                 <li>You are solely responsible for your financial decisions</li>
                 <li>You will verify all information before acting on it</li>
-                <li>You understand the risks involved in financial planning and investing</li>
+                <li>
+                  You understand the risks involved in financial planning and
+                  investing
+                </li>
                 <li>You will seek professional advice when needed</li>
               </ul>
             </CardContent>
@@ -167,7 +197,8 @@ export default function Disclaimer() {
             </CardHeader>
             <CardContent className="space-y-4 text-muted-foreground">
               <p>
-                Our platform may contain links to third-party websites or display third-party advertisements. We are not responsible for:
+                Our platform may contain links to third-party websites or
+                display third-party advertisements. We are not responsible for:
               </p>
               <ul className="list-disc list-inside space-y-2 ml-4">
                 <li>The accuracy of third-party content</li>
@@ -181,12 +212,15 @@ export default function Disclaimer() {
             <CardHeader>
               <div className="flex items-center gap-3">
                 <Shield className="w-8 h-8 text-chart-5" />
-                <CardTitle className="text-xl">Limitation of Liability</CardTitle>
+                <CardTitle className="text-xl">
+                  Limitation of Liability
+                </CardTitle>
               </div>
             </CardHeader>
             <CardContent className="space-y-4 text-muted-foreground">
               <p>
-                To the maximum extent permitted by law, FinanceWise AI and its creators shall not be liable for any:
+                To the maximum extent permitted by law, FinanceWise AI and its
+                creators shall not be liable for any:
               </p>
               <ul className="list-disc list-inside space-y-2 ml-4">
                 <li>Financial losses resulting from use of our service</li>
@@ -202,9 +236,7 @@ export default function Disclaimer() {
               <CardTitle className="text-xl">Regulatory Compliance</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-muted-foreground">
-              <p>
-                FinanceWise AI is not:
-              </p>
+              <p>FinanceWise AI is not:</p>
               <ul className="list-disc list-inside space-y-2 ml-4">
                 <li>A registered investment advisor</li>
                 <li>A licensed financial planner</li>
@@ -212,7 +244,8 @@ export default function Disclaimer() {
                 <li>A tax preparation service</li>
               </ul>
               <p className="mt-4">
-                We do not provide services that require regulatory licenses or registrations.
+                We do not provide services that require regulatory licenses or
+                registrations.
               </p>
             </CardContent>
           </Card>
@@ -223,7 +256,8 @@ export default function Disclaimer() {
             </CardHeader>
             <CardContent className="space-y-4 text-muted-foreground">
               <p>
-                If you have any questions about this disclaimer or need clarification, please contact us:
+                If you have any questions about this disclaimer or need
+                clarification, please contact us:
               </p>
               <p className="font-semibold text-foreground">
                 Email: fwiseai@gmail.com

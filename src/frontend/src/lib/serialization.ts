@@ -7,7 +7,7 @@
  * Convert Motoko timestamp (nanoseconds as BigInt) to JavaScript Date
  */
 export function timestampToDate(timestamp: bigint | number): Date {
-  const ts = typeof timestamp === 'bigint' ? Number(timestamp) : timestamp;
+  const ts = typeof timestamp === "bigint" ? Number(timestamp) : timestamp;
   return new Date(ts / 1000000);
 }
 
@@ -22,10 +22,10 @@ export function dateToTimestamp(date: Date): bigint {
  * Convert BigInt to number safely (with overflow check)
  */
 export function bigIntToNumber(value: bigint | number): number {
-  if (typeof value === 'number') return value;
+  if (typeof value === "number") return value;
   const num = Number(value);
   if (num > Number.MAX_SAFE_INTEGER || num < Number.MIN_SAFE_INTEGER) {
-    console.warn('BigInt value exceeds safe integer range:', value);
+    console.warn("BigInt value exceeds safe integer range:", value);
   }
   return num;
 }
@@ -34,22 +34,28 @@ export function bigIntToNumber(value: bigint | number): number {
  * Convert number to BigInt safely
  */
 export function numberToBigInt(value: number | bigint): bigint {
-  if (typeof value === 'bigint') return value;
+  if (typeof value === "bigint") return value;
   return BigInt(Math.floor(value));
 }
 
 /**
  * Format timestamp for display
  */
-export function formatTimestamp(timestamp: bigint | number, options?: Intl.DateTimeFormatOptions): string {
+export function formatTimestamp(
+  timestamp: bigint | number,
+  options?: Intl.DateTimeFormatOptions,
+): string {
   const date = timestampToDate(timestamp);
-  return date.toLocaleString('en-US', options || {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  return date.toLocaleString(
+    "en-US",
+    options || {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    },
+  );
 }
 
 /**
@@ -69,20 +75,20 @@ export function convertBigIntsToNumbers(data: any): any {
   }
 
   // Convert BigInt to number
-  if (typeof data === 'bigint') {
+  if (typeof data === "bigint") {
     return bigIntToNumber(data);
   }
 
   // Handle arrays recursively
   if (Array.isArray(data)) {
-    return data.map(item => convertBigIntsToNumbers(item));
+    return data.map((item) => convertBigIntsToNumbers(item));
   }
 
   // Handle objects recursively
-  if (typeof data === 'object') {
+  if (typeof data === "object") {
     const result: any = {};
     for (const key in data) {
-      if (data.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
         result[key] = convertBigIntsToNumbers(data[key]);
       }
     }
@@ -99,8 +105,14 @@ export function convertBigIntsToNumbers(data: any): any {
 export function serializeTransaction(transaction: any): any {
   return {
     ...transaction,
-    date: typeof transaction.date === 'bigint' ? transaction.date : numberToBigInt(transaction.date || Date.now()),
-    createdAt: typeof transaction.createdAt === 'bigint' ? transaction.createdAt : getCurrentTimestamp(),
+    date:
+      typeof transaction.date === "bigint"
+        ? transaction.date
+        : numberToBigInt(transaction.date || Date.now()),
+    createdAt:
+      typeof transaction.createdAt === "bigint"
+        ? transaction.createdAt
+        : getCurrentTimestamp(),
   };
 }
 
@@ -117,7 +129,10 @@ export function deserializeTransaction(transaction: any): any {
 export function serializeSavingsGoal(goal: any): any {
   return {
     ...goal,
-    createdAt: typeof goal.createdAt === 'bigint' ? goal.createdAt : getCurrentTimestamp(),
+    createdAt:
+      typeof goal.createdAt === "bigint"
+        ? goal.createdAt
+        : getCurrentTimestamp(),
   };
 }
 
@@ -134,7 +149,10 @@ export function deserializeSavingsGoal(goal: any): any {
 export function serializeUserProfile(profile: any): any {
   return {
     ...profile,
-    createdAt: typeof profile.createdAt === 'bigint' ? profile.createdAt : getCurrentTimestamp(),
+    createdAt:
+      typeof profile.createdAt === "bigint"
+        ? profile.createdAt
+        : getCurrentTimestamp(),
   };
 }
 
@@ -151,7 +169,10 @@ export function deserializeUserProfile(profile: any): any {
 export function serializeUserPreferences(prefs: any): any {
   return {
     ...prefs,
-    updatedAt: typeof prefs.updatedAt === 'bigint' ? prefs.updatedAt : getCurrentTimestamp(),
+    updatedAt:
+      typeof prefs.updatedAt === "bigint"
+        ? prefs.updatedAt
+        : getCurrentTimestamp(),
   };
 }
 
@@ -171,7 +192,10 @@ export function serializeQuizProgress(progress: any): any {
     questionsCompleted: numberToBigInt(progress.questionsCompleted || 0),
     correctAnswers: numberToBigInt(progress.correctAnswers || 0),
     incorrectAnswers: numberToBigInt(progress.incorrectAnswers || 0),
-    lastQuestionAt: typeof progress.lastQuestionAt === 'bigint' ? progress.lastQuestionAt : getCurrentTimestamp(),
+    lastQuestionAt:
+      typeof progress.lastQuestionAt === "bigint"
+        ? progress.lastQuestionAt
+        : getCurrentTimestamp(),
   };
 }
 
@@ -188,7 +212,10 @@ export function deserializeQuizProgress(progress: any): any {
 export function serializeChatMessage(message: any): any {
   return {
     ...message,
-    timestamp: typeof message.timestamp === 'bigint' ? message.timestamp : getCurrentTimestamp(),
+    timestamp:
+      typeof message.timestamp === "bigint"
+        ? message.timestamp
+        : getCurrentTimestamp(),
   };
 }
 
@@ -205,7 +232,10 @@ export function deserializeChatMessage(message: any): any {
 export function serializeAIPrediction(prediction: any): any {
   return {
     ...prediction,
-    lastUpdated: typeof prediction.lastUpdated === 'bigint' ? prediction.lastUpdated : getCurrentTimestamp(),
+    lastUpdated:
+      typeof prediction.lastUpdated === "bigint"
+        ? prediction.lastUpdated
+        : getCurrentTimestamp(),
   };
 }
 
@@ -222,7 +252,10 @@ export function deserializeAIPrediction(prediction: any): any {
 export function serializeContactSubmission(submission: any): any {
   return {
     ...submission,
-    submittedAt: typeof submission.submittedAt === 'bigint' ? submission.submittedAt : getCurrentTimestamp(),
+    submittedAt:
+      typeof submission.submittedAt === "bigint"
+        ? submission.submittedAt
+        : getCurrentTimestamp(),
   };
 }
 
@@ -253,29 +286,29 @@ export function safeParse(json: string): any {
  */
 export function serializeForBackend(data: any): any {
   if (data === null || data === undefined) return data;
-  
-  if (typeof data === 'bigint') {
+
+  if (typeof data === "bigint") {
     return data;
   }
-  
-  if (typeof data === 'number') {
+
+  if (typeof data === "number") {
     return data;
   }
-  
+
   if (Array.isArray(data)) {
-    return data.map(item => serializeForBackend(item));
+    return data.map((item) => serializeForBackend(item));
   }
-  
-  if (typeof data === 'object') {
+
+  if (typeof data === "object") {
     const result: any = {};
     for (const key in data) {
-      if (data.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
         result[key] = serializeForBackend(data[key]);
       }
     }
     return result;
   }
-  
+
   return data;
 }
 

@@ -1,12 +1,28 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { TrendingUp, TrendingDown, AlertTriangle, X } from 'lucide-react';
-import { useCurrency } from '../hooks/useCurrency';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { AlertTriangle, TrendingDown, TrendingUp, X } from "lucide-react";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { useCurrency } from "../hooks/useCurrency";
 
 interface PredictionResultsProps {
   transactions: any[];
-  goals: any[];
   onClose: () => void;
 }
 
@@ -17,7 +33,10 @@ interface MonthlyProjection {
   savings: number;
 }
 
-export default function PredictionResults({ transactions, goals, onClose }: PredictionResultsProps) {
+export default function PredictionResults({
+  transactions,
+  onClose,
+}: PredictionResultsProps) {
   const { format } = useCurrency();
 
   // Calculate predictions based on transaction history
@@ -27,22 +46,32 @@ export default function PredictionResults({ transactions, goals, onClose }: Pred
         futureSavings: 0,
         futureExpenses: 0,
         monthlyProjections: [] as MonthlyProjection[],
-        riskLevel: 'low',
+        riskLevel: "low",
         confidence: 0,
       };
     }
 
     // Calculate average monthly income and expenses
     const income = transactions
-      .filter((t: any) => t.transactionType === 'income')
+      .filter((t: any) => t.transactionType === "income")
       .reduce((sum: number, t: any) => sum + (Number(t.amount) || 0), 0);
 
     const expenses = transactions
-      .filter((t: any) => t.transactionType === 'expense')
+      .filter((t: any) => t.transactionType === "expense")
       .reduce((sum: number, t: any) => sum + (Number(t.amount) || 0), 0);
 
-    const avgMonthlyIncome = income / Math.max(1, transactions.filter((t: any) => t.transactionType === 'income').length);
-    const avgMonthlyExpenses = expenses / Math.max(1, transactions.filter((t: any) => t.transactionType === 'expense').length);
+    const avgMonthlyIncome =
+      income /
+      Math.max(
+        1,
+        transactions.filter((t: any) => t.transactionType === "income").length,
+      );
+    const avgMonthlyExpenses =
+      expenses /
+      Math.max(
+        1,
+        transactions.filter((t: any) => t.transactionType === "expense").length,
+      );
 
     // Generate 3-month projections
     const monthlyProjections: MonthlyProjection[] = [];
@@ -62,13 +91,14 @@ export default function PredictionResults({ transactions, goals, onClose }: Pred
     }
 
     // Determine risk level
-    const savingsRate = (avgMonthlyIncome - avgMonthlyExpenses) / avgMonthlyIncome;
-    let riskLevel = 'low';
-    if (savingsRate < 0.1) riskLevel = 'high';
-    else if (savingsRate < 0.2) riskLevel = 'medium';
+    const savingsRate =
+      (avgMonthlyIncome - avgMonthlyExpenses) / avgMonthlyIncome;
+    let riskLevel = "low";
+    if (savingsRate < 0.1) riskLevel = "high";
+    else if (savingsRate < 0.2) riskLevel = "medium";
 
     // Calculate confidence score
-    const confidence = Math.min(95, 50 + (transactions.length * 2));
+    const confidence = Math.min(95, 50 + transactions.length * 2);
 
     return {
       futureSavings: cumulativeSavings,
@@ -87,7 +117,10 @@ export default function PredictionResults({ transactions, goals, onClose }: Pred
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-2xl">Financial Predictions</CardTitle>
-            <CardDescription>AI-powered forecast for the next 3 months based on your transaction history</CardDescription>
+            <CardDescription>
+              AI-powered forecast for the next 3 months based on your
+              transaction history
+            </CardDescription>
           </div>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-4 w-4" />
@@ -99,12 +132,18 @@ export default function PredictionResults({ transactions, goals, onClose }: Pred
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Projected Savings (3 months)</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Projected Savings (3 months)
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2">
-                <TrendingUp className={`h-5 w-5 ${predictions.futureSavings > 0 ? 'text-green-500' : 'text-red-500'}`} />
-                <p className={`text-2xl font-bold ${predictions.futureSavings > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <TrendingUp
+                  className={`h-5 w-5 ${predictions.futureSavings > 0 ? "text-green-500" : "text-red-500"}`}
+                />
+                <p
+                  className={`text-2xl font-bold ${predictions.futureSavings > 0 ? "text-green-600" : "text-red-600"}`}
+                >
                   {format(predictions.futureSavings)}
                 </p>
               </div>
@@ -113,32 +152,46 @@ export default function PredictionResults({ transactions, goals, onClose }: Pred
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Expected Expenses (3 months)</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Expected Expenses (3 months)
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2">
                 <TrendingDown className="h-5 w-5 text-orange-500" />
-                <p className="text-2xl font-bold text-orange-600">{format(predictions.futureExpenses)}</p>
+                <p className="text-2xl font-bold text-orange-600">
+                  {format(predictions.futureExpenses)}
+                </p>
               </div>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Risk Level</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Risk Level
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-2">
-                <AlertTriangle className={`h-5 w-5 ${
-                  predictions.riskLevel === 'high' ? 'text-red-500' :
-                  predictions.riskLevel === 'medium' ? 'text-yellow-500' :
-                  'text-green-500'
-                }`} />
-                <p className={`text-2xl font-bold capitalize ${
-                  predictions.riskLevel === 'high' ? 'text-red-600' :
-                  predictions.riskLevel === 'medium' ? 'text-yellow-600' :
-                  'text-green-600'
-                }`}>
+                <AlertTriangle
+                  className={`h-5 w-5 ${
+                    predictions.riskLevel === "high"
+                      ? "text-red-500"
+                      : predictions.riskLevel === "medium"
+                        ? "text-yellow-500"
+                        : "text-green-500"
+                  }`}
+                />
+                <p
+                  className={`text-2xl font-bold capitalize ${
+                    predictions.riskLevel === "high"
+                      ? "text-red-600"
+                      : predictions.riskLevel === "medium"
+                        ? "text-yellow-600"
+                        : "text-green-600"
+                  }`}
+                >
                   {predictions.riskLevel}
                 </p>
               </div>
@@ -150,7 +203,9 @@ export default function PredictionResults({ transactions, goals, onClose }: Pred
         <Card>
           <CardHeader>
             <CardTitle>3-Month Financial Forecast</CardTitle>
-            <CardDescription>Projected income, expenses, and savings trajectory</CardDescription>
+            <CardDescription>
+              Projected income, expenses, and savings trajectory
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -160,9 +215,27 @@ export default function PredictionResults({ transactions, goals, onClose }: Pred
                 <YAxis />
                 <Tooltip formatter={(value: any) => format(value)} />
                 <Legend />
-                <Line type="monotone" dataKey="income" stroke="#10b981" strokeWidth={2} name="Income" />
-                <Line type="monotone" dataKey="expenses" stroke="#ef4444" strokeWidth={2} name="Expenses" />
-                <Line type="monotone" dataKey="savings" stroke="#3b82f6" strokeWidth={2} name="Savings" />
+                <Line
+                  type="monotone"
+                  dataKey="income"
+                  stroke="#10b981"
+                  strokeWidth={2}
+                  name="Income"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="expenses"
+                  stroke="#ef4444"
+                  strokeWidth={2}
+                  name="Expenses"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="savings"
+                  stroke="#3b82f6"
+                  strokeWidth={2}
+                  name="Savings"
+                />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -172,7 +245,9 @@ export default function PredictionResults({ transactions, goals, onClose }: Pred
         <Card>
           <CardHeader>
             <CardTitle>Monthly Breakdown</CardTitle>
-            <CardDescription>Detailed projection for each month</CardDescription>
+            <CardDescription>
+              Detailed projection for each month
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
@@ -194,11 +269,15 @@ export default function PredictionResults({ transactions, goals, onClose }: Pred
           <div className="flex items-start gap-3">
             <AlertTriangle className="h-5 w-5 text-yellow-600 shrink-0 mt-0.5" />
             <div className="space-y-1">
-              <p className="text-sm font-semibold text-yellow-900 dark:text-yellow-100">Prediction Disclaimer</p>
+              <p className="text-sm font-semibold text-yellow-900 dark:text-yellow-100">
+                Prediction Disclaimer
+              </p>
               <p className="text-xs text-yellow-800 dark:text-yellow-200">
-                These predictions are based on your historical transaction data and use statistical analysis. 
-                Actual results may vary significantly. Confidence level: {predictions.confidence}%. 
-                This is for educational purposes only and should not be considered financial advice.
+                These predictions are based on your historical transaction data
+                and use statistical analysis. Actual results may vary
+                significantly. Confidence level: {predictions.confidence}%. This
+                is for educational purposes only and should not be considered
+                financial advice.
               </p>
             </div>
           </div>

@@ -10,7 +10,7 @@ export interface QuizProgressData {
   lastUpdated: number;
 }
 
-const STORAGE_KEY_PREFIX = 'quiz_progress_';
+const STORAGE_KEY_PREFIX = "quiz_progress_";
 
 // Get storage key for a specific user principal
 function getStorageKey(principal: string): string {
@@ -23,23 +23,26 @@ export function loadQuizProgress(principal: string): QuizProgressData | null {
     const key = getStorageKey(principal);
     const stored = localStorage.getItem(key);
     if (!stored) return null;
-    
+
     const data = JSON.parse(stored) as QuizProgressData;
     return data;
   } catch (error) {
-    console.error('Failed to load quiz progress:', error);
+    console.error("Failed to load quiz progress:", error);
     return null;
   }
 }
 
 // Save quiz progress for a user
-export function saveQuizProgress(principal: string, progress: QuizProgressData): void {
+export function saveQuizProgress(
+  principal: string,
+  progress: QuizProgressData,
+): void {
   try {
     const key = getStorageKey(principal);
     progress.lastUpdated = Date.now();
     localStorage.setItem(key, JSON.stringify(progress));
   } catch (error) {
-    console.error('Failed to save quiz progress:', error);
+    console.error("Failed to save quiz progress:", error);
   }
 }
 
@@ -49,7 +52,7 @@ export function clearQuizProgress(principal: string): void {
     const key = getStorageKey(principal);
     localStorage.removeItem(key);
   } catch (error) {
-    console.error('Failed to clear quiz progress:', error);
+    console.error("Failed to clear quiz progress:", error);
   }
 }
 
@@ -67,14 +70,19 @@ export function initializeQuizProgress(): QuizProgressData {
 }
 
 // Check if quiz is completed
-export function isQuizCompleted(progress: QuizProgressData, totalQuestions: number): boolean {
-  return progress.isCompleted || progress.askedQuestions.length >= totalQuestions;
+export function isQuizCompleted(
+  progress: QuizProgressData,
+  totalQuestions: number,
+): boolean {
+  return (
+    progress.isCompleted || progress.askedQuestions.length >= totalQuestions
+  );
 }
 
 // Mark question as asked
 export function markQuestionAsked(
   progress: QuizProgressData,
-  questionId: string
+  questionId: string,
 ): QuizProgressData {
   if (!progress.askedQuestions.includes(questionId)) {
     return {
@@ -90,17 +98,21 @@ export function markQuestionAsked(
 export function updateProgressAfterAnswer(
   progress: QuizProgressData,
   isCorrect: boolean,
-  totalQuestions: number
+  totalQuestions: number,
 ): QuizProgressData {
   const updated = {
     ...progress,
     questionsCompleted: progress.questionsCompleted + 1,
-    correctAnswers: isCorrect ? progress.correctAnswers + 1 : progress.correctAnswers,
-    incorrectAnswers: !isCorrect ? progress.incorrectAnswers + 1 : progress.incorrectAnswers,
+    correctAnswers: isCorrect
+      ? progress.correctAnswers + 1
+      : progress.correctAnswers,
+    incorrectAnswers: !isCorrect
+      ? progress.incorrectAnswers + 1
+      : progress.incorrectAnswers,
   };
-  
+
   // Check if completed
   updated.isCompleted = updated.askedQuestions.length >= totalQuestions;
-  
+
   return updated;
 }

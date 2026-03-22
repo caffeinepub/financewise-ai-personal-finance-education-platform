@@ -1,73 +1,79 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Rocket, Sparkles, TrendingUp, Calendar } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Calendar, Rocket, Sparkles, TrendingUp } from "lucide-react";
 
 export default function Updates() {
   const updates = [
     {
-      version: 'v2.0.0',
-      date: 'January 2026',
-      title: 'Major Update: 100 Quiz Questions & Video Lessons',
+      version: "v2.0.0",
+      date: "January 2026",
+      title: "Major Update: 100 Quiz Questions & Video Lessons",
       features: [
-        'Added 100 comprehensive quiz questions',
-        'Integrated video lessons for all topics',
-        'Enhanced AI insights with 3 ML models',
-        'Improved real-time analytics',
+        "Added 100 comprehensive quiz questions",
+        "Integrated video lessons for all topics",
+        "Enhanced AI insights with 3 ML models",
+        "Improved real-time analytics",
       ],
     },
     {
-      version: 'v1.5.0',
-      date: 'December 2025',
-      title: 'Enhanced Security & Privacy',
+      version: "v1.5.0",
+      date: "December 2025",
+      title: "Enhanced Security & Privacy",
       features: [
-        'Blockchain-based data storage',
-        'Internet Identity integration',
-        'Zero-knowledge architecture',
-        'Enhanced encryption protocols',
+        "Blockchain-based data storage",
+        "Internet Identity integration",
+        "Zero-knowledge architecture",
+        "Enhanced encryption protocols",
       ],
     },
     {
-      version: 'v1.0.0',
-      date: 'November 2025',
-      title: 'Initial Launch',
+      version: "v1.0.0",
+      date: "November 2025",
+      title: "Initial Launch",
       features: [
-        'Core financial tracking features',
-        'AI-powered insights',
-        'Goal tracking system',
-        'Investment calculators',
+        "Core financial tracking features",
+        "AI-powered insights",
+        "Goal tracking system",
+        "Investment calculators",
       ],
     },
   ];
 
   const roadmap = [
     {
-      title: 'Mobile App',
-      description: 'Native iOS and Android applications',
-      status: 'Coming Soon',
+      title: "Mobile App",
+      description: "Native iOS and Android applications",
+      status: "Coming Soon",
     },
     {
-      title: 'Bank Integration',
-      description: 'Automatic transaction import from banks',
-      status: 'In Development',
+      title: "Bank Integration",
+      description: "Automatic transaction import from banks",
+      status: "In Development",
     },
     {
-      title: 'Advanced AI Models',
-      description: 'More sophisticated prediction algorithms',
-      status: 'Planned',
+      title: "Advanced AI Models",
+      description: "More sophisticated prediction algorithms",
+      status: "Planned",
     },
     {
-      title: 'Social Features',
-      description: 'Share goals and achievements with friends',
-      status: 'Planned',
+      title: "Social Features",
+      description: "Share goals and achievements with friends",
+      status: "Planned",
     },
     {
-      title: 'Multi-Currency Support',
-      description: 'Support for 50+ currencies',
-      status: 'Planned',
+      title: "Multi-Currency Support",
+      description: "Support for 50+ currencies",
+      status: "Planned",
     },
     {
-      title: 'Tax Filing Integration',
-      description: 'Automated tax preparation assistance',
-      status: 'Planned',
+      title: "Tax Filing Integration",
+      description: "Automated tax preparation assistance",
+      status: "Planned",
     },
   ];
 
@@ -89,8 +95,8 @@ export default function Updates() {
               <Sparkles className="w-8 h-8 text-primary" />
               Recent Updates
             </h2>
-            {updates.map((update, index) => (
-              <Card key={index} className="border-2 border-primary/20">
+            {updates.map((update) => (
+              <Card key={update.version} className="border-2 border-primary/20">
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div>
@@ -104,8 +110,11 @@ export default function Updates() {
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {update.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-center gap-2 text-muted-foreground">
+                    {update.features.map((feature) => (
+                      <li
+                        key={feature}
+                        className="flex items-center gap-2 text-muted-foreground"
+                      >
                         <div className="w-1.5 h-1.5 rounded-full bg-primary" />
                         {feature}
                       </li>
@@ -122,8 +131,8 @@ export default function Updates() {
               Coming Soon
             </h2>
             <div className="grid md:grid-cols-2 gap-6">
-              {roadmap.map((item, index) => (
-                <Card key={index} className="border-2 border-border/50">
+              {roadmap.map((item) => (
+                <Card key={item.title} className="border-2 border-border/50">
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <CardTitle className="text-xl">{item.title}</CardTitle>

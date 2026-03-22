@@ -1,21 +1,21 @@
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu } from 'lucide-react';
-import { useNavigate } from '@tanstack/react-router';
-import { useState } from 'react';
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useNavigate } from "@tanstack/react-router";
+import { Menu } from "lucide-react";
+import { useState } from "react";
 
 export default function Header() {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navigation = [
-    { name: 'Home', href: '/' },
-    { name: 'How It Works', href: '/how-it-works' },
-    { name: 'Features', href: '/features' },
-    { name: 'Security', href: '/security' },
-    { name: 'Blog', href: '/blog' },
-    { name: 'FAQ', href: '/faq' },
-    { name: 'Contact', href: '/contact' },
+    { name: "Home", href: "/" },
+    { name: "How It Works", href: "/how-it-works" },
+    { name: "Features", href: "/features" },
+    { name: "Security", href: "/security" },
+    { name: "Blog", href: "/blog" },
+    { name: "FAQ", href: "/faq" },
+    { name: "Contact", href: "/contact" },
   ];
 
   return (
@@ -23,7 +23,8 @@ export default function Header() {
       <div className="container flex h-16 items-center justify-between px-4">
         <div className="flex items-center gap-6">
           <button
-            onClick={() => navigate({ to: '/' })}
+            type="button"
+            onClick={() => navigate({ to: "/" })}
             className="text-xl font-bold bg-gradient-to-r from-primary to-chart-1 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
           >
             FinanceWise AI
@@ -32,6 +33,7 @@ export default function Header() {
           <nav className="hidden md:flex items-center gap-6">
             {navigation.map((item) => (
               <button
+                type="button"
                 key={item.name}
                 onClick={() => navigate({ to: item.href })}
                 className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
@@ -45,13 +47,13 @@ export default function Header() {
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
-            onClick={() => navigate({ to: '/login' })}
+            onClick={() => navigate({ to: "/login" })}
             className="hidden md:inline-flex"
           >
             Login
           </Button>
           <Button
-            onClick={() => navigate({ to: '/login' })}
+            onClick={() => navigate({ to: "/login" })}
             className="hidden md:inline-flex bg-gradient-to-r from-primary to-chart-1"
           >
             Sign Up
@@ -67,6 +69,7 @@ export default function Header() {
               <div className="flex flex-col gap-4 mt-8">
                 {navigation.map((item) => (
                   <button
+                    type="button"
                     key={item.name}
                     onClick={() => {
                       navigate({ to: item.href });
@@ -82,7 +85,7 @@ export default function Header() {
                     variant="ghost"
                     className="w-full"
                     onClick={() => {
-                      navigate({ to: '/login' });
+                      navigate({ to: "/login" });
                       setIsMobileMenuOpen(false);
                     }}
                   >
@@ -91,7 +94,7 @@ export default function Header() {
                   <Button
                     className="w-full bg-gradient-to-r from-primary to-chart-1"
                     onClick={() => {
-                      navigate({ to: '/login' });
+                      navigate({ to: "/login" });
                       setIsMobileMenuOpen(false);
                     }}
                   >

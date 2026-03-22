@@ -1,72 +1,78 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { CheckCircle2, Clock, Sparkles, Rocket } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import Footer from "@/components/Footer";
+import Header from "@/components/Header";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { CheckCircle2, Clock, Rocket, Sparkles } from "lucide-react";
 
 export default function Roadmap() {
   const completed = [
     {
-      version: 'v1.0',
-      date: 'January 2025',
+      version: "v1.0",
+      date: "January 2025",
       features: [
-        'Internet Identity authentication',
-        'Transaction tracking and categorization',
-        'AI-powered insights with 3 ML models',
-        'Savings goals management',
-        'Real-time analytics dashboard',
-        'Investment portfolio tracking',
-        'Loans & EMI management',
-        'Financial calculators (SIP, EMI, FIRE, Tax)',
-        'Money psychology assessment',
-        '100 educational quiz questions',
-        'Video learning content',
-        'Security & privacy controls',
+        "Internet Identity authentication",
+        "Transaction tracking and categorization",
+        "AI-powered insights with 3 ML models",
+        "Savings goals management",
+        "Real-time analytics dashboard",
+        "Investment portfolio tracking",
+        "Loans & EMI management",
+        "Financial calculators (SIP, EMI, FIRE, Tax)",
+        "Money psychology assessment",
+        "100 educational quiz questions",
+        "Video learning content",
+        "Security & privacy controls",
       ],
     },
   ];
 
   const upcoming = [
     {
-      title: 'Mobile App',
-      description: 'Native iOS and Android applications',
-      status: 'In Development',
-      eta: 'Q2 2025',
+      title: "Mobile App",
+      description: "Native iOS and Android applications",
+      status: "In Development",
+      eta: "Q2 2025",
       icon: Rocket,
     },
     {
-      title: 'Bank Integration',
-      description: 'Automatic transaction import from banks',
-      status: 'Planned',
-      eta: 'Q3 2025',
+      title: "Bank Integration",
+      description: "Automatic transaction import from banks",
+      status: "Planned",
+      eta: "Q3 2025",
       icon: Sparkles,
     },
     {
-      title: 'Advanced AI Models',
-      description: 'Enhanced prediction accuracy with GPT integration',
-      status: 'Research',
-      eta: 'Q4 2025',
+      title: "Advanced AI Models",
+      description: "Enhanced prediction accuracy with GPT integration",
+      status: "Research",
+      eta: "Q4 2025",
       icon: Sparkles,
     },
     {
-      title: 'Multi-Currency Support',
-      description: 'Support for 50+ global currencies',
-      status: 'Planned',
-      eta: 'Q2 2025',
+      title: "Multi-Currency Support",
+      description: "Support for 50+ global currencies",
+      status: "Planned",
+      eta: "Q2 2025",
       icon: Clock,
     },
     {
-      title: 'Social Features',
-      description: 'Share goals and compete with friends',
-      status: 'Planned',
-      eta: 'Q3 2025',
+      title: "Social Features",
+      description: "Share goals and compete with friends",
+      status: "Planned",
+      eta: "Q3 2025",
       icon: Clock,
     },
     {
-      title: 'Tax Filing Integration',
-      description: 'Automated tax preparation and filing',
-      status: 'Research',
-      eta: 'Q4 2025',
+      title: "Tax Filing Integration",
+      description: "Automated tax preparation and filing",
+      status: "Research",
+      eta: "Q4 2025",
       icon: Clock,
     },
   ];
@@ -98,12 +104,17 @@ export default function Roadmap() {
               <h2 className="text-3xl font-bold">Completed Features</h2>
             </div>
 
-            {completed.map((release, index) => (
-              <Card key={index} className="border-2 border-green-500/20">
+            {completed.map((release) => (
+              <Card
+                key={release.version}
+                className="border-2 border-green-500/20"
+              >
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <div>
-                      <CardTitle className="text-2xl">{release.version}</CardTitle>
+                      <CardTitle className="text-2xl">
+                        {release.version}
+                      </CardTitle>
                       <CardDescription>{release.date}</CardDescription>
                     </div>
                     <Badge className="bg-green-500">Released</Badge>
@@ -111,8 +122,8 @@ export default function Roadmap() {
                 </CardHeader>
                 <CardContent>
                   <div className="grid md:grid-cols-2 gap-3">
-                    {release.features.map((feature, idx) => (
-                      <div key={idx} className="flex items-center gap-2">
+                    {release.features.map((feature) => (
+                      <div key={feature} className="flex items-center gap-2">
                         <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />
                         <span className="text-muted-foreground">{feature}</span>
                       </div>
@@ -135,17 +146,22 @@ export default function Roadmap() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-              {upcoming.map((feature, index) => {
+              {upcoming.map((feature) => {
                 const Icon = feature.icon;
                 return (
-                  <Card key={index} className="border-2 border-primary/20 hover:border-primary/40 transition-all">
+                  <Card
+                    key={feature.title}
+                    className="border-2 border-primary/20 hover:border-primary/40 transition-all"
+                  >
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
                           <Icon className="w-8 h-8 text-primary" />
                           <div>
                             <CardTitle>{feature.title}</CardTitle>
-                            <CardDescription>{feature.description}</CardDescription>
+                            <CardDescription>
+                              {feature.description}
+                            </CardDescription>
                           </div>
                         </div>
                       </div>
@@ -153,7 +169,9 @@ export default function Roadmap() {
                     <CardContent>
                       <div className="flex items-center justify-between">
                         <Badge variant="outline">{feature.status}</Badge>
-                        <span className="text-sm text-muted-foreground">ETA: {feature.eta}</span>
+                        <span className="text-sm text-muted-foreground">
+                          ETA: {feature.eta}
+                        </span>
                       </div>
                     </CardContent>
                   </Card>
@@ -171,7 +189,8 @@ export default function Roadmap() {
             <CardContent className="p-12 text-center space-y-6">
               <h2 className="text-3xl font-bold">Have a Feature Request?</h2>
               <p className="text-xl text-muted-foreground">
-                We'd love to hear your ideas! Contact us to suggest new features or vote on upcoming additions.
+                We'd love to hear your ideas! Contact us to suggest new features
+                or vote on upcoming additions.
               </p>
               <a href="/contact" className="inline-block">
                 <Badge className="text-lg px-6 py-2 cursor-pointer hover:bg-primary/90">

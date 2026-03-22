@@ -1,4 +1,4 @@
-import type { BudgetInputs } from './budgetLogic';
+import type { BudgetInputs } from "./budgetLogic";
 
 export interface ProjectionData {
   month: string;
@@ -6,16 +6,32 @@ export interface ProjectionData {
   cumulativeSavings: number;
 }
 
-export function generateProjection(inputs: BudgetInputs, plan: any): ProjectionData[] {
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  
+export function generateProjection(
+  _inputs: BudgetInputs,
+  plan: any,
+): ProjectionData[] {
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+
   // Calculate monthly savings from the plan
   const monthlySavings = plan.allocations.savings;
-  
+
   // Generate 12-month projection
   const projection: ProjectionData[] = [];
   let cumulative = 0;
-  
+
   for (let i = 0; i < 12; i++) {
     cumulative += monthlySavings;
     projection.push({
@@ -24,6 +40,6 @@ export function generateProjection(inputs: BudgetInputs, plan: any): ProjectionD
       cumulativeSavings: Math.round(cumulative),
     });
   }
-  
+
   return projection;
 }

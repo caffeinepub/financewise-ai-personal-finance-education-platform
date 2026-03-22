@@ -213,6 +213,37 @@ export const BudgetData = IDL.Record({
   'totalOptionalExpenses' : IDL.Float64,
   'totalMonthlySavings' : IDL.Float64,
 });
+export const BudgetCategory = IDL.Record({
+  'id' : IDL.Text,
+  'monthlyAllocation' : IDL.Float64,
+  'icon' : IDL.Text,
+  'name' : IDL.Text,
+  'color' : IDL.Text,
+  'isMandatory' : IDL.Bool,
+  'priorityLevel' : IDL.Nat,
+});
+export const Currency = IDL.Variant({
+  'eur' : IDL.Null,
+  'inr' : IDL.Null,
+  'usd' : IDL.Null,
+});
+export const BudgetMode = IDL.Variant({
+  'evilBudget' : IDL.Null,
+  'custom' : IDL.Null,
+  'professional' : IDL.Null,
+  'student' : IDL.Null,
+  'retired' : IDL.Null,
+});
+export const BudgetPlan = IDL.Record({
+  'categories' : IDL.Vec(BudgetCategory),
+  'amounts' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Float64)),
+  'currency' : Currency,
+  'selectedMode' : BudgetMode,
+});
+export const BudgetPlannerData = IDL.Record({
+  'plan' : BudgetPlan,
+  'lastUpdated' : IDL.Int,
+});
 export const CASection = IDL.Record({
   'title' : IDL.Text,
   'icon' : IDL.Text,
@@ -269,9 +300,48 @@ export const BudgetRecommendation = IDL.Variant({
   'student' : IDL.Null,
   'retired' : IDL.Null,
 });
+export const EmergencyFundData = IDL.Record({
+  'user' : IDL.Principal,
+  'lastUpdated' : IDL.Int,
+  'savedAmount' : IDL.Float64,
+});
 export const LegalPage = IDL.Record({
   'title' : IDL.Text,
   'content' : IDL.Text,
+});
+export const LiabilityCategory = IDL.Variant({
+  'emi' : IDL.Null,
+  'creditCardDebt' : IDL.Null,
+  'personalLoans' : IDL.Null,
+  'loans' : IDL.Null,
+  'otherDebt' : IDL.Null,
+});
+export const Liability = IDL.Record({
+  'name' : IDL.Text,
+  'category' : LiabilityCategory,
+  'amount' : IDL.Float64,
+});
+export const AssetCategory = IDL.Variant({
+  'mutualFunds' : IDL.Null,
+  'stocks' : IDL.Null,
+  'other' : IDL.Null,
+  'cash' : IDL.Null,
+  'gold' : IDL.Null,
+  'investments' : IDL.Null,
+  'savingsAccount' : IDL.Null,
+  'property' : IDL.Null,
+  'bankBalance' : IDL.Null,
+});
+export const Asset = IDL.Record({
+  'name' : IDL.Text,
+  'category' : AssetCategory,
+  'amount' : IDL.Float64,
+});
+export const NetWorthData = IDL.Record({
+  'liabilities' : IDL.Vec(Liability),
+  'assets' : IDL.Vec(Asset),
+  'user' : IDL.Principal,
+  'lastUpdated' : IDL.Int,
 });
 export const QuizStatistics = IDL.Record({
   'currentDifficulty' : QuizDifficulty,
@@ -281,10 +351,19 @@ export const QuizStatistics = IDL.Record({
   'totalQuestions' : IDL.Nat,
   'correctAnswers' : IDL.Nat,
 });
-export const Currency = IDL.Variant({
-  'eur' : IDL.Null,
-  'inr' : IDL.Null,
-  'usd' : IDL.Null,
+export const SpendingLimitCategory = IDL.Variant({
+  'other' : IDL.Null,
+  'entertainment' : IDL.Null,
+  'food' : IDL.Null,
+  'transport' : IDL.Null,
+  'bills' : IDL.Null,
+  'shopping' : IDL.Null,
+});
+export const SpendingLimit = IDL.Record({
+  'user' : IDL.Principal,
+  'lastUpdated' : IDL.Int,
+  'limitAmount' : IDL.Float64,
+  'category' : SpendingLimitCategory,
 });
 export const UserPreferences = IDL.Record({
   'notificationsEnabled' : IDL.Bool,
@@ -381,6 +460,7 @@ export const idlService = IDL.Service({
     ),
   'getBlogPost' : IDL.Func([IDL.Text], [IDL.Opt(BlogPost)], ['query']),
   'getBudgetData' : IDL.Func([], [IDL.Opt(BudgetData)], ['query']),
+  'getBudgetPlan' : IDL.Func([], [IDL.Opt(BudgetPlannerData)], ['query']),
   'getCAFeaturesContent' : IDL.Func(
       [IDL.Text],
       [IDL.Opt(CharteredAccountantFeaturesContent)],
@@ -400,10 +480,17 @@ export const idlService = IDL.Service({
       [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Float64))],
       ['query'],
     ),
+  'getEmergencyFundData' : IDL.Func(
+      [],
+      [IDL.Opt(EmergencyFundData)],
+      ['query'],
+    ),
   'getExpenses' : IDL.Func([], [IDL.Vec(ExpenseItem)], ['query']),
   'getLegalPage' : IDL.Func([IDL.Text], [IDL.Opt(LegalPage)], ['query']),
+  'getNetWorthData' : IDL.Func([], [IDL.Opt(NetWorthData)], ['query']),
   'getQuizStatistics' : IDL.Func([], [QuizStatistics], ['query']),
   'getSavingsGoals' : IDL.Func([], [IDL.Vec(SavingsGoal)], ['query']),
+  'getSpendingLimits' : IDL.Func([], [IDL.Vec(SpendingLimit)], ['query']),
   'getSubscriptions' : IDL.Func([], [IDL.Vec(Subscription)], ['query']),
   'getTransactions' : IDL.Func([], [IDL.Vec(TransactionData)], ['query']),
   'getUserPreferences' : IDL.Func([], [IDL.Opt(UserPreferences)], ['query']),
@@ -420,6 +507,7 @@ export const idlService = IDL.Service({
   'saveAIPrediction' : IDL.Func([AIPrediction], [], []),
   'saveBlogContent' : IDL.Func([IDL.Text, FinanceBlogContent], [], []),
   'saveBudgetData' : IDL.Func([BudgetData], [], []),
+  'saveBudgetPlan' : IDL.Func([BudgetPlan], [], []),
   'saveCAFeaturesContent' : IDL.Func(
       [IDL.Text, CharteredAccountantFeaturesContent],
       [],
@@ -427,7 +515,10 @@ export const idlService = IDL.Service({
     ),
   'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
   'saveCookieConsent' : IDL.Func([CookieConsent], [], []),
+  'saveEmergencyFundData' : IDL.Func([EmergencyFundData], [], []),
   'saveLegalPage' : IDL.Func([IDL.Text, LegalPage], [], []),
+  'saveNetWorthData' : IDL.Func([NetWorthData], [], []),
+  'saveSpendingLimits' : IDL.Func([IDL.Vec(SpendingLimit)], [], []),
   'saveUserPreferences' : IDL.Func([UserPreferences], [], []),
   'submitContactForm' : IDL.Func([ContactSubmission], [], []),
   'submitQuizAnswer' : IDL.Func([QuizAnswer], [QuizFeedback], []),
@@ -641,6 +732,37 @@ export const idlFactory = ({ IDL }) => {
     'totalOptionalExpenses' : IDL.Float64,
     'totalMonthlySavings' : IDL.Float64,
   });
+  const BudgetCategory = IDL.Record({
+    'id' : IDL.Text,
+    'monthlyAllocation' : IDL.Float64,
+    'icon' : IDL.Text,
+    'name' : IDL.Text,
+    'color' : IDL.Text,
+    'isMandatory' : IDL.Bool,
+    'priorityLevel' : IDL.Nat,
+  });
+  const Currency = IDL.Variant({
+    'eur' : IDL.Null,
+    'inr' : IDL.Null,
+    'usd' : IDL.Null,
+  });
+  const BudgetMode = IDL.Variant({
+    'evilBudget' : IDL.Null,
+    'custom' : IDL.Null,
+    'professional' : IDL.Null,
+    'student' : IDL.Null,
+    'retired' : IDL.Null,
+  });
+  const BudgetPlan = IDL.Record({
+    'categories' : IDL.Vec(BudgetCategory),
+    'amounts' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Float64)),
+    'currency' : Currency,
+    'selectedMode' : BudgetMode,
+  });
+  const BudgetPlannerData = IDL.Record({
+    'plan' : BudgetPlan,
+    'lastUpdated' : IDL.Int,
+  });
   const CASection = IDL.Record({
     'title' : IDL.Text,
     'icon' : IDL.Text,
@@ -697,7 +819,46 @@ export const idlFactory = ({ IDL }) => {
     'student' : IDL.Null,
     'retired' : IDL.Null,
   });
+  const EmergencyFundData = IDL.Record({
+    'user' : IDL.Principal,
+    'lastUpdated' : IDL.Int,
+    'savedAmount' : IDL.Float64,
+  });
   const LegalPage = IDL.Record({ 'title' : IDL.Text, 'content' : IDL.Text });
+  const LiabilityCategory = IDL.Variant({
+    'emi' : IDL.Null,
+    'creditCardDebt' : IDL.Null,
+    'personalLoans' : IDL.Null,
+    'loans' : IDL.Null,
+    'otherDebt' : IDL.Null,
+  });
+  const Liability = IDL.Record({
+    'name' : IDL.Text,
+    'category' : LiabilityCategory,
+    'amount' : IDL.Float64,
+  });
+  const AssetCategory = IDL.Variant({
+    'mutualFunds' : IDL.Null,
+    'stocks' : IDL.Null,
+    'other' : IDL.Null,
+    'cash' : IDL.Null,
+    'gold' : IDL.Null,
+    'investments' : IDL.Null,
+    'savingsAccount' : IDL.Null,
+    'property' : IDL.Null,
+    'bankBalance' : IDL.Null,
+  });
+  const Asset = IDL.Record({
+    'name' : IDL.Text,
+    'category' : AssetCategory,
+    'amount' : IDL.Float64,
+  });
+  const NetWorthData = IDL.Record({
+    'liabilities' : IDL.Vec(Liability),
+    'assets' : IDL.Vec(Asset),
+    'user' : IDL.Principal,
+    'lastUpdated' : IDL.Int,
+  });
   const QuizStatistics = IDL.Record({
     'currentDifficulty' : QuizDifficulty,
     'progressPercentage' : IDL.Float64,
@@ -706,10 +867,19 @@ export const idlFactory = ({ IDL }) => {
     'totalQuestions' : IDL.Nat,
     'correctAnswers' : IDL.Nat,
   });
-  const Currency = IDL.Variant({
-    'eur' : IDL.Null,
-    'inr' : IDL.Null,
-    'usd' : IDL.Null,
+  const SpendingLimitCategory = IDL.Variant({
+    'other' : IDL.Null,
+    'entertainment' : IDL.Null,
+    'food' : IDL.Null,
+    'transport' : IDL.Null,
+    'bills' : IDL.Null,
+    'shopping' : IDL.Null,
+  });
+  const SpendingLimit = IDL.Record({
+    'user' : IDL.Principal,
+    'lastUpdated' : IDL.Int,
+    'limitAmount' : IDL.Float64,
+    'category' : SpendingLimitCategory,
   });
   const UserPreferences = IDL.Record({
     'notificationsEnabled' : IDL.Bool,
@@ -806,6 +976,7 @@ export const idlFactory = ({ IDL }) => {
       ),
     'getBlogPost' : IDL.Func([IDL.Text], [IDL.Opt(BlogPost)], ['query']),
     'getBudgetData' : IDL.Func([], [IDL.Opt(BudgetData)], ['query']),
+    'getBudgetPlan' : IDL.Func([], [IDL.Opt(BudgetPlannerData)], ['query']),
     'getCAFeaturesContent' : IDL.Func(
         [IDL.Text],
         [IDL.Opt(CharteredAccountantFeaturesContent)],
@@ -825,10 +996,17 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Float64))],
         ['query'],
       ),
+    'getEmergencyFundData' : IDL.Func(
+        [],
+        [IDL.Opt(EmergencyFundData)],
+        ['query'],
+      ),
     'getExpenses' : IDL.Func([], [IDL.Vec(ExpenseItem)], ['query']),
     'getLegalPage' : IDL.Func([IDL.Text], [IDL.Opt(LegalPage)], ['query']),
+    'getNetWorthData' : IDL.Func([], [IDL.Opt(NetWorthData)], ['query']),
     'getQuizStatistics' : IDL.Func([], [QuizStatistics], ['query']),
     'getSavingsGoals' : IDL.Func([], [IDL.Vec(SavingsGoal)], ['query']),
+    'getSpendingLimits' : IDL.Func([], [IDL.Vec(SpendingLimit)], ['query']),
     'getSubscriptions' : IDL.Func([], [IDL.Vec(Subscription)], ['query']),
     'getTransactions' : IDL.Func([], [IDL.Vec(TransactionData)], ['query']),
     'getUserPreferences' : IDL.Func([], [IDL.Opt(UserPreferences)], ['query']),
@@ -845,6 +1023,7 @@ export const idlFactory = ({ IDL }) => {
     'saveAIPrediction' : IDL.Func([AIPrediction], [], []),
     'saveBlogContent' : IDL.Func([IDL.Text, FinanceBlogContent], [], []),
     'saveBudgetData' : IDL.Func([BudgetData], [], []),
+    'saveBudgetPlan' : IDL.Func([BudgetPlan], [], []),
     'saveCAFeaturesContent' : IDL.Func(
         [IDL.Text, CharteredAccountantFeaturesContent],
         [],
@@ -852,7 +1031,10 @@ export const idlFactory = ({ IDL }) => {
       ),
     'saveCallerUserProfile' : IDL.Func([UserProfile], [], []),
     'saveCookieConsent' : IDL.Func([CookieConsent], [], []),
+    'saveEmergencyFundData' : IDL.Func([EmergencyFundData], [], []),
     'saveLegalPage' : IDL.Func([IDL.Text, LegalPage], [], []),
+    'saveNetWorthData' : IDL.Func([NetWorthData], [], []),
+    'saveSpendingLimits' : IDL.Func([IDL.Vec(SpendingLimit)], [], []),
     'saveUserPreferences' : IDL.Func([UserPreferences], [], []),
     'submitContactForm' : IDL.Func([ContactSubmission], [], []),
     'submitQuizAnswer' : IDL.Func([QuizAnswer], [QuizFeedback], []),

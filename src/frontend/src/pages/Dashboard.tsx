@@ -1,12 +1,36 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { TrendingUp, TrendingDown, DollarSign, Target, Sparkles } from 'lucide-react';
-import { useGetBalance, useGetCategoryData, useGetUserTransactions, useGetSavingsGoals } from '../hooks/useQueries';
-import { useCurrency } from '../hooks/useCurrency';
-import { BarChart, Bar, PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { useNavigate } from '@tanstack/react-router';
-import { useState } from 'react';
-import PredictionResults from '../components/PredictionResults';
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { useNavigate } from "@tanstack/react-router";
+import {
+  DollarSign,
+  Sparkles,
+  Target,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
+import { useState } from "react";
+import {
+  Cell,
+  Legend,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+} from "recharts";
+import PredictionResults from "../components/PredictionResults";
+import { useCurrency } from "../hooks/useCurrency";
+import {
+  useGetBalance,
+  useGetCategoryData,
+  useGetSavingsGoals,
+  useGetUserTransactions,
+} from "../hooks/useQueries";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -20,31 +44,37 @@ export default function Dashboard() {
 
   // Calculate income and expenses
   const income = transactions
-    .filter((t: any) => t.transactionType === 'income')
-    .reduce((sum: number, t: any) => sum + (Number(t.amount) || 0), 0);
+    .filter((t) => t.transactionType === "income")
+    .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
 
   const expenses = transactions
-    .filter((t: any) => t.transactionType === 'expense')
-    .reduce((sum: number, t: any) => sum + (Number(t.amount) || 0), 0);
+    .filter((t) => t.transactionType === "expense")
+    .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
 
   const savings = income - expenses;
 
   // Recent transactions (last 5)
   const recentTransactions = [...transactions]
-    .sort((a: any, b: any) => Number(b.date) - Number(a.date))
+    .sort((a, b) => Number(b.date) - Number(a.date))
     .slice(0, 5);
 
   // Prepare chart data
-  const categoryChartData = categoryData.map((cat: any) => ({
+  const categoryChartData = categoryData.map((cat) => ({
     name: cat.category,
     value: cat.totalAmount,
   }));
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
+  const COLORS = [
+    "#0088FE",
+    "#00C49F",
+    "#FFBB28",
+    "#FF8042",
+    "#8884D8",
+    "#82CA9D",
+  ];
 
   const handleGeneratePredictions = () => {
     setIsGeneratingPredictions(true);
-    // Simulate prediction generation
     setTimeout(() => {
       setIsGeneratingPredictions(false);
       setShowPredictions(true);
@@ -52,20 +82,22 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 md:p-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back! Here's your financial overview.</p>
+          <p className="text-muted-foreground">
+            Welcome back! Here's your financial overview.
+          </p>
         </div>
-        <Button 
+        <Button
           onClick={handleGeneratePredictions}
           disabled={isGeneratingPredictions || transactions.length === 0}
           className="bg-gradient-to-r from-primary to-chart-1"
         >
           {isGeneratingPredictions ? (
             <>
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent mr-2"></div>
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent mr-2" />
               Analyzing...
             </>
           ) : (
@@ -86,7 +118,9 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{format(balance)}</div>
-            <p className="text-xs text-muted-foreground">Current account balance</p>
+            <p className="text-xs text-muted-foreground">
+              Current account balance
+            </p>
           </CardContent>
         </Card>
 
@@ -96,18 +130,24 @@ export default function Dashboard() {
             <TrendingUp className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{format(income)}</div>
+            <div className="text-2xl font-bold text-green-600">
+              {format(income)}
+            </div>
             <p className="text-xs text-muted-foreground">All-time income</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Expenses</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Expenses
+            </CardTitle>
             <TrendingDown className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{format(expenses)}</div>
+            <div className="text-2xl font-bold text-red-600">
+              {format(expenses)}
+            </div>
             <p className="text-xs text-muted-foreground">All-time expenses</p>
           </CardContent>
         </Card>
@@ -118,7 +158,9 @@ export default function Dashboard() {
             <Target className="h-4 w-4 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{format(savings)}</div>
+            <div className="text-2xl font-bold text-blue-600">
+              {format(savings)}
+            </div>
             <p className="text-xs text-muted-foreground">Income - Expenses</p>
           </CardContent>
         </Card>
@@ -126,9 +168,8 @@ export default function Dashboard() {
 
       {/* Prediction Results */}
       {showPredictions && (
-        <PredictionResults 
+        <PredictionResults
           transactions={transactions}
-          goals={goals}
           onClose={() => setShowPredictions(false)}
         />
       )}
@@ -154,8 +195,11 @@ export default function Dashboard() {
                     fill="#8884d8"
                     dataKey="value"
                   >
-                    {categoryChartData.map((entry: any, index: number) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    {categoryChartData.map((_entry, index) => (
+                      <Cell
+                        key={`cell-${_entry.name}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
                     ))}
                   </Pie>
                   <Tooltip formatter={(value: any) => format(value)} />
@@ -177,17 +221,29 @@ export default function Dashboard() {
           <CardContent>
             <div className="space-y-4">
               {recentTransactions.length > 0 ? (
-                recentTransactions.map((transaction: any) => (
-                  <div key={transaction.id} className="flex items-center justify-between">
+                recentTransactions.map((transaction) => (
+                  <div
+                    key={transaction.id}
+                    className="flex items-center justify-between"
+                  >
                     <div className="flex items-center gap-3">
-                      <div className={`h-2 w-2 rounded-full ${transaction.transactionType === 'income' ? 'bg-green-500' : 'bg-red-500'}`} />
+                      <div
+                        className={`h-2 w-2 rounded-full ${transaction.transactionType === "income" ? "bg-green-500" : "bg-red-500"}`}
+                      />
                       <div>
-                        <p className="text-sm font-medium">{transaction.category}</p>
-                        <p className="text-xs text-muted-foreground">{transaction.notes || 'No description'}</p>
+                        <p className="text-sm font-medium">
+                          {transaction.category}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {transaction.notes || "No description"}
+                        </p>
                       </div>
                     </div>
-                    <p className={`text-sm font-semibold ${transaction.transactionType === 'income' ? 'text-green-600' : 'text-red-600'}`}>
-                      {transaction.transactionType === 'income' ? '+' : '-'}{format(transaction.amount)}
+                    <p
+                      className={`text-sm font-semibold ${transaction.transactionType === "income" ? "text-green-600" : "text-red-600"}`}
+                    >
+                      {transaction.transactionType === "income" ? "+" : "-"}
+                      {format(Number(transaction.amount))}
                     </p>
                   </div>
                 ))
@@ -205,19 +261,24 @@ export default function Dashboard() {
       <Card>
         <CardHeader>
           <CardTitle>Savings Goals</CardTitle>
-          <CardDescription>Track your progress towards financial goals</CardDescription>
+          <CardDescription>
+            Track your progress towards financial goals
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {goals.length > 0 ? (
             <div className="space-y-4">
-              {goals.slice(0, 3).map((goal: any) => {
-                const progress = (goal.currentAmount / goal.targetAmount) * 100;
+              {goals.slice(0, 3).map((goal) => {
+                const progress =
+                  (Number(goal.currentAmount) / Number(goal.targetAmount)) *
+                  100;
                 return (
                   <div key={goal.id} className="space-y-2">
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-medium">{goal.name}</p>
                       <p className="text-sm text-muted-foreground">
-                        {format(goal.currentAmount)} / {format(goal.targetAmount)}
+                        {format(Number(goal.currentAmount))} /{" "}
+                        {format(Number(goal.targetAmount))}
                       </p>
                     </div>
                     <div className="h-2 w-full rounded-full bg-secondary">
@@ -229,7 +290,11 @@ export default function Dashboard() {
                   </div>
                 );
               })}
-              <Button variant="outline" className="w-full" onClick={() => navigate({ to: '/goals' })}>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => navigate({ to: "/goals" })}
+              >
                 View All Goals
               </Button>
             </div>
@@ -237,7 +302,9 @@ export default function Dashboard() {
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <Target className="h-12 w-12 text-muted-foreground mb-4" />
               <p className="text-muted-foreground mb-4">No savings goals yet</p>
-              <Button onClick={() => navigate({ to: '/goals' })}>Create Your First Goal</Button>
+              <Button onClick={() => navigate({ to: "/goals" })}>
+                Create Your First Goal
+              </Button>
             </div>
           )}
         </CardContent>

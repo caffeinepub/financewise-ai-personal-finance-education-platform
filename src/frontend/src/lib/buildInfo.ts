@@ -5,12 +5,12 @@
 
 export const buildInfo = {
   // Frontend build version from environment variable
-  version: import.meta.env.VITE_APP_VERSION || 'unknown',
-  
+  version: import.meta.env.VITE_APP_VERSION || "unknown",
+
   // Optional build metadata
   timestamp: import.meta.env.VITE_BUILD_TIMESTAMP || null,
   gitSha: import.meta.env.VITE_GIT_SHA || null,
-  
+
   // Environment flags
   isDevelopment: import.meta.env.DEV,
   isProduction: import.meta.env.PROD,
@@ -18,7 +18,7 @@ export const buildInfo = {
 } as const;
 
 // Target version for this rebuild
-export const TARGET_VERSION = '242';
+export const TARGET_VERSION = "242";
 
 // Helper to check if current version matches target
 export function isTargetVersion(): boolean {
